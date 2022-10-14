@@ -1,0 +1,6 @@
+.github/
+.gradle/
+build/
+.idea/
+local.properties
+*.hprof
