@@ -4,3 +4,4 @@ build/
 .idea/
 local.properties
 *.hprof
+eocvsim_workspace.json
