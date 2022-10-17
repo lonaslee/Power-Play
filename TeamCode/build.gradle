@@ -16,10 +16,8 @@ apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
 apply plugin: 'org.jetbrains.kotlin.android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-
     packagingOptions {
         jniLibs {
             pickFirsts += ['**/*.so']
