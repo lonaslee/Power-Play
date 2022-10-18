@@ -58,7 +58,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 1.129975757575757;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -119,10 +119,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
         BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "left_front");
-        leftRear = hardwareMap.get(DcMotorEx.class, "left_back");
-        rightRear = hardwareMap.get(DcMotorEx.class, "right_back");
-        rightFront = hardwareMap.get(DcMotorEx.class, "right_front");
+        leftFront = hardwareMap.get(DcMotorEx.class, "p3");
+        leftRear = hardwareMap.get(DcMotorEx.class, "p2");
+        rightRear = hardwareMap.get(DcMotorEx.class, "p0");
+        rightFront = hardwareMap.get(DcMotorEx.class, "p1");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
