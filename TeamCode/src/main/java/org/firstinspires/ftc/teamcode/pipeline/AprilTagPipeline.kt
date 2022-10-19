@@ -32,7 +32,7 @@ class AprilTagPipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     }
 
 
-    private val tagdetectorPtr = TagDetector.createApriltagDetector(Tag.tagFamily, 0F, 3)
+    private val tagdetectorPtr = TagDetector.createApriltagDetector(Tag.tagFamily, 3F, 3)
     private var greyscale = Mat()
 
     protected fun finalize() = TagDetector.releaseApriltagDetector(tagdetectorPtr)

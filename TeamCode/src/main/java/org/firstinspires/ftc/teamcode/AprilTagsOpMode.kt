@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry
@@ -35,6 +36,7 @@ class AprilTagsOpMode : LinearOpMode() {
             override fun onOpened() = cam.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT)
             override fun onError(errorCode: Int) = telemetry.putfs("Camera error. Code: $errorCode")
         })
+        FtcDashboard.getInstance().startCameraStream(cam, 30.0)
         waitForStart()
 
         resetRuntime()
