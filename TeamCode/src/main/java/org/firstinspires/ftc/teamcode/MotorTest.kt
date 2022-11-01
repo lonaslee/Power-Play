@@ -41,8 +41,6 @@ class MotorTest : LinearOpMode() {
 
             lastGamepad.copy(gamepad1)
 
-            if (lastGamepad.y && !gamepad1.y) arm.reference = 10.0
-            else if (lastGamepad.a && !gamepad1.a) arm.reference = 0.0
 
 //            arm.update()
         }
