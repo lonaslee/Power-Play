@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -7,12 +8,10 @@ import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 
 @TeleOp
+@Config
 class TestTeleOp : LinearOpMode() {
 
     private var prevGp = Gamepad()
-
-    private var tuning = 'p'
-    private var increment = 0.01
 
     override fun runOpMode() {
         val claw = Claw(hardwareMap, telemetry)
@@ -35,37 +34,13 @@ class TestTeleOp : LinearOpMode() {
 
             if (prevGp.b && !gamepad1.b) claw.change()
 
-            if (prevGp.x && !gamepad1.x) tuning = when (tuning) {
-                'p' -> 'i'
-                'i' -> 'd'
-                'd' -> 'p'
-                else -> 'p'
-            }
-
-            if (gamepad1.y) when (tuning) {
-                'i' -> Arm.kI += increment
-                'd' -> Arm.kD += increment
-                else -> Arm.kP += increment
-            }
-            else if (gamepad1.a) when (tuning) {
-                'i' -> Arm.kI -= increment
-                'd' -> Arm.kD -= increment
-                else -> Arm.kP -= increment
-            }
-
-
-
-            if (prevGp.dpad_up && !gamepad1.dpad_up) arm.up()
-            else if (prevGp.dpad_down && !gamepad1.dpad_up) arm.down()
+            if (prevGp.y && !gamepad1.y) arm.up()
+            else if (prevGp.a && !gamepad1.a) arm.down()
             arm.update()
 
 
-            telemetry.addLine("kP: ${Arm.kP}")
-            telemetry.addLine("kI: ${Arm.kI}")
-            telemetry.addLine("kD: ${Arm.kD}")
-            telemetry.addLine("ref: ${arm.reference}")
-            telemetry.addLine("enc: ${arm.motor.currentPosition}")
-
+            telemetry.addData("ref", arm.reference)
+            telemetry.addData("enc", arm.motor.currentPosition)
             telemetry.update()
             prevGp.copy(gamepad1)
         }

@@ -17,7 +17,8 @@ class MotorTest : LinearOpMode() {
     private fun xpressed() = lastGamepad.x && !gamepad1.x
 
     override fun runOpMode() {
-        val arm = Arm(hardwareMap, telemetry)
+//        val arm = Arm(hardwareMap, telemetry)
+        val armmotor = hardwareMap.get("lift") as DcMotorEx
         val clawservo = hardwareMap.get("claw") as ServoImplEx
         val drive = SampleMecanumDrive(hardwareMap)
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
@@ -35,9 +36,8 @@ class MotorTest : LinearOpMode() {
             )
             drive.update()
 
-            if (lastGamepad.b && !gamepad1.b)
-                clawservo.position = if (clawservo.position < 0.55) 0.64 else 0.5
-
+            telemetry.addLine("armEnc: ${armmotor.currentPosition}")
+            telemetry.update()
 
             lastGamepad.copy(gamepad1)
 

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.drive.ArmConstants
 import kotlin.math.cos
 
 
@@ -32,10 +33,6 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         telemetry.putfs("ARM DOWN - $reference")
     }
 
-    fun stop() {
-
-    }
-
     var reference = Height.FLR
         set(value) {
             timer.reset()
@@ -44,19 +41,22 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
             field = value
         }
 
-    var lastError = 0
-    var integralSum = 0.0
-    val range = 10
+    private var lastError = 0
+    private var integralSum = 0.0
+    private val TICKS_IN_DEG = 751.8 / 180
 
     fun update() {
         val error = reference.pos - motor.currentPosition
         val derivative = (error - lastError) / timer.seconds()
         integralSum += error * timer.seconds()
-        val pid = (kP * error) + (kI * integralSum) + (kD * derivative)
-        val ff = cos(reference.pos.toDouble()) * kCos
+        val pid =
+            (ArmConstants.kP * error) + (ArmConstants.kI * integralSum) + (ArmConstants.kD * derivative)
+        val ff = cos(Math.toRadians(reference.pos / TICKS_IN_DEG)) * ArmConstants.kCos
 
-        telemetry.addLine("pid: $pid\nff: $ff")
-        motor.power = pid
+        telemetry.addData("pid", pid)
+        telemetry.addData("ff", ff)
+        telemetry.addData("pidf", pid + ff)
+        motor.power = pid + ff
         lastError = error
         timer.reset()
     }
@@ -69,26 +69,17 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
 
             companion object {
                 fun next(cur: Height) = when (cur) {
-                    TOP -> TOP
-                    MID -> TOP
                     LOW -> MID
                     FLR -> LOW
+                    else -> TOP
                 }
 
                 fun prev(cur: Height) = when (cur) {
                     TOP -> MID
                     MID -> LOW
-                    LOW -> FLR
-                    FLR -> FLR
+                    else -> FLR
                 }
             }
         }
-
-        var kP = 2.0
-        var kI = 0.0
-        var kD = 0.0
-
-        var kCos = 0.00001
-
     }
 }
