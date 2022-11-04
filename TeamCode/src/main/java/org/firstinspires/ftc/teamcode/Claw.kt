@@ -6,24 +6,24 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 
 class Claw(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
-    private val motor = hardwareMap.get(motorName) as ServoImplEx
+    private val servo = hardwareMap.get(motorName) as ServoImplEx
 
     init {
-        motor.direction = Servo.Direction.FORWARD
+        servo.direction = Servo.Direction.FORWARD
     }
 
     var opened: Boolean = true
 
     fun open() {
         if (!opened) {
-            motor.position = 0.52
+            servo.position = 0.52
             opened = true
         }
     }
 
     fun close() {
         if (opened) {
-            motor.position = 0.64
+            servo.position = 0.66
             opened = false
         }
     }
