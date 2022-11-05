@@ -1,11 +1,10 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.robot
 
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.hardware.ServoImplEx
-import org.firstinspires.ftc.robotcore.external.Telemetry
 
-class Claw(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
+class Claw(hardwareMap: HardwareMap) {
     private val servo = hardwareMap.get(motorName) as ServoImplEx
 
     init {

@@ -13,8 +13,9 @@ import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.robot.Claw
 
 @TeleOp(group = "comp-teleop")
-class TeleOp1 : LinearOpMode() {
-    private var prevGp = Gamepad()
+class TeleOp2 : LinearOpMode() {
+    private var prevGp1 = Gamepad()
+    private var prevGp2 = Gamepad()
 
     override fun runOpMode() {
         val claw = Claw(hardwareMap)
@@ -27,18 +28,19 @@ class TeleOp1 : LinearOpMode() {
         while (opModeIsActive()) {
             drive.setWeightedDrivePower(
                 Pose2d(
-                    -gamepad1.left_stick_y.toDouble() * 0.8,
-                    -gamepad1.left_stick_x.toDouble() * 0.8,
-                    -gamepad1.right_stick_x.toDouble() * 0.8
+                    -gamepad1.left_stick_y.toDouble() * 0.5,
+                    -gamepad1.left_stick_x.toDouble() * 0.5,
+                    -gamepad1.right_stick_x.toDouble() * 0.5
                 )
             )
             drive.update()
-            if (prevGp.b && !gamepad1.b) claw.change()
+            if (prevGp2.b && !gamepad2.b) claw.change()
 
-            if (prevGp.y && !gamepad1.y) arm.up()
-            else if (prevGp.a && !gamepad1.a) arm.down()
+            if (prevGp2.y && !gamepad2.y) arm.up()
+            else if (prevGp2.a && !gamepad2.a) arm.down()
 
-            prevGp.copy(gamepad1)
+            prevGp1.copy(gamepad1)
+            prevGp2.copy(gamepad2)
         }
     }
 }

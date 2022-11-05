@@ -40,21 +40,23 @@ class AprilTagPipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     var verdict = Tag.UNKNOWN
     override fun processFrame(input: Mat): Mat {
         Imgproc.cvtColor(input, greyscale, Imgproc.COLOR_RGBA2GRAY)
-        val (detection, tag) = TagDetector.runAprilTagDetectorSimple(
+        val detections = TagDetector.runAprilTagDetectorSimple(
             tagdetectorPtr, greyscale, tagsize, fx, fy, cx, cy
-        ).takeUnless { it.size == 0 }?.let { Pair(it[0], Tag.getTag(it[0].id)) } ?: Pair(null, null)
-
-        if (detection == null || tag == null) {
-            telemetry.addLine("Not detected. F")
-        } else {
-            telemetry.addLine("Detected tag. \n  ID: ${tag.id}\n  Pos: ${tag.name}")
-            verdict = tag
-
-            val rad = detection.corners[1].x - detection.corners[0].x
-            Imgproc.circle(input, detection.center, rad.toInt(), GREEN, (rad / 8).toInt())
-            Imgproc.circle(input, detection.center, (rad / 20).toInt(), GREEN, (rad / 10).toInt())
+        )
+        if (detections.size == 0) telemetry.addLine("Not detected. FFFFFF")
+        else with(detections[0]) {
+            Tag.getTag(id).let { tag ->
+                telemetry.addLine("Detected tag.\n  ID: ${tag.id}\n  Pos: ${tag.name}")
+                verdict = tag
+            }
+            (corners[1].x - corners[0].x).let { radius ->
+                Imgproc.circle(input, center, radius.toInt(), GREEN, (radius / 8).toInt())
+                Imgproc.circle(
+                    input, center, (radius / 20).toInt(), GREEN, (radius / 10).toInt()
+                )
+            }
         }
-        telemetry.addLine("Cur/Last: $verdict")
+        telemetry.addLine("Verdict: $verdict")
         telemetry.update()
         return input
     }
