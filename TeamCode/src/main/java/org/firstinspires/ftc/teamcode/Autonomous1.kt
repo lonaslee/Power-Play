@@ -44,7 +44,7 @@ class Autonomous1 : LinearOpMode() {
                 FtcDashboard.getInstance().startCameraStream(this, 30.0)
             }
         }
-        val arm = Arm(hardwareMap)
+        val arm = Arm(hardwareMap, telemetry)
         val claw = Claw(hardwareMap)
         val drive = SampleMecanumDrive(hardwareMap)
 

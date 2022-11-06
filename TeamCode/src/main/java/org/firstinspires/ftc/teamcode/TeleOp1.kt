@@ -18,7 +18,7 @@ class TeleOp1 : LinearOpMode() {
 
     override fun runOpMode() {
         val claw = Claw(hardwareMap)
-        val arm = Arm(hardwareMap)
+        val arm = Arm(hardwareMap, telemetry)
         val drive = SampleMecanumDrive(hardwareMap)
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
@@ -37,6 +37,12 @@ class TeleOp1 : LinearOpMode() {
 
             if (prevGp.y && !gamepad1.y) arm.up()
             else if (prevGp.a && !gamepad1.a) arm.down()
+
+            if (gamepad1.dpad_up) arm.incUp()
+            else if (gamepad1.dpad_down) arm.incDown()
+
+            telemetry.addData("height", arm.height)
+            telemetry.update()
 
             prevGp.copy(gamepad1)
         }

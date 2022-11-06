@@ -20,7 +20,7 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         motors.forEach {
             it.direction = DcMotorSimple.Direction.REVERSE
             it.mode = RunMode.STOP_AND_RESET_ENCODER
-            it.mode = RunMode.RUN_WITHOUT_ENCODER
+            it.mode = RunMode.RUN_USING_ENCODER
         }
     }
 
@@ -32,8 +32,10 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         reference = Height.prev(reference)
     }
 
+    private var flr = false
     var reference = Height.FLR
         set(value) {
+            flr = value == Height.FLR
             timer.reset()
             integralSum = 0.0
             lastError = 0
@@ -45,19 +47,20 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     private val TICKS_IN_DEG = 751.8 / 180
 
     fun update() {
-        val error = reference.pos - lowMotor.currentPosition
+        val error: Int
+        if (flr) {
+            error = 50
+        } else
+            error = reference.pos - lowMotor.currentPosition
         val derivative = (error - lastError) / timer.seconds()
         integralSum += error * timer.seconds()
         val pid =
             (ArmConstants.kP * error) + (ArmConstants.kI * integralSum) + (ArmConstants.kD * derivative)
         val ff = cos(Math.toRadians(reference.pos / TICKS_IN_DEG)) * ArmConstants.kCos
-        var pow = pid + ff;
+        var pow = pid //+ff
 
-        if (reference.pos < lowMotor.currentPosition - 30) pow += ArmConstants.kW
 
         telemetry.addData("pid", pid)
-        telemetry.addData("ff", ff)
-        telemetry.addData("pidf", pow)
         motors.forEach { it.power = pow }
         lastError = error
         timer.reset()
@@ -68,16 +71,18 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         const val topMotorName = "toplift"
 
         enum class Height(val pos: Int) {
-            TOP(220), MID(220), LOW(130), FLR(0);
+            TOP(240), MID(240), LOW(150), STACK(60), FLR(5);
 
             companion object {
                 fun next(cur: Height) = when (cur) {
+                    STACK -> LOW
                     LOW -> MID
                     FLR -> LOW
                     else -> TOP
                 }
 
                 fun prev(cur: Height) = when (cur) {
+                    STACK -> FLR
                     TOP -> MID
                     MID -> LOW
                     else -> FLR
