@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests
+package org.firstinspires.ftc.teamcode.robot
 
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.ArmConstants
 import kotlin.math.cos
 
 
-class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
+class Arm2(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     val lowMotor = hardwareMap[lowMotorName] as DcMotorEx
     val topMotor = hardwareMap[topMotorName] as DcMotorEx
     val motors = listOf(lowMotor, topMotor)
@@ -20,7 +20,7 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         motors.forEach {
             it.direction = DcMotorSimple.Direction.REVERSE
             it.mode = RunMode.STOP_AND_RESET_ENCODER
-            it.mode = RunMode.RUN_USING_ENCODER
+            it.mode = RunMode.RUN_WITHOUT_ENCODER
         }
     }
 
@@ -32,10 +32,8 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         reference = Height.prev(reference)
     }
 
-    private var flr = false
     var reference = Height.FLR
         set(value) {
-            flr = value == Height.FLR
             timer.reset()
             integralSum = 0.0
             lastError = 0
@@ -44,23 +42,21 @@ class _Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
 
     private var lastError = 0
     private var integralSum = 0.0
-    private val TICKS_IN_DEG = 751.8 / 180
+    private val TICKS_IN_DEG = 537.6 / 180
 
     fun update() {
-        val error: Int
-        if (flr) {
-            error = 50
-        } else
-            error = reference.pos - lowMotor.currentPosition
+        val error = reference.pos - lowMotor.currentPosition
         val derivative = (error - lastError) / timer.seconds()
         integralSum += error * timer.seconds()
         val pid =
             (ArmConstants.kP * error) + (ArmConstants.kI * integralSum) + (ArmConstants.kD * derivative)
         val ff = cos(Math.toRadians(reference.pos / TICKS_IN_DEG)) * ArmConstants.kCos
-        var pow = pid //+ff
-
+        val pow = pid + ff
 
         telemetry.addData("pid", pid)
+        telemetry.addData("ff", ff)
+        telemetry.addData("pos", lowMotor.currentPosition)
+        telemetry.addData("target", reference)
         motors.forEach { it.power = pow }
         lastError = error
         timer.reset()

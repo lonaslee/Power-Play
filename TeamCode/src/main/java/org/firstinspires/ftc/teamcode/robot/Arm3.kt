@@ -5,8 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import kotlin.math.abs
 
-class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
+class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     val topmotor = hardwareMap[topMotorName] as DcMotorEx
     val lowmotor = hardwareMap[lowMotorName] as DcMotorEx
     val motors =
@@ -17,7 +18,7 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     fun incUp() {
         telemetry.addLine("incUp : ${lowmotor.currentPosition}")
         motors.forEach {
-            it.targetPosition = it.currentPosition + 30
+            it.targetPosition += 30
             it.power = 1.0
             it.mode = DcMotor.RunMode.RUN_TO_POSITION
         }
@@ -26,8 +27,8 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     fun incDown() {
         telemetry.addLine("incUp : ${lowmotor.currentPosition}")
         motors.forEach {
-            it.targetPosition = it.currentPosition - 20
-            it.power = 0.8
+            it.targetPosition -= 30
+            it.power = 1.0
             it.mode = DcMotor.RunMode.RUN_TO_POSITION
         }
     }
@@ -43,10 +44,11 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
 
     fun down() {
         height = Height.prev(height)
-        motors.forEach {
-            it.targetPosition = height.pos
-            it.power = .5
-            it.mode = DcMotor.RunMode.RUN_TO_POSITION
+    }
+
+    fun update() {
+        if (height.pos < lowmotor.currentPosition - 20) {
+            incDown()
         }
     }
 

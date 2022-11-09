@@ -6,11 +6,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
@@ -24,16 +21,16 @@ public class ArmTuning extends OpMode {
     public static double reference = 0.0;
 
     private final ElapsedTime timer = new ElapsedTime();
-    private DcMotorEx motor;
-    private DcMotorEx motor2;
+    private DcMotor motor;
+    private DcMotor motor2;
 
-    private final double TICKS_IN_DEG = 751.8 / 180;
+    private final double TICKS_IN_DEG = 537.6 / 180;
     private PIDController control;
 
     @Override
     public void init() {
-        motor = ( DcMotorEx ) hardwareMap.get("lowlift");
-        motor2 = ( DcMotorEx ) hardwareMap.get("toplift");
+        motor = hardwareMap.dcMotor.get("lowlift");
+        motor2 = hardwareMap.dcMotor.get("toplift");
         motor.setDirection(DcMotorSimple.Direction.REVERSE);
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -41,7 +38,6 @@ public class ArmTuning extends OpMode {
         control = new PIDController(kP, kI, kD);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
-
 
     @Override
     public void loop() {
@@ -51,11 +47,14 @@ public class ArmTuning extends OpMode {
         double ff = Math.cos(Math.toRadians(reference / TICKS_IN_DEG)) * kCos;
 
         double pow = pid + ff;
-        motor.setPower(pow);
-        motor2.setPower(pow);
+        motor.setPower(pid);
+        motor2.setPower(pid);
 
         telemetry.addData("pos", armPos);
-        telemetry.addData("target", reference);
+        telemetry.addData("ref", reference);
+        telemetry.addData("pid", pid);
+        telemetry.addData("ff", ff);
+        telemetry.addData("pow", pow);
         telemetry.update();
     }
 }

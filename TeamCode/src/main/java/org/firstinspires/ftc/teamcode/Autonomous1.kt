@@ -45,7 +45,7 @@ class Autonomous1 : LinearOpMode() {
             }
         }
         val arm = Arm(hardwareMap, telemetry)
-        val claw = Claw(hardwareMap)
+        val claw = Claw(hardwareMap, telemetry)
         val drive = SampleMecanumDrive(hardwareMap)
 
         waitForStart()

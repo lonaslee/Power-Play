@@ -18,7 +18,7 @@ class TeleOp2 : LinearOpMode() {
     private var prevGp2 = Gamepad()
 
     override fun runOpMode() {
-        val claw = Claw(hardwareMap)
+        val claw = Claw(hardwareMap, telemetry)
         val arm = Arm(hardwareMap, telemetry)
         val drive = SampleMecanumDrive(hardwareMap)
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
