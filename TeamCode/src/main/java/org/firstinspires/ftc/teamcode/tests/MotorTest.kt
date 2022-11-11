@@ -6,18 +6,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm2
+import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Claw
 
 @TeleOp
 class MotorTest : LinearOpMode() {
     private var prevGp = Gamepad()
 
-    lateinit var arm: Arm2
-    lateinit var claw: Claw
-    lateinit var drive: SampleMecanumDrive
+    private lateinit var arm: Arm3
+    private lateinit var claw: Claw
+    private lateinit var drive: SampleMecanumDrive
 
     override fun runOpMode() {
-        arm = Arm2(hardwareMap, telemetry)
+        arm = Arm3(hardwareMap, telemetry)
         claw = Claw(hardwareMap, telemetry)
         drive =
             SampleMecanumDrive(hardwareMap).apply { setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER) }
@@ -33,15 +34,15 @@ class MotorTest : LinearOpMode() {
         }
     }
 
-    private fun updateDrive() {
-        drive.setWeightedDrivePower(
+    private fun updateDrive() = with(drive) {
+        setWeightedDrivePower(
             Pose2d(
-                -gamepad1.left_stick_y.toDouble(),
-                -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble()
+                -gamepad1.left_stick_y.toDouble() * .5,
+                -gamepad1.left_stick_x.toDouble() * .5,
+                -gamepad1.right_stick_x.toDouble() * .5
             )
         )
-        drive.update()
+        update()
     }
 
     private fun updateClaw() {

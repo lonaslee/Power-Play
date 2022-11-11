@@ -56,7 +56,7 @@ class Arm2(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         telemetry.addData("pid", pid)
         telemetry.addData("ff", ff)
         telemetry.addData("pos", lowMotor.currentPosition)
-        telemetry.addData("target", reference)
+        telemetry.addData("target", reference.pos)
         motors.forEach { it.power = pow }
         lastError = error
         timer.reset()
@@ -67,18 +67,16 @@ class Arm2(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         const val topMotorName = "toplift"
 
         enum class Height(val pos: Int) {
-            TOP(240), MID(240), LOW(150), STACK(60), FLR(5);
+            TOP(240), MID(240), LOW(150), FLR(0);
 
             companion object {
                 fun next(cur: Height) = when (cur) {
-                    STACK -> LOW
                     LOW -> MID
                     FLR -> LOW
                     else -> TOP
                 }
 
                 fun prev(cur: Height) = when (cur) {
-                    STACK -> FLR
                     TOP -> MID
                     MID -> LOW
                     else -> FLR
