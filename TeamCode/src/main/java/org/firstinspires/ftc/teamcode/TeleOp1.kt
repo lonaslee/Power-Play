@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -11,10 +10,12 @@ import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.robot.updateFieldCentric
 
 @TeleOp(group = "comp-teleop")
 class TeleOp1 : LinearOpMode() {
-    private var prevGp = Gamepad()
+    private var prevGp1 = Gamepad()
+    private var prevGp2 = Gamepad()
 
     override fun runOpMode() {
         val claw = Claw(hardwareMap, telemetry)
@@ -25,26 +26,20 @@ class TeleOp1 : LinearOpMode() {
 
         waitForStart()
         while (opModeIsActive()) {
-            drive.setWeightedDrivePower(
-                Pose2d(
-                    -gamepad1.left_stick_y.toDouble() * 0.8,
-                    -gamepad1.left_stick_x.toDouble() * 0.8,
-                    -gamepad1.right_stick_x.toDouble() * 0.8
-                )
-            )
-            drive.update()
-            if (prevGp.b && !gamepad1.b) claw.change()
+            updateFieldCentric(drive, gamepad1)
 
-            if (prevGp.y && !gamepad1.y) arm.up()
-            else if (prevGp.a && !gamepad1.a) arm.down()
+            if (prevGp1.b && !gamepad1.b) claw.change()
+
+            if (prevGp1.y && !gamepad1.y) arm.up()
+            else if (prevGp1.a && !gamepad1.a) arm.down()
 
             if (gamepad1.dpad_up) arm.incUp()
             else if (gamepad1.dpad_down) arm.incDown()
 
             telemetry.addData("height", arm.height)
             telemetry.update()
-
-            prevGp.copy(gamepad1)
+            prevGp1.copy(gamepad1)
+            prevGp2.copy(gamepad2)
         }
     }
 }
