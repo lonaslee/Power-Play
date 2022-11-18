@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-
 import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Claw
-import org.firstinspires.ftc.teamcode.robot.updateFieldCentric
 
 @TeleOp(group = "comp-teleop")
-class TeleOp4 : LinearOpMode() {
+class TeleOp3 : LinearOpMode() {
     private var prevGp1 = Gamepad()
     private var prevGp2 = Gamepad()
 
@@ -26,7 +25,14 @@ class TeleOp4 : LinearOpMode() {
         waitForStart()
         if (isStopRequested) return
         while (opModeIsActive()) {
-            updateFieldCentric(drive, gamepad1)
+            drive.setWeightedDrivePower(
+                Pose2d(
+                    (-gamepad1.left_stick_y).toDouble() * .5,
+                    (-gamepad1.left_stick_x).toDouble() * .5,
+                    (-gamepad1.right_stick_x).toDouble() * .5
+                )
+            )
+            drive.update()
 
             if (prevGp1.b && !gamepad1.b) claw.change()
 

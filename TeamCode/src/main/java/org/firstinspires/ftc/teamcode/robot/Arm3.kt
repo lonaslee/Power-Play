@@ -48,7 +48,7 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         const val kF = 0.000007
 
         enum class Height(val pos: Int) {
-            TOP(240), MID(240), LOW(160), FLR(5);
+            TOP(240), MID(240), LOW(240), FLR(5);
 
             companion object {
                 fun next(cur: Height) = when (cur) {
