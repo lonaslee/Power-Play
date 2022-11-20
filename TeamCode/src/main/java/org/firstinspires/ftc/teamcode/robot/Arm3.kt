@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 
 class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
-    private val topmotor = hardwareMap[topMotorName] as DcMotorEx
-    private val lowmotor = hardwareMap[lowMotorName] as DcMotorEx
+    private val topmotor = hardwareMap[Config.TOP_LIFT.s] as DcMotorEx
+    private val lowmotor = hardwareMap[Config.LOW_LIFT.s] as DcMotorEx
     private val motors =
         listOf(topmotor, lowmotor).onEach {
             it.direction = DcMotorSimple.Direction.REVERSE
@@ -39,9 +39,16 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         telemetry.addData("pow", pow)
     }
 
+    fun adjustAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
+        if (gp1 pressed gp1::y || gp2 pressed gp2::y) up()
+        else if (gp1 pressed gp1::a || gp2 pressed gp2::a) down()
+        update()
+    }
+
+    infix fun adjustAccordingTo(gps: Pair<GamepadExt, GamepadExt>) =
+        adjustAccordingTo(gps.component1(), gps.component2())
+
     companion object {
-        const val lowMotorName = "lowlift"
-        const val topMotorName = "toplift"
         const val kP = 0.001
         const val kI = 0.0
         const val kD = 0.0

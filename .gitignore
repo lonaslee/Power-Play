@@ -5,3 +5,5 @@ build/
 local.properties
 *.hprof
 eocvsim_workspace.json
+**/*.mp4
+**/*.png

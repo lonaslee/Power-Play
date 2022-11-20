@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -9,8 +10,9 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline.Tag
-import org.firstinspires.ftc.teamcode.robot.Arm
+import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.robot.Config
 import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -27,24 +29,24 @@ fun Telemetry.putfs(fmt: String, vararg args: Any) = String.format(fmt, args).le
 class Autonomous1 : LinearOpMode() {
     override fun runOpMode() {
         telemetry.putfs("INIT.")
-        val pipeline = AprilTagPipeline(telemetry).also {
-            OpenCvCameraFactory.getInstance().createWebcam(
-                hardwareMap["Webcam 1"] as WebcamName,
-                hardwareMap.appContext.resources.getIdentifier(
-                    "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
-                )
-            ).apply {
-                setPipeline(it)
-                openCameraDeviceAsync(object : AsyncCameraOpenListener {
-                    override fun onOpened() = startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT)
+        val pipeline = AprilTagPipeline(telemetry)
+        OpenCvCameraFactory.getInstance().createWebcam(
+            hardwareMap[Config.WEBCAM_1.s] as WebcamName,
+            hardwareMap.appContext.resources.getIdentifier(
+                "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
+            )
+        ).apply {
+            setPipeline(pipeline)
+            openCameraDeviceAsync(object : AsyncCameraOpenListener {
+                override fun onOpened() = startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT)
 
-                    override fun onError(errorCode: Int) =
-                        telemetry.putfs("Camera error. Code: $errorCode")
-                })
-                FtcDashboard.getInstance().startCameraStream(this, 30.0)
-            }
+                override fun onError(errorCode: Int) =
+                    telemetry.putfs("Camera error. Code: $errorCode")
+            })
+            FtcDashboard.getInstance().startCameraStream(this, 30.0)
         }
-        val arm = Arm(hardwareMap, telemetry)
+
+        val arm = Arm3(hardwareMap, telemetry)
         val claw = Claw(hardwareMap, telemetry)
         val drive = SampleMecanumDrive(hardwareMap)
 

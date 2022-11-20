@@ -1,61 +1,72 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Config
+import org.firstinspires.ftc.teamcode.robot.Config;
+import org.firstinspires.ftc.teamcode.robot.PIDController;
+
+import kotlin.Pair;
+import kotlin.Triple;
+
 @TeleOp
-public class ArmTuning extends LinearOpMode {
+@com.acmerobotics.dashboard.config.Config
+public class ArmTuning extends OpMode {
     public static double kP = 0.0;
     public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kCos = 0.0;
+    public static double setpoint = 0.0;
 
-    public static double reference = 0.0;
+    private static final double TICKS_IN_DEGREES = 537.6 / 180;
 
-    private final ElapsedTime timer = new ElapsedTime();
+    private DcMotorEx low, top;
+    private final PIDController control = new PIDController(new PIDController.Coefficients(0, 0, 0, 0));
 
     @Override
-    public void runOpMode() {
-        DcMotor motor = hardwareMap.dcMotor.get("lowlift");
-        DcMotor motor2 = hardwareMap.dcMotor.get("toplift");
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        PIDController control = new PIDController(kP, kI, kD);
+    public void init() {
+        low = (DcMotorEx) hardwareMap.get(Config.LOW_LIFT.getS());
+        top = (DcMotorEx) hardwareMap.get(Config.TOP_LIFT.getS());
+
+        low.setDirection(DcMotorSimple.Direction.REVERSE);
+        top.setDirection(DcMotorSimple.Direction.REVERSE);
+        low.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        top.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        low.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        top.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    }
+    @Override
+    public void loop() {
+        control.setCoefs(new PIDController.Coefficients(kP, kI, kD, kCos));
+        control.setSetpoint((int) setpoint);
+        Pair<Double, Triple<Double, Double, Double>> res = control.calculate(low.getCurrentPosition());
+        Double pid = res.component1();
+        Double p = res.component2().component1();
+        Double i = res.component2().component2();
+        Double d = res.component2().component3();
 
-        waitForStart();
-        if (isStopRequested()) return;
+        Double ff = kCos * Math.cos(Math.toRadians(setpoint / TICKS_IN_DEGREES));
 
-        while (opModeIsActive()) {
-            control.setPID(kP, kI, kD);
-            int armPos = motor.getCurrentPosition();
-            double pid = control.calculate(armPos, reference);
-            double TICKS_IN_DEG = 537.6 / 180;
-            double ff = Math.cos(Math.toRadians(reference / TICKS_IN_DEG)) * kCos;
+        low.setPower(pid + ff);
+        top.setPower(pid + ff);
 
-            double pow = pid + ff;
-            motor.setPower(pow);
-            motor2.setPower(pow);
+        telemetry.addData("p", p);
+        telemetry.addData("i", i);
+        telemetry.addData("d", d);
+        telemetry.addData("pid", pid);
+        telemetry.addData("ff", ff);
+        telemetry.addData("pidf", pid + ff);
 
-            telemetry.addData("pos", armPos);
-            telemetry.addData("ref", reference);
-            telemetry.addData("pid", pid);
-            telemetry.addData("ff", ff);
-            telemetry.addData("pow", pow);
-            telemetry.update();
-            System.out.println("i");
+        telemetry.addData("currentPos", low.getCurrentPosition());
+        telemetry.addData("setpoint", setpoint);
 
-        }
+        telemetry.update();
     }
 }

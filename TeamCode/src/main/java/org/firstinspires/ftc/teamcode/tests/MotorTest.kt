@@ -1,37 +1,38 @@
-package org.firstinspires.ftc.teamcode.tests
+package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.*
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.Arm3
-import org.firstinspires.ftc.teamcode.robot.Claw
-import org.firstinspires.ftc.teamcode.robot.updateFieldCentric
+import org.firstinspires.ftc.teamcode.robot.*
 
 @TeleOp
-class MotorTest : LinearOpMode() {
-    private var prevGp = Gamepad()
-
-    private lateinit var arm: Arm3
+class MotorTest : OpMode() {
+    private lateinit var low: DcMotorEx
+    private lateinit var top: DcMotorEx
     private lateinit var claw: Claw
     private lateinit var drive: SampleMecanumDrive
+    private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
 
-    override fun runOpMode() {
-        val armLowMotor = hardwareMap["lowlift"] as DcMotorEx
-        armLowMotor.direction = DcMotorSimple.Direction.REVERSE
+    override fun init() {
+        low = hardwareMap[Config.LOW_LIFT.s] as DcMotorEx
+        top = hardwareMap[Config.TOP_LIFT.s] as DcMotorEx
         claw = Claw(hardwareMap, telemetry)
+        drive = SampleMecanumDrive(hardwareMap)
+        gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+    }
 
-        waitForStart()
-        if (isStopRequested) return
-        while (opModeIsActive()) {
-            updateFieldCentric(drive, gamepad1)
+    override fun loop() {
+        drive fieldcentricAccordingTo gamepads
+//        arm adjustAccordingTo gamepads
+        claw changeAccordingTo gamepads
 
-            if (prevGp.b && !gamepad1.b) claw.change()
+        telemetry.addData("pos", low.currentPosition)
 
-            telemetry.addData("pos", armLowMotor.currentPosition)
-            telemetry.update()
-
-            prevGp.copy(gamepad1)
-        }
+        gamepads.onEach { it.update() }
+        telemetry.update()
     }
 }

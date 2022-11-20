@@ -91,13 +91,13 @@ public class SampleMecanumDrive extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        // _TODO: adjust the names of the following hardware devices to match your configuration
+        imu = hardwareMap.get(BNO055IMU.class, org.firstinspires.ftc.teamcode.robot.Config.IMU.getS());
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
 
-        // TODO: If the hub containing the IMU you are using is mounted so that the "REV" logo does
+        // _TODO: If the hub containing the IMU you are using is mounted so that the "REV" logo does
         // not face up, remap the IMU axes so that the z-axis points upward (normal to the floor.)
         //
         //             | +Z axis
@@ -119,10 +119,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
         BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftfront");
-        leftRear = hardwareMap.get(DcMotorEx.class, "leftback");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightback");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightfront");
+        leftFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.LEFT_FRONT.getS());
+        leftRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.LEFT_BACK.getS());
+        rightRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.RIGHT_BACK.getS());
+        rightFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.RIGHT_FRONT.getS());
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

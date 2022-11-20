@@ -1,16 +1,13 @@
 package org.firstinspires.ftc.teamcode.pipeline
 
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
-import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import org.opencv.imgproc.Imgproc
-import org.opencv.core.Core as Cv
 import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
-import kotlin.math.round
+import org.opencv.core.Core as Cv
 
 class PolePipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     companion object {
