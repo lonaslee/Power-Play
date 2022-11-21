@@ -21,12 +21,13 @@ public class ArmTuning extends OpMode {
     public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kCos = 0.0;
-    public static double setpoint = 0.0;
+    public static int setpoint = 0;
 
-    private static final double TICKS_IN_DEGREES = 537.6 / 180;
+    public static double TICKS_IN_DEGREES = 0.0;
+    public static double diff = 0.0;
 
     private DcMotorEx low, top;
-    private final PIDController control = new PIDController(new PIDController.Coefficients(0, 0, 0, 0));
+    private final PIDController control = new PIDController(new PIDController.Coefficients(0, 0, 0));
 
     @Override
     public void init() {
@@ -44,15 +45,15 @@ public class ArmTuning extends OpMode {
     }
     @Override
     public void loop() {
-        control.setCoefs(new PIDController.Coefficients(kP, kI, kD, kCos));
-        control.setSetpoint((int) setpoint);
+        control.setCoefs(new PIDController.Coefficients(kP, kI, kD));
+        control.setSetpoint(setpoint);
         Pair<Double, Triple<Double, Double, Double>> res = control.calculate(low.getCurrentPosition());
         Double pid = res.component1();
         Double p = res.component2().component1();
         Double i = res.component2().component2();
         Double d = res.component2().component3();
 
-        Double ff = kCos * Math.cos(Math.toRadians(setpoint / TICKS_IN_DEGREES));
+        Double ff = kCos * Math.cos(Math.toRadians((setpoint - diff) / TICKS_IN_DEGREES));
 
         low.setPower(pid + ff);
         top.setPower(pid + ff);

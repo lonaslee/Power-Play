@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 
 /**
- * Subclass wrapper of Gamepad that has some helper functions.
+ * Subclass wrapper of [Gamepad] that has some helper functions.
  */
 class GamepadExt(private val gamepad: Gamepad) : Gamepad() {
     private val prev = Gamepad()

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.robot
 import com.qualcomm.robotcore.util.ElapsedTime
 
 class PIDController(var coefs: Coefficients) {
-    data class Coefficients(val kP: Double, val kI: Double, val kD: Double, val kCos: Double)
+    data class Coefficients(val kP: Double, val kI: Double, val kD: Double)
     private val timer = ElapsedTime()
 
     var setpoint = 0
@@ -30,7 +30,7 @@ class PIDController(var coefs: Coefficients) {
         timer.reset()
 
         return Triple(pInput, iInput, dInput).let {
-            (it.first + it.second + it.third) to it
+            it.toList().sum() to it
         }
     }
 }

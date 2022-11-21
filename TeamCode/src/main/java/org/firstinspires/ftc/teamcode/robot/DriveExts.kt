@@ -9,10 +9,9 @@ import kotlin.math.sin
 import kotlin.reflect.KProperty
 
 /**
- * Updates powers to field centric values based on gamepad input imu angle, and speed.
+ * Updates powers to field centric values based on gamepad input, imu angle, and [speed].
  * This depends on a modification to the SampleMecanumDrive class, making the 'imu' field public.
  *
- * @see SampleMecanumDrive.speed
  * @see SampleMecanumDrive.imu
  */
 fun SampleMecanumDrive.fieldcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
@@ -42,9 +41,7 @@ infix fun SampleMecanumDrive.fieldcentricAccordingTo(gps: Pair<GamepadExt, Gamep
 
 
 /**
- * Updates powers to robot centric values based on gamepad input and speed.
- *
- * @see SampleMecanumDrive.speed
+ * Updates powers to robot centric values based on gamepad input and [speed].
  */
 fun SampleMecanumDrive.robotcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
     setWeightedDrivePower(

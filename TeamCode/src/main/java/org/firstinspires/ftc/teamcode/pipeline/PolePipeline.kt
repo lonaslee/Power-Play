@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.pipeline
 
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.opencv.core.Mat
-import org.opencv.core.MatOfPoint
-import org.opencv.core.Point
-import org.opencv.core.Scalar
+import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 import org.opencv.core.Core as Cv
+
 
 class PolePipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     companion object {
@@ -20,39 +18,30 @@ class PolePipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     override fun processFrame(input: Mat): Mat {
         val hsvMat = Mat().also { Imgproc.cvtColor(input, it, Imgproc.COLOR_RGB2HSV) }
         val mask = Mat().also { Cv.inRange(hsvMat, LO_YELLOW, HI_YELLOW, it) }
-        val (contours, hierarchy) = Pair(mutableListOf<MatOfPoint>(), Mat()).also { (a, b) ->
-            Imgproc.findContours(
-                mask, a, b, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE
-            )
+        val (contours, hierarchy) = Pair(mutableListOf<MatOfPoint>(), Mat()).also { (c, h) ->
+            Imgproc.findContours(mask, c, h, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
         }
-
-        for (contour in contours) {
-            val m = Imgproc.moments(contour)
-            if (m.m00 != 0.0) {
-                val center = Point(m.m10 / m.m00, m.m01 / m.m00)
-                Imgproc.circle(input, center, 1, RED, 3)
-                String.format("(%5.2f, %5.2f)", center.x, center.y).let {
-                    telemetry.addLine("$it : ${contour.width()}, ${contour.height()}")
-                    Imgproc.putText(
-                        input, it,
-                        Point(
-                            center.x - 20, center.y - 20
-                        ),
-                        Imgproc.FONT_HERSHEY_COMPLEX,
-                        0.2,
-                        Scalar(0.0, 0.0, 0.0),
-                        1
-                    )
-                }
-            }
-//            val p2f = MatOfPoint2f().apply { contour.convertTo(this, CvType.CV_32S) }
-//            val approx = MatOfPoint2f().also { Imgproc.approxPolyDP(p2f, it, p2f.width() * 0.01, true) }
-        }
-
-
         Imgproc.drawContours(input, contours, -1, GREEN, 1)
+        drawContourCenters(input, contours)
+
+        val bounds =
+            contours.map { Imgproc.minAreaRect(MatOfPoint2f.fromNativeAddr(it.nativeObjAddr)) }
+
+        val widest = bounds.maxBy { it.boundingRect().width }
+
+        Imgproc.drawContours(input, contours, bounds.indexOf(widest), RED, 2)
+
         telemetry.update()
+
+        contours.forEach { it.release() }
 
         return input
     }
+
+    private fun drawContourCenters(input: Mat, contours: List<MatOfPoint>) =
+        contours.forEach { contour ->
+            Imgproc.moments(contour).takeUnless { it.m00 == 0.0 }?.let {
+                Imgproc.circle(input, Point(it.m10 / it.m00, it.m01 / it.m00), 1, RED, 3)
+            }
+        }
 }
