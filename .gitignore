@@ -2,7 +2,7 @@
 .idea/
 *.hprof
 eocvsim_workspace.json
-test_cases/
+test_cases/*
 
 # Built application files
 *.apk
