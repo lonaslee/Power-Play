@@ -38,8 +38,8 @@ public class ArmTuning extends OpMode {
         top.setDirection(DcMotorSimple.Direction.REVERSE);
         low.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         top.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        low.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        top.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        low.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        top.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }

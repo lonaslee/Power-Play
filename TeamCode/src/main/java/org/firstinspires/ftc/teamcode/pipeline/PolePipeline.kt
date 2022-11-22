@@ -18,6 +18,8 @@ class PolePipeline(private val telemetry: Telemetry) : OpenCvPipeline() {
     override fun processFrame(input: Mat): Mat {
         val hsvMat = Mat().also { Imgproc.cvtColor(input, it, Imgproc.COLOR_RGB2HSV) }
         val mask = Mat().also { Cv.inRange(hsvMat, LO_YELLOW, HI_YELLOW, it) }
+
+
         val (contours, hierarchy) = Pair(mutableListOf<MatOfPoint>(), Mat()).also { (c, h) ->
             Imgproc.findContours(mask, c, h, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
         }

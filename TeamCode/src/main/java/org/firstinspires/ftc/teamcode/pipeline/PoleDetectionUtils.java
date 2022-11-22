@@ -7,8 +7,10 @@ import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
@@ -51,13 +53,12 @@ public class PoleDetectionUtils {
     }
 
     @NotNull
-    public static List<RotatedRect> getRotatedRects(List<MatOfPoint> contours) {
+    public static List<RotatedRect> getRotatedRects(List<MatOfPoint2f> contours) {
         ArrayList<RotatedRect> rects = new ArrayList<>(contours.size());
-        for (MatOfPoint contour : contours)
-            rects.add(Imgproc.minAreaRect(matToMat2f(contour)));
+        for (MatOfPoint2f contour : contours)
+            rects.add(Imgproc.minAreaRect(contour));
         return rects;
     }
-
 
     @NotNull
     public static ArrayList<MatOfPoint2f> getApproximates(List<MatOfPoint> contours) {
@@ -84,6 +85,13 @@ public class PoleDetectionUtils {
         MatOfPoint matOfPoint = new MatOfPoint();
         matOfPoint.fromArray(matOfPoint2f.toArray());
         return matOfPoint;
+    }
+
+    public static void drawRectCenters(@NotNull Mat img, @NotNull List<Rect> rects) {
+        for (Rect rect : rects) {
+            Point center = new Point(rect.x + rect.width / 2.0, rect.y + rect.height / 2.0);
+            Imgproc.ellipse(img, center, new Size(rect.width / 2.0, rect.height / 2.0), 0, 0, 360, RED);
+        }
     }
 
     public static void drawContourCenters(@NotNull Mat input, @NotNull List<MatOfPoint> contours) {
