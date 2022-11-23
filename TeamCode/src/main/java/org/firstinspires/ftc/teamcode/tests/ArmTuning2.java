@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,18 +13,23 @@ import org.firstinspires.ftc.teamcode.robot.Config;
 
 @TeleOp
 @com.acmerobotics.dashboard.config.Config
-public class ArmTuning extends OpMode {
+public class ArmTuning2 extends OpMode {
     public static double kP = 0.0;
     public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kCos = 0.0;
-    public static int setpoint = 0;
 
-    public static double TICKS_IN_DEGREES = 0.0;
+    public static double aP = 0.0;
+    public static double aI = 0.0;
+    public static double aD = 0.0;
+    public static double aCos = 0.0;
+
+    private static double lastsetpoint = 0.0;
+    public static double setpoint = 0.0;
 
     private DcMotorEx low, top;
-    private final com.arcrobotics.ftclib.controller.PIDController control = new PIDController(kP, kI, kD);
-
+    private final PIDFController upControl = new PIDFController(kP, kI, kD, kCos);
+    private final PIDFController downControl = new PIDFController(aP, aI, aD, aCos);
     private final MultipleTelemetry tm = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
     @Override
@@ -40,24 +45,38 @@ public class ArmTuning extends OpMode {
         top.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    private boolean goingDown = false;
+
     @Override
     public void loop() {
-        control.setPID(kP, kI, kD);
-        control.setSetPoint(setpoint);
+        upControl.setPIDF(kP, kI, kD, kCos);
+        upControl.setSetPoint(setpoint);
+        downControl.setPIDF(aP, aI, aD, aCos);
+        downControl.setSetPoint(setpoint);
 
-        double pid = control.calculate();
-        double ff = kCos * Math.cos(Math.toRadians(setpoint / TICKS_IN_DEGREES));
+        double upPIDF = upControl.calculate(low.getCurrentPosition());
+        double downPIDF = downControl.calculate(low.getCurrentPosition());
 
-        low.setPower(pid + ff);
-        top.setPower(pid + ff);
+        double power;
+        if (goingDown) {
+            telemetry.addLine("USING DOWN");
+            power = downPIDF;
+        } else {
+            telemetry.addLine("uSING UP");
+            power = upPIDF;
+        }
 
-        tm.addData("pid", pid);
-        tm.addData("ff", ff);
-        tm.addData("pidf", pid + ff);
+        low.setPower(power);
+        top.setPower(power);
 
         tm.addData("_currentPos", low.getCurrentPosition());
         tm.addData("_setpoint", setpoint);
 
         tm.update();
+        if (lastsetpoint != setpoint) {
+            if (lastsetpoint > setpoint) goingDown = true;
+            else goingDown = false;
+            lastsetpoint = setpoint;
+        }
     }
 }

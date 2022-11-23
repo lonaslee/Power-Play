@@ -26,8 +26,7 @@ class Autonomous2 : LinearOpMode() {
     override fun runOpMode() {
         initPhase()
         val toMid = drive.trajectoryBuilder(Pose2d(-36.0, -60.0))
-            .lineToSplineHeading(Pose2d(-40.0, -40.0, -150.0))
-            .build()
+            .lineToSplineHeading(Pose2d(-40.0, -40.0, -150.0)).build()
 
     }
 
@@ -47,7 +46,9 @@ class Autonomous2 : LinearOpMode() {
             setPipeline(pipeline)
             openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
                 override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
-                override fun onError(errorCode: Int) = tm.putfs("Camera error. Code: $errorCode")
+                override fun onError(errorCode: Int) {
+                    tm.addLine("Camera error. Code: $errorCode")
+                }
             })
             FtcDashboard.getInstance().startCameraStream(this, 30.0)
         }

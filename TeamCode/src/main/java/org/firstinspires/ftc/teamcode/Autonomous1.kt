@@ -18,20 +18,11 @@ import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
 
-
-fun Telemetry.putfs(fmt: String, vararg args: Any) = String.format(fmt, args).let { msg ->
-    println(msg)
-    addLine(msg)
-    update()
-    Unit
-}
-
 @Autonomous(group = "comp-auto")
 class Autonomous1 : LinearOpMode() {
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry);
 
     override fun runOpMode() {
-        telemetry.putfs("INIT.")
         val pipeline = AprilTagPipeline(tm)
         OpenCvCameraFactory.getInstance().createWebcam(
             hardwareMap[Config.WEBCAM_1.s] as WebcamName,
@@ -42,8 +33,9 @@ class Autonomous1 : LinearOpMode() {
             setPipeline(pipeline)
             openCameraDeviceAsync(object : AsyncCameraOpenListener {
                 override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
-
-                override fun onError(errorCode: Int) = tm.putfs("Camera error. Code: $errorCode")
+                override fun onError(errorCode: Int) {
+                    tm.addLine("Camera error. Code: $errorCode")
+                }
             })
             FtcDashboard.getInstance().startCameraStream(this, 30.0)
         }
@@ -54,7 +46,6 @@ class Autonomous1 : LinearOpMode() {
 
         waitForStart()
         resetRuntime()
-        tm.putfs("START. detected tag: ${pipeline.verdict.name}")
 
         // TODO autonomous
 

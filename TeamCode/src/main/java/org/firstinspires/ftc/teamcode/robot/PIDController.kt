@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime
 
 class PIDController(var coefs: Coefficients) {
     data class Coefficients(val kP: Double, val kI: Double, val kD: Double)
+
     private val timer = ElapsedTime()
 
     var setpoint = 0
