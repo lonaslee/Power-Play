@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -27,9 +28,11 @@ fun Telemetry.putfs(fmt: String, vararg args: Any) = String.format(fmt, args).le
 
 @Autonomous(group = "comp-auto")
 class Autonomous1 : LinearOpMode() {
+    private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry);
+
     override fun runOpMode() {
         telemetry.putfs("INIT.")
-        val pipeline = AprilTagPipeline(telemetry)
+        val pipeline = AprilTagPipeline(tm)
         OpenCvCameraFactory.getInstance().createWebcam(
             hardwareMap[Config.WEBCAM_1.s] as WebcamName,
             hardwareMap.appContext.resources.getIdentifier(
@@ -38,21 +41,20 @@ class Autonomous1 : LinearOpMode() {
         ).apply {
             setPipeline(pipeline)
             openCameraDeviceAsync(object : AsyncCameraOpenListener {
-                override fun onOpened() = startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT)
+                override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
 
-                override fun onError(errorCode: Int) =
-                    telemetry.putfs("Camera error. Code: $errorCode")
+                override fun onError(errorCode: Int) = tm.putfs("Camera error. Code: $errorCode")
             })
             FtcDashboard.getInstance().startCameraStream(this, 30.0)
         }
 
-        val arm = Arm3(hardwareMap, telemetry)
-        val claw = Claw(hardwareMap, telemetry)
+        val arm = Arm3(hardwareMap, tm)
+        val claw = Claw(hardwareMap, tm)
         val drive = SampleMecanumDrive(hardwareMap)
 
         waitForStart()
         resetRuntime()
-        telemetry.putfs("START. detected tag: ${pipeline.verdict.name}")
+        tm.putfs("START. detected tag: ${pipeline.verdict.name}")
 
         // TODO autonomous
 

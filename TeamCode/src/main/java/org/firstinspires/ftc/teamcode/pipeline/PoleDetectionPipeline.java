@@ -13,6 +13,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -35,6 +36,7 @@ public final class PoleDetectionPipeline extends OpenCvPipeline {
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
         Mat mask = new Mat();
         Core.inRange(hsv, LO_YELLOW, HI_YELLOW, mask);
+        Imgproc.GaussianBlur(mask, mask, new Size(5, 15), 0);
 
         // get mat with only mask color range
         Mat bitAnd = new Mat();
@@ -43,7 +45,12 @@ public final class PoleDetectionPipeline extends OpenCvPipeline {
         // find contours
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
+
+        Imgproc.drawContours(input, contours, -1, GREEN, 1);
+        telemetry.addData("s", contours.size());
+        telemetry.update();
+        if (true) return input;
 
         // approximate contours
         List<MatOfPoint2f> approx2f = getApproximates(contours);

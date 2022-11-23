@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.robot.Config;
 import org.firstinspires.ftc.teamcode.robot.PIDController;
 
@@ -29,6 +30,8 @@ public class ArmTuning extends OpMode {
     private DcMotorEx low, top;
     private final PIDController control = new PIDController(new PIDController.Coefficients(0, 0, 0));
 
+    private final MultipleTelemetry tm = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
     @Override
     public void init() {
         low = (DcMotorEx) hardwareMap.get(Config.LOW_LIFT.getS());
@@ -40,8 +43,6 @@ public class ArmTuning extends OpMode {
         top.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         low.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         top.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
     @Override
     public void loop() {
@@ -58,16 +59,16 @@ public class ArmTuning extends OpMode {
         low.setPower(pid + ff);
         top.setPower(pid + ff);
 
-        telemetry.addData("p", p);
-        telemetry.addData("i", i);
-        telemetry.addData("d", d);
-        telemetry.addData("pid", pid);
-        telemetry.addData("ff", ff);
-        telemetry.addData("pidf", pid + ff);
+        tm.addData("p", p);
+        tm.addData("i", i);
+        tm.addData("d", d);
+        tm.addData("pid", pid);
+        tm.addData("ff", ff);
+        tm.addData("pidf", pid + ff);
 
-        telemetry.addData("currentPos", low.getCurrentPosition());
-        telemetry.addData("setpoint", setpoint);
+        tm.addData("currentPos", low.getCurrentPosition());
+        tm.addData("setpoint", setpoint);
 
-        telemetry.update();
+        tm.update();
     }
 }

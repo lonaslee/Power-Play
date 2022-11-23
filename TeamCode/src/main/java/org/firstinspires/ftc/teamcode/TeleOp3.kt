@@ -14,12 +14,13 @@ class TeleOp3 : OpMode() {
     private lateinit var drive: SampleMecanumDrive
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
 
+    private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
     override fun init() {
         claw = Claw(hardwareMap, telemetry)
         arm = Arm3(hardwareMap, telemetry)
         drive = SampleMecanumDrive(hardwareMap)
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
     }
 
     override fun loop() {
@@ -28,6 +29,6 @@ class TeleOp3 : OpMode() {
         claw changeAccordingTo gamepads
 
         gamepads.onEach { it.update() }
-        telemetry.update()
+        tm.update()
     }
 }

@@ -16,6 +16,7 @@ import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PoleDetectionUtils {
     public static final Scalar LO_YELLOW = new Scalar(10.0, 125.0, 150.0);
@@ -42,18 +43,7 @@ public class PoleDetectionUtils {
     }
 
     @NotNull
-    public static List<MatOfPoint> getContourBoundingRects(@NotNull List<RotatedRect> rects) {
-        List<MatOfPoint> boxes = new ArrayList<>(rects.size());
-        for (RotatedRect rect : rects) {
-            Point[] verticies = new Point[4];
-            rect.points(verticies);
-            boxes.add(new MatOfPoint(verticies));
-        }
-        return boxes;
-    }
-
-    @NotNull
-    public static List<RotatedRect> getRotatedRects(List<MatOfPoint2f> contours) {
+    public static List<RotatedRect> getRotatedRects(@NotNull List<MatOfPoint2f> contours) {
         ArrayList<RotatedRect> rects = new ArrayList<>(contours.size());
         for (MatOfPoint2f contour : contours)
             rects.add(Imgproc.minAreaRect(contour));
@@ -61,11 +51,11 @@ public class PoleDetectionUtils {
     }
 
     @NotNull
-    public static ArrayList<MatOfPoint2f> getApproximates(List<MatOfPoint> contours) {
+    public static ArrayList<MatOfPoint2f> getApproximates(@NotNull List<MatOfPoint> contours) {
         ArrayList<MatOfPoint2f> approxs = new ArrayList<>(contours.size());
         for (MatOfPoint contour : contours) {
             MatOfPoint2f mat2f = matToMat2f(contour);
-            double epilison = 0.2 * Imgproc.arcLength(mat2f, true);
+            double epilison = 0.01 * Imgproc.arcLength(mat2f, true);
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(mat2f, approx, epilison, true);
             approxs.add(approx);
@@ -87,18 +77,40 @@ public class PoleDetectionUtils {
         return matOfPoint;
     }
 
+    public static double getRotatedRectHorizontalDistance(@NotNull RotatedRect rect) {
+        Point[] pts = new Point[4];
+        rect.points(pts);
+        return ((pts[1].x - pts[0].x) + (pts[2].x - pts[3].x)) / 2.0;
+    }
+
+    public static double areaOfParallelogram(@NotNull RotatedRect rect) {
+        Point[] points = new Point[4];
+        rect.points(points);
+        Point lowLeft = points[0], topleft = points[1], topRight = points[2], lowRight = points[3];
+
+        double width = lowRight.x - lowLeft.x;
+        double height = lowLeft.y - topleft.y;
+        return rect.boundingRect().area() - width * height;
+    }
+
+    public static void drawBoundingRects(@NotNull Mat input, @NotNull List<RotatedRect> rotatedRects) {
+        rotatedRects.stream().map(RotatedRect::boundingRect).collect(Collectors.toList()).forEach(it -> {
+            Imgproc.rectangle(input, it, GREEN);
+        });
+    }
+
     public static void drawRectCenters(@NotNull Mat img, @NotNull List<Rect> rects) {
-        for (Rect rect : rects) {
-            Point center = new Point(rect.x + rect.width / 2.0, rect.y + rect.height / 2.0);
-            Imgproc.ellipse(img, center, new Size(rect.width / 2.0, rect.height / 2.0), 0, 0, 360, RED);
-        }
+        rects.forEach(it -> {
+            Point center = new Point(it.x + it.width / 2.0, it.y + it.height / 2.0);
+            Imgproc.ellipse(img, center, new Size(it.width / 2.0, it.height / 2.0), 0, 0, 360, RED);
+        });
     }
 
     public static void drawContourCenters(@NotNull Mat input, @NotNull List<MatOfPoint> contours) {
-        for (MatOfPoint contour : contours) {
-            Moments moment = Imgproc.moments(contour);
+        contours.forEach(it -> {
+            Moments moment = Imgproc.moments(it);
             if (moment.m00 != 0.0)
                 Imgproc.circle(input, new Point(moment.m10 / moment.m00, moment.m01 / moment.m00), 1, RED, 3);
-        }
+        });
     }
 }
