@@ -1,6 +1,7 @@
 package com.meepmeep.testing;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
@@ -18,11 +19,13 @@ public class Testing {
 
     public static void main(String[] args) {
         TrajectorySequence toMid = drive.trajectorySequenceBuilder(new Pose2d(-36, -60)).lineToSplineHeading(new Pose2d(-40, -40, -150)).build();
-        TrajectorySequence toCones = drive.trajectorySequenceBuilder(toMid.end()).lineToSplineHeading(new Pose2d(-36, -12, -180)).build();
+
+        TrajectorySequence toStack = drive.trajectorySequenceBuilder(toMid.end())
+                .waitSeconds(0.5).splineTo(new Vector2d(30.0, 0.0), Math.toRadians(0.0)).splineTo(new Vector2d(52.0, 26.0), Math.toRadians(90.0)).build();
 
         bot.followTrajectorySequence(toMid);
 
-        bot.followTrajectorySequence(toCones);
+        bot.followTrajectorySequence(toStack);
 
         launchWindow();
     }

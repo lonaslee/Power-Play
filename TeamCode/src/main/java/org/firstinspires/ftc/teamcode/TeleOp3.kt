@@ -29,6 +29,11 @@ class TeleOp3 : OpMode() {
         claw changeAccordingTo gamepads
 
         gamepads.onEach { it.update() }
+
+        val (x, y, heading) = drive.poseEstimate
+        tm.addData("x", x)
+        tm.addData("y", y)
+        tm.addData("heading", Math.toDegrees(heading))
         tm.update()
     }
 }

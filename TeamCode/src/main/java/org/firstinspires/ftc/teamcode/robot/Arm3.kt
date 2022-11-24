@@ -33,13 +33,10 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     }
 
     fun update() {
-        println("HEIGHT : ${height.name}, ${height.pos};   GOINGDOWN: $goingDown")
-
         val armPos = lowmotor.currentPosition
         val pow = (if (goingDown) downControl else upControl).calculate(
             armPos.toDouble(), height.pos.toDouble()
         )
-        println()
 
         motors.forEach { it.power = pow }
 
@@ -70,7 +67,7 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     }
 
     enum class Height(val pos: Int) {
-        TOP(240), MID(240), LOW(240), FLR(5);
+        TOP(240), MID(340), LOW(240), FLR(5);
 
         val next
             get() = when (this) {
