@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -8,33 +8,32 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.Arm3
+import org.firstinspires.ftc.teamcode.robot.Arm3.Height
 import org.firstinspires.ftc.teamcode.robot.Claw
-import org.firstinspires.ftc.teamcode.robot.Config
+import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
 
 @Autonomous
-class AutoLeft : OpMode() {
+class AutoRight : OpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3
     private lateinit var drive: SampleMecanumDrive
-    private lateinit var trajs: LeftTrajectories
+    private lateinit var trajs: Trajectories
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
-    private var stage = 0
+    private var stage = 0;
 
     override fun loop() {
         if (stage == 0) {
-            tag = pipeline.verdict
-            repeat(2) { arm.up() }
+            arm.height = Height.MID
             stage++
         }
         if (!drive.isBusy) {
             claw.open()
-//            drive.followTrajectorySequenceAsync(trajs.toStack)
-            repeat(2) { arm.down() }
+            arm.height = Height.GROUND
             stage++
         }
 
@@ -42,19 +41,18 @@ class AutoLeft : OpMode() {
         drive.update()
     }
 
-    private lateinit var pipeline: AprilTagPipeline
     private lateinit var tag: AprilTagPipeline.Tag
     override fun init() {
         claw = Claw(hardwareMap, tm)
         arm = Arm3(hardwareMap, tm)
         drive = SampleMecanumDrive(hardwareMap)
-        trajs = LeftTrajectories(drive)
-        drive.followTrajectoryAsync(trajs.toMid)
+        trajs = Trajectories(drive, arm, claw)
+        drive.followTrajectorySequenceAsync(trajs.left)
         claw.close()
 
-        pipeline = AprilTagPipeline(tm)
+        val pipeline = AprilTagPipeline(tm)
         OpenCvCameraFactory.getInstance().createWebcam(
-            hardwareMap[Config.WEBCAM_1.s] as WebcamName,
+            hardwareMap[RobotConfig.WEBCAM_1.s] as WebcamName,
             hardwareMap.appContext.resources.getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
             )

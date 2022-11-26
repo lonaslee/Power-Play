@@ -1,19 +1,17 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.autonomous
 
-import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline.Tag
 import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Claw
-import org.firstinspires.ftc.teamcode.robot.Config
+import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -25,7 +23,7 @@ class Autonomous1 : LinearOpMode() {
     override fun runOpMode() {
         val pipeline = AprilTagPipeline(tm)
         OpenCvCameraFactory.getInstance().createWebcam(
-            hardwareMap[Config.WEBCAM_1.s] as WebcamName,
+            hardwareMap[RobotConfig.WEBCAM_1.s] as WebcamName,
             hardwareMap.appContext.resources.getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
             )

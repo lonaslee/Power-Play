@@ -92,7 +92,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // _TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, org.firstinspires.ftc.teamcode.robot.Config.IMU.getS());
+        imu = hardwareMap.get(BNO055IMU.class, org.firstinspires.ftc.teamcode.robot.RobotConfig.IMU.getS());
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
@@ -119,10 +119,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
         BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.LEFT_FRONT.getS());
-        leftRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.LEFT_BACK.getS());
-        rightRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.RIGHT_BACK.getS());
-        rightFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.Config.RIGHT_FRONT.getS());
+        leftFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.RobotConfig.LEFT_FRONT.getS());
+        leftRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.RobotConfig.LEFT_BACK.getS());
+        rightRear = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.RobotConfig.RIGHT_BACK.getS());
+        rightFront = hardwareMap.get(DcMotorEx.class, org.firstinspires.ftc.teamcode.robot.RobotConfig.RIGHT_FRONT.getS());
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
