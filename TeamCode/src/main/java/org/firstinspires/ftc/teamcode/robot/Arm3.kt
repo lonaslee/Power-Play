@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.robot.Arm3.Height.*
+import org.firstinspires.ftc.teamcode.robot.Arm3.Height3.*
 import kotlin.math.cos
 
 @Config
@@ -17,6 +17,7 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     private val lowmotor = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
     private val motors = listOf(topmotor, lowmotor).onEach {
         it.direction = DcMotorSimple.Direction.REVERSE
+        it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         it.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
@@ -68,8 +69,8 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
     }
 
     fun adjustAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
-        if (gp1 pressed gp1::y || gp2 pressed gp2::y) height = height.next
-        else if (gp1 pressed gp1::a || gp2 pressed gp2::a) height = height.prev
+        if (gp1 pressed gp1::dpad_up || gp2 pressed gp2::dpad_up) height = height.next
+        else if (gp1 pressed gp1::dpad_down || gp2 pressed gp2::dpad_down) height = height.prev
         else if (gp1 pressed gp1::x || gp2 pressed gp2::x) height = MID
         else if (gp1 pressed gp1::b || gp2 pressed gp2::b) height = LOW
         update()
@@ -100,10 +101,10 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         var dD = 0.00001
         var dF = 0.0
 
-        const val TICKS_IN_DEGREES = 260 / 90.0
+        const val TICKS_IN_DEGREES = 220 / 90.0
     }
 
-    enum class Height(val pos: Int) {
+    enum class Height3(val pos: Int) {
         GROUND(5), LOW(240), MID(340), BACKMID(480), BACKLOW(560), STACK(60);
 
         val next get() = values()[if (ordinal > 3) 4 else ordinal + 1]

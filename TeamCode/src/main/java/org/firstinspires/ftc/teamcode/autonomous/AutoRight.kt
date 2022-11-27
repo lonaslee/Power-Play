@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.Arm3
-import org.firstinspires.ftc.teamcode.robot.Arm3.Height
+import org.firstinspires.ftc.teamcode.robot.Arm3.Height3
 import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.openftc.easyopencv.OpenCvCamera
@@ -28,12 +28,12 @@ class AutoRight : OpMode() {
 
     override fun loop() {
         if (stage == 0) {
-            arm.height = Height.MID
+            arm.height = Height3.MID
             stage++
         }
         if (!drive.isBusy) {
             claw.open()
-            arm.height = Height.GROUND
+            arm.height = Height3.GROUND
             stage++
         }
 

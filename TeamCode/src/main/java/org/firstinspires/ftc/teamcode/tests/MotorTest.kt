@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import kotlin.math.abs
 import kotlin.math.cos
 
 @TeleOp
@@ -37,28 +38,29 @@ class MotorTest : OpMode() {
     }
 
     override fun loop() {
-
         control.setPID(kP, kI, kD)
+        if (setpoint !in -170..390) return
 
-        val pid = control.calculate(low.currentPosition.toDouble(), setpoint.toDouble())
-        val ff = kCos * cos(Math.toRadians((setpoint - 160) / TICKS_IN_DEGREES))
+        val curPos = (low.currentPosition - 170).toDouble()
+
+        val pid = control.calculate(curPos, setpoint.toDouble())
+        val ff = kCos * cos(Math.toRadians(setpoint / TICKS_IN_DEGREES))
 
         motors.forEach { it.power = pid + ff }
 
-
-        tm.addData("_currentPos", low.currentPosition)
+        tm.addData("_currentPos", curPos)
         tm.addData("_targetPos", setpoint)
-        tm.addData("angle", low.currentPosition / TICKS_IN_DEGREES)
+        tm.addData("angle", curPos / TICKS_IN_DEGREES)
         tm.addData("pidf", pid + ff)
         tm.update()
     }
 
     companion object {
-        @JvmField var kP = 0.0
+        @JvmField var kP = 0.009
         @JvmField var kI = 0.0
-        @JvmField var kD = 0.0
-        @JvmField var kCos = 0.0
-        @JvmField var setpoint = 0
-        const val TICKS_IN_DEGREES = 260 / 90.0
+        @JvmField var kD = 0.00075
+        @JvmField var kCos = 0.11
+        @JvmField var setpoint = -170
+        const val TICKS_IN_DEGREES = 220 / 90.0
     }
 }

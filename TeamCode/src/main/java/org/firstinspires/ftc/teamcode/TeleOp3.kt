@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.robot.*
 @TeleOp
 class TeleOp3 : OpMode() {
     private lateinit var claw: Claw
-    private lateinit var arm: Arm3
+    private lateinit var arm: Arm
     private lateinit var drive: SampleMecanumDrive
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
 
@@ -18,7 +18,7 @@ class TeleOp3 : OpMode() {
 
     override fun init() {
         claw = Claw(hardwareMap, telemetry)
-        arm = Arm3(hardwareMap, telemetry)
+        arm = Arm(hardwareMap, telemetry)
         drive = SampleMecanumDrive(hardwareMap)
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
     }
