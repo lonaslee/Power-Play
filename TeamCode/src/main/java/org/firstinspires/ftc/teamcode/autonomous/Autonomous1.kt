@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
-import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline.Tag
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline.Tag
 import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.robot.RobotConfig

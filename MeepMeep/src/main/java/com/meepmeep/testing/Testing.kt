@@ -17,7 +17,7 @@ val drive = bot.drive
 
 fun main() {
     drive.poseEstimate = Pose2d(-36.0, -60.0, 90.0)
-    bot.followTrajectorySequence(LeftTrajectories2(drive).trajectory)
+    bot.followTrajectorySequence(LeftTrajectories(drive).trajectory)
 
     meepmeep.addEntity(bot)
         .start()

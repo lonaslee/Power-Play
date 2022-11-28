@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.pipeline.AprilTagPipeline
+import org.firstinspires.ftc.teamcode.robot.Arm
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.Arm3
 import org.firstinspires.ftc.teamcode.robot.Arm3.Height3
 import org.firstinspires.ftc.teamcode.robot.Claw
@@ -18,7 +19,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 @Autonomous
 class AutoRight : OpMode() {
     private lateinit var claw: Claw
-    private lateinit var arm: Arm3
+    private lateinit var arm: Arm
     private lateinit var drive: SampleMecanumDrive
     private lateinit var trajs: Trajectories
 
@@ -28,12 +29,12 @@ class AutoRight : OpMode() {
 
     override fun loop() {
         if (stage == 0) {
-            arm.height = Height3.MID
+            arm.height = Arm.Height.MID
             stage++
         }
         if (!drive.isBusy) {
             claw.open()
-            arm.height = Height3.GROUND
+            arm.height = Arm.Height.GROUND
             stage++
         }
 
@@ -44,7 +45,7 @@ class AutoRight : OpMode() {
     private lateinit var tag: AprilTagPipeline.Tag
     override fun init() {
         claw = Claw(hardwareMap, tm)
-        arm = Arm3(hardwareMap, tm)
+        arm = Arm(hardwareMap, tm)
         drive = SampleMecanumDrive(hardwareMap)
         trajs = Trajectories(drive, arm, claw)
         drive.followTrajectorySequenceAsync(trajs.left)
