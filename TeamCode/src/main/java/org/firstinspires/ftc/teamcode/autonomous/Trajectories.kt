@@ -13,7 +13,7 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
 
     val leftback = drive.trajectorySequenceBuilder(leftStartPos)
         .addTemporalMarker { arm.height = MID }
-        .lineToSplineHeading(Pose2d(-32, -32, 45))
+        .lineToSplineHeading(Pose2d(-36, -40, 45))
         .addTemporalMarker { claw.open() }
 
         // to stack
@@ -28,7 +28,7 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         // to middle junction
         .addTemporalMarker { arm.height = BACKMID }
         .waitSeconds(0.6)
-        .lineToSplineHeading(Pose2d(-32, -12, 135))
+        .lineToSplineHeading(Pose2d(-36, -25, 27))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
@@ -192,7 +192,7 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .build()!! // so excited!! NullPointerException!! lets go!!
 
     companion object {
-        val leftStartPos = Pose2d(-36, -60, 90)
+        val leftStartPos = Pose2d(-36, -66, 90)
 
         fun Pose2d(x: Int = 0, y: Int = 0, heading: Int = 0) =
             Pose2d(x.toDouble(), y.toDouble(), Math.toRadians(heading.toDouble()))
