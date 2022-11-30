@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.robot.Claw
 class LeftTraj(
     private val drive: SampleMecanumDrive, private val arm: Arm, private val claw: Claw
 ) {
+    private val Int.rad get() = Math.toRadians(this.toDouble())
+
     companion object {
         @JvmField var x1 = -40.0
         @JvmField var y1 = -27.0
@@ -30,7 +32,13 @@ class LeftTraj(
 
     val traj = drive.trajectorySequenceBuilder(Pose2d())
         .addTemporalMarker { arm.height = MID }
-        .splineTo(Vector2d(32.7, -3.5), -40.0)
+        .splineToLinearHeading(Pose2d(32.0, -3.0, (-40).rad), 0.rad)
+        .addTemporalMarker { claw.open() }
+        .waitSeconds(0.2)
+
+        .UNSTABLE_addTemporalMarkerOffset(0.4) { arm.height = STACK }
+        .lineToSplineHeading(Trajectories.Pose2d(48, 5 , 45))
+        .splineTo(Trajectories.Vector2d(50, 30), 90.rad)
 
         .build()!!
 

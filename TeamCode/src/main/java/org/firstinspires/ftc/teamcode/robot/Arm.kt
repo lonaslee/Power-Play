@@ -61,11 +61,10 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
     fun adjustAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
         if (gp1 pressed gp1::dpad_up || gp2 pressed gp2::dpad_up) height = height.next
         else if (gp1 pressed gp1::dpad_down || gp2 pressed gp2::dpad_down) height = height.prev
-        else if (gp1 pressed gp1::dpad_left || gp2 pressed gp2::dpad_left) height = GROUND
-        else if (gp1 pressed gp1::a || gp2 pressed gp2::a) height = LOW
-        else if (gp1 pressed gp1::x || gp2 pressed gp2::x) height = MID
-        else if (gp1 pressed gp1::y || gp2 pressed gp2::y) height = BACKMID
-        else if (gp1 pressed gp1::b || gp2 pressed gp2::b) height = BACKLOW
+        else if (gp1 pressed gp1::a || gp2 pressed gp2::a) height = GROUND
+        else if (gp1 pressed gp1::x || gp2 pressed gp2::x) height = LOW
+        else if (gp1 pressed gp1::y || gp2 pressed gp2::y) height = MID
+        else if (gp1 pressed gp1::b || gp2 pressed gp2::b) height = BACKMID
         update()
     }
 
@@ -73,9 +72,9 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
         adjustAccordingTo(gps.component1(), gps.component2())
 
     enum class Height(val pos: Int) {
-        GROUND(-170), LOW(70), MID(170), BACKMID(320), BACKLOW(400), STACK(-120);
+        GROUND(-170), STACK(-120), LOW(70), MID(160), BACKMID(320), BACKLOW(400);
 
-        val next get() = values()[if (ordinal > 3) 4 else ordinal + 1]
+        val next get() = values()[if (ordinal > 4) 4 else ordinal + 1]
         val prev get() = values()[if (ordinal == 0) 0 else ordinal - 1]
     }
 }
