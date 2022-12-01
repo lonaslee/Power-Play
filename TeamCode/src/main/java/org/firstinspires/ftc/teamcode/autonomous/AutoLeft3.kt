@@ -17,6 +17,7 @@ class AutoLeft3 : OpMode() {
     private lateinit var drive: SampleMecanumDrive
     private lateinit var trajs: LeftTraj
 
+
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
     private val pipeline = AprilTagPipeline(tm)
 
@@ -25,11 +26,13 @@ class AutoLeft3 : OpMode() {
         arm = Arm(hardwareMap, telemetry)
         drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTraj(drive, arm, claw)
-        createWebcam(hardwareMap, telemetry, pipeline)
+//        createWebcam(hardwareMap, telemetry, pipeline)
     }
 
     override fun loop() {
         drive.update()
         arm.update()
+
+
     }
 }

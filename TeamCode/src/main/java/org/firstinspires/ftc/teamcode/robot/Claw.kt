@@ -31,7 +31,7 @@ class Claw(
     }
 
     fun change() {
-        if (servo.position == CLOSE_POS) open()
+        if (servo.position in CLOSE_POS - 0.01..CLOSE_POS + 0.01) open()
         else close()
     }
 

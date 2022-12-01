@@ -18,7 +18,7 @@ class TeleOp1 : OpMode() {
 
     override fun init() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap, arm = arm)
+        claw = Claw(hardwareMap, telemetry, arm = arm)
         drive = SampleMecanumDrive(hardwareMap)
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
     }
