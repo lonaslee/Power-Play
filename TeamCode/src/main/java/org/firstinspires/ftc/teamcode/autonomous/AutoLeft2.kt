@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
@@ -23,10 +25,17 @@ class AutoLeft2 : LinearOpMode() {
         arm = Arm(hardwareMap, telemetry)
         claw = Claw(hardwareMap, telemetry, arm).apply { close() }
         drive = SampleMecanumDrive(hardwareMap).apply {
-            poseEstimate = Trajectories.leftStartPos
-            trajs = Trajectories(this, arm, claw)
-            followTrajectorySequenceAsync(trajs.leftback)
+            poseEstimate = Pose2d(49.0, -6.0, Math.toRadians(55.0))
         }
+
+        drive.followTrajectorySequenceAsync(
+            drive.trajectorySequenceBuilder(Pose2d(49.0, -6.0, Math.toRadians(55.0)))
+
+                .lineToSplineHeading(Pose2d(28.0, 0.0, 0.0))
+                .back(24.0)
+                .build()
+        )
+
         val pipeline = AprilTagPipeline(tm).also { createWebcam(hardwareMap, telemetry, it) }
         waitForStart()
 

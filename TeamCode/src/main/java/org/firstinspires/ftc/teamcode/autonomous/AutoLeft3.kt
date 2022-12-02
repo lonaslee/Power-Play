@@ -22,8 +22,8 @@ class AutoLeft3 : OpMode() {
     private val pipeline = AprilTagPipeline(tm)
 
     override fun init() {
-        claw = Claw(hardwareMap, telemetry).apply { close() }
-        arm = Arm(hardwareMap, telemetry)
+        arm = Arm(hardwareMap)
+        claw = Claw(hardwareMap, arm = arm).apply { close() }
         drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTraj(drive, arm, claw)
 //        createWebcam(hardwareMap, telemetry, pipeline)
@@ -32,7 +32,5 @@ class AutoLeft3 : OpMode() {
     override fun loop() {
         drive.update()
         arm.update()
-
-
     }
 }

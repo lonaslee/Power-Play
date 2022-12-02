@@ -72,7 +72,7 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
         adjustAccordingTo(gps.component1(), gps.component2())
 
     enum class Height(val pos: Int) {
-        GROUND(-170), STACK(-65), LOW(70), MID(160), BACKMID(320), BACKLOW(400);
+        GROUND(-170), STACK(-80), LOW(70), MID(160), BACKMID(350), BACKLOW(400);
 
         val next get() = values()[if (ordinal > 4) 4 else ordinal + 1]
         val prev get() = values()[if (ordinal == 0) 0 else ordinal - 1]
