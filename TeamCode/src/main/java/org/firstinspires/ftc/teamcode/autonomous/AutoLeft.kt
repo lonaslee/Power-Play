@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.*
+import org.firstinspires.ftc.teamcode.vision.createWebcam
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -17,49 +18,37 @@ class AutoLeft : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm
     private lateinit var drive: SampleMecanumDrive
-    private lateinit var trajs: Trajectories
+    private lateinit var trajs: LeftTraj
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
     private val pipeline = AprilTagPipeline(tm)
 
     override fun runOpMode() {
-        initPhase()
+        arm = Arm(hardwareMap)
+        claw = Claw(hardwareMap, arm = arm).apply { close() }
+        drive = SampleMecanumDrive(hardwareMap)
+        trajs = LeftTraj(drive, arm, claw)
+        createWebcam(hardwareMap, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
+        val dir = pipeline.verdict
 
         while (opModeIsActive()) {
             arm.update()
             drive.update()
-        }
-    }
 
-    private fun initPhase() {
-        claw = Claw(hardwareMap, telemetry).apply { close() }
-        arm = Arm(hardwareMap, telemetry)
-        drive = SampleMecanumDrive(hardwareMap).apply {
-            poseEstimate = Trajectories.leftStartPos
-            trajs = Trajectories(this, arm, claw)
-            followTrajectorySequenceAsync(trajs.left)
-        }
-
-        OpenCvCameraFactory.getInstance()
-            .createWebcam(
-                hardwareMap[RobotConfig.WEBCAM_1.s] as WebcamName,
-                hardwareMap.appContext.resources.getIdentifier(
-                    "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
-                )
-            )
-            .apply {
-                setPipeline(pipeline)
-                openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
-                    override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
-                    override fun onError(errorCode: Int) {
-                        tm.addLine("Camera error. Code: $errorCode")
-                    }
-                })
-                FtcDashboard.getInstance()
-                    .startCameraStream(this, 30.0)
+            if (!drive.isBusy) {
+                when (dir) {
+                    AprilTagPipeline.Tag.LEFT  -> drive.followTrajectory(
+                        drive.trajectoryBuilder(LeftTraj.endPose).forward(28.0).build()
+                    )
+                    AprilTagPipeline.Tag.RIGHT -> drive.followTrajectory(
+                        drive.trajectoryBuilder(LeftTraj.endPose).back(28.0).build()
+                    )
+                    else                       -> {}
+                }
             }
+        }
     }
 }

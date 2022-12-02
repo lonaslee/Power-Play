@@ -24,6 +24,8 @@ class LeftTraj(
         @JvmField var d = 11.5
         @JvmField var s = 10.0
 
+        val endPose = Pose2d(28, 0, 90)
+
         val Int.rad get() = Math.toRadians(this.toDouble())
 
         val aPose get() = Pose2d(a_x, a_y, Math.toRadians(a_h))
@@ -81,7 +83,6 @@ class LeftTraj(
 
         .lineToLinearHeading(Pose2d(28, 0, 90))
         .addTemporalMarker { arm.height = GROUND }
-        .back(28.0)
 
         .build()!!
 
