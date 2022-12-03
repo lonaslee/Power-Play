@@ -13,11 +13,11 @@ class LeftTraj(
     private val drive: SampleMecanumDrive, private val arm: Arm, private val claw: Claw
 ) {
     companion object {
-        @JvmField var a_x = 48.0
+        @JvmField var a_x = 49.0
         @JvmField var a_y = -5.0
         @JvmField var a_h = 55.0
 
-        @JvmField var b_x = 51.0
+        @JvmField var b_x = 49.0
         @JvmField var b_y = -5.0
         @JvmField var b_h = 55.0
 
@@ -69,7 +69,7 @@ class LeftTraj(
         .waitSeconds(0.2)
         .addTemporalMarker { arm.height = STACK }
         // to stack 3
-        .splineToLinearHeading(Pose2d(57, 10, 90), 0.rad)
+        .splineToLinearHeading(Pose2d(56, 10, 90), 0.rad)
         .forward(10.5)
         .waitSeconds(0.1)
         .addTemporalMarker { claw.close() }
@@ -82,7 +82,7 @@ class LeftTraj(
         .waitSeconds(0.2)
 
         .lineToLinearHeading(Pose2d(28, 0, 90))
-        .addTemporalMarker { arm.height = GROUND }
+        .UNSTABLE_addTemporalMarkerOffset(0.4) { arm.height = GROUND }
 
         .build()!!
 

@@ -15,7 +15,7 @@ class Claw(
 
     companion object {
         const val OPEN_POS = 0.56
-        const val CLOSE_POS = 0.66
+        const val CLOSE_POS = 0.69
         const val HALF_OPEN_POS = 0.6
     }
 

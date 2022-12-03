@@ -30,9 +30,13 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
     }
 
     private var goingDown = false
+    var stackHeight = STACK.pos
     var height = GROUND
         set(value) {
             if (height == value) return
+            if (height == STACK) {
+                stackHeight -= 6
+            }
             goingDown = (height > value) || (value == STACK && height != GROUND)
             field = value
         }
@@ -42,8 +46,12 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
 
         val pow = if (goingDown && (height == GROUND || height == STACK)) {
             downControl.calculate(
-                curPos, height.pos.toDouble()
-            ) + dCos * cos(Math.toRadians(height.pos / TICKS_IN_DEGREES)).also { println("DOWN WITH ${height.name}") }
+                curPos, if (height == GROUND) height.pos.toDouble() else stackHeight.toDouble()
+            ) + dCos * cos(Math.toRadians(height.pos / TICKS_IN_DEGREES)).also {
+                println(
+                    "DOWN WITH ${height.name}"
+                )
+            }
         } else {
             control.calculate(
                 curPos, height.pos.toDouble()
@@ -71,8 +79,8 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
     infix fun adjustAccordingTo(gps: Pair<GamepadExt, GamepadExt>) =
         adjustAccordingTo(gps.component1(), gps.component2())
 
-    enum class Height(val pos: Int) {
-        GROUND(-170), STACK(-80), LOW(70), MID(160), BACKMID(350), BACKLOW(400);
+    enum class Height(var pos: Int) {
+        GROUND(-170), STACK(-70), LOW(70), MID(160), BACKMID(360), BACKLOW(400);
 
         val next get() = values()[if (ordinal > 4) 4 else ordinal + 1]
         val prev get() = values()[if (ordinal == 0) 0 else ordinal - 1]
