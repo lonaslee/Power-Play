@@ -34,10 +34,11 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
     var height = GROUND
         set(value) {
             if (height == value) return
-            if (height == STACK) {
-                stackHeight -= 6
+            goingDown = height > value
+            if (goingDown && value == STACK) {
+                stackHeight -= 20
+                println("SUBTRACT")
             }
-            goingDown = (height > value) || (value == STACK && height != GROUND)
             field = value
         }
 
@@ -48,9 +49,7 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
             downControl.calculate(
                 curPos, if (height == GROUND) height.pos.toDouble() else stackHeight.toDouble()
             ) + dCos * cos(Math.toRadians(height.pos / TICKS_IN_DEGREES)).also {
-                println(
-                    "DOWN WITH ${height.name}"
-                )
+                println("DOWN WITH ${height.name}")
             }
         } else {
             control.calculate(
@@ -59,6 +58,8 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
         }
 
         motors.forEach { it.power = pow }
+
+        telemetry?.addData("stack", stackHeight)
 
         telemetry?.addData("_currentPos", curPos)
         telemetry?.addData("_targetPos", height.pos)

@@ -4,14 +4,11 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.*
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline.Tag.*
 import org.firstinspires.ftc.teamcode.vision.createWebcam
-import org.openftc.easyopencv.OpenCvCamera
-import org.openftc.easyopencv.OpenCvCameraFactory
-import org.openftc.easyopencv.OpenCvCameraRotation
 
 @Autonomous
 class AutoLeft : LinearOpMode() {
@@ -28,34 +25,12 @@ class AutoLeft : LinearOpMode() {
         claw = Claw(hardwareMap, arm = arm).apply { close() }
         drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTraj(drive, arm, claw)
+
         createWebcam(hardwareMap, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
-        val dir = pipeline.verdict
-
-        while (opModeIsActive()) {
-            arm.update()
-            drive.update()
-
-            if (!drive.isBusy) {
-                claw.open()
-                when (dir) {
-                    AprilTagPipeline.Tag.LEFT -> drive.followTrajectory(
-                        drive.trajectoryBuilder(LeftTraj.endPose)
-                            .forward(28.0)
-                            .build()
-                    )
-                    AprilTagPipeline.Tag.RIGHT -> drive.followTrajectory(
-                        drive.trajectoryBuilder(LeftTraj.endPose)
-                            .back(26.0)
-                            .build()
-                    )
-                    else -> {}
-                }
-                break
-            }
-        }
+        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
 
         while (opModeIsActive()) {
             arm.update()

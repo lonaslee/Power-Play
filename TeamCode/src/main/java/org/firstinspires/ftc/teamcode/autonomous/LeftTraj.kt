@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.robot.Arm.Height.*
 import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 
 @Config
 class LeftTraj(
@@ -24,7 +24,7 @@ class LeftTraj(
         @JvmField var d = 11.5
         @JvmField var s = 10.0
 
-        val endPose = Pose2d(28, 0, 90)
+        val endPose = Pose2d(55, 10, 90)
 
         val Int.rad get() = Math.toRadians(this.toDouble())
 
@@ -34,7 +34,17 @@ class LeftTraj(
         fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
     }
 
-    val traj = drive.trajectorySequenceBuilder(Pose2d())
+    fun byTag(tag: AprilTagPipeline.Tag) = when (tag) {
+        AprilTagPipeline.Tag.LEFT -> left
+        AprilTagPipeline.Tag.RIGHT -> right
+        else -> middle
+    }
+
+    val left = generate(AprilTagPipeline.Tag.LEFT)
+    val right = generate(AprilTagPipeline.Tag.RIGHT)
+    val middle = generate(AprilTagPipeline.Tag.MIDDLE)
+
+    private fun generate(dir: AprilTagPipeline.Tag) = drive.trajectorySequenceBuilder(Pose2d())
         .addTemporalMarker { arm.height = MID }
         .splineToLinearHeading(Pose2d(31, -3, -40), 0.rad)
         .waitSeconds(0.2)
@@ -69,7 +79,7 @@ class LeftTraj(
         .waitSeconds(0.2)
         .addTemporalMarker { arm.height = STACK }
         // to stack 3
-        .splineToLinearHeading(Pose2d(56, 10, 90), 0.rad)
+        .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
         .forward(10.5)
         .waitSeconds(0.1)
         .addTemporalMarker { claw.close() }
@@ -81,13 +91,13 @@ class LeftTraj(
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.2)
 
-        .lineToLinearHeading(Pose2d(28, 0, 90))
-        .UNSTABLE_addTemporalMarkerOffset(0.4) { arm.height = GROUND }
-
+        .lineToLinearHeading(
+            when (dir) {
+                AprilTagPipeline.Tag.LEFT -> Pose2d(53, 24, 0)
+                AprilTagPipeline.Tag.RIGHT -> Pose2d(55, -24, 0)
+                else -> Pose2d(52, 0, 0)
+            }
+        )
+        .addTemporalMarker { arm.height = GROUND }
         .build()!!
-
-
-    init {
-        drive.followTrajectorySequenceAsync(traj)
-    }
 }
