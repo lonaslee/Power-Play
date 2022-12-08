@@ -30,7 +30,7 @@ class Arm(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) {
     }
 
     private var goingDown = false
-    var stackHeight = STACK.pos
+    private var stackHeight = STACK.pos
     var height = GROUND
         set(value) {
             if (height == value) return

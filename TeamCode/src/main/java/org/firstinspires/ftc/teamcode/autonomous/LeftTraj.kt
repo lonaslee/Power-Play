@@ -40,11 +40,8 @@ class LeftTraj(
         else -> middle
     }
 
-    val left = generate(AprilTagPipeline.Tag.LEFT)
-    val right = generate(AprilTagPipeline.Tag.RIGHT)
-    val middle = generate(AprilTagPipeline.Tag.MIDDLE)
 
-    private fun generate(dir: AprilTagPipeline.Tag) = drive.trajectorySequenceBuilder(Pose2d())
+    private val coneTraj = drive.trajectorySequenceBuilder(Pose2d())
         .addTemporalMarker { arm.height = MID }
         .splineToLinearHeading(Pose2d(31, -3, -40), 0.rad)
         .waitSeconds(0.2)
@@ -91,13 +88,13 @@ class LeftTraj(
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.2)
 
-        .lineToLinearHeading(
-            when (dir) {
-                AprilTagPipeline.Tag.LEFT -> Pose2d(53, 24, 0)
-                AprilTagPipeline.Tag.RIGHT -> Pose2d(55, -24, 0)
-                else -> Pose2d(52, 0, 0)
-            }
-        )
+    val left = coneTraj.lineToLinearHeading(Pose2d(53, 24, 0))
+        .addTemporalMarker { arm.height = GROUND }
+        .build()!!
+    val right = coneTraj.lineToLinearHeading(Pose2d(53, -24, 0))
+        .addTemporalMarker { arm.height = GROUND }
+        .build()!!
+    val middle = coneTraj.lineToLinearHeading(Pose2d(53, 0, 0))
         .addTemporalMarker { arm.height = GROUND }
         .build()!!
 }
