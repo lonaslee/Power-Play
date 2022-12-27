@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.GREEN;
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.HI_YELLOW;
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.LO_YELLOW;
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.getApproximates;
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.getRotatedRects;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.GREEN;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.HI_YELLOW;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.LO_YELLOW;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.getApproximates;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.getRotatedRects;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
@@ -54,7 +54,7 @@ public final class PoleDetectionPipeline extends OpenCvPipeline {
 
         // approximate contours
         List<MatOfPoint2f> approx2f = getApproximates(contours);
-        List<MatOfPoint> approxContours = approx2f.stream().map(PoleDetectionUtils::mat2fToMat).collect(Collectors.toList());
+        List<MatOfPoint> approxContours = approx2f.stream().map(DetectionUtils::mat2fToMat).collect(Collectors.toList());
         List<RotatedRect> approxRects = getRotatedRects(approx2f);
 
         // filter out bad contours

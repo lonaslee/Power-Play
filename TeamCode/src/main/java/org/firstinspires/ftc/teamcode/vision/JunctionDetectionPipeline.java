@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.*;
-import static org.firstinspires.ftc.teamcode.vision.PoleDetectionUtils.HI_YELLOW;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.*;
+import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.HI_YELLOW;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -55,7 +55,7 @@ public class JunctionDetectionPipeline extends OpenCvPipeline {
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
         List<MatOfPoint2f> approx2fs = getApproximates(contours);
-        List<MatOfPoint> approxContours = approx2fs.stream().map(PoleDetectionUtils::mat2fToMat).collect(Collectors.toList());
+        List<MatOfPoint> approxContours = approx2fs.stream().map(DetectionUtils::mat2fToMat).collect(Collectors.toList());
         List<RotatedRect> approxRects = getRotatedRects(approx2fs);
 
         for (RotatedRect rect : approxRects) {

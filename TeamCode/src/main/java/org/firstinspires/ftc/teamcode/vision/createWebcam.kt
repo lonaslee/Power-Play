@@ -12,7 +12,7 @@ import org.openftc.easyopencv.OpenCvPipeline
 import org.openftc.easyopencv.OpenCvWebcam
 
 fun createWebcam(
-    hardwareMap: HardwareMap, telemetry: Telemetry, pipeline: OpenCvPipeline? = null
+    hardwareMap: HardwareMap, telemetry: Telemetry? = null, pipeline: OpenCvPipeline? = null
 ): OpenCvWebcam = OpenCvCameraFactory.getInstance().createWebcam(
     hardwareMap[RobotConfig.WEBCAM_1.s] as WebcamName,
     hardwareMap.appContext.resources.getIdentifier(
@@ -22,7 +22,7 @@ fun createWebcam(
     openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
         override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
         override fun onError(errorCode: Int) {
-            telemetry.addLine("Camera error. Code: $errorCode")
+            "Camera error. Code: $errorCode".let { telemetry?.addLine(it); println(it) }
         }
     })
     FtcDashboard.getInstance().startCameraStream(this, 30.0)
