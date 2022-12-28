@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.autonomous.Trajectories
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.robot.Claw
@@ -22,10 +21,10 @@ class LeftCoordGetter : OpMode() {
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun init() {
-        arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap, arm = arm)
-        drive = SampleMecanumDrive(hardwareMap)//.apply { poseEstimate = Trajectories.leftStartPos }
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
+        arm = Arm(hardwareMap, gamepads)
+        claw = Claw(hardwareMap, gamepads, arm = arm)
+        drive = SampleMecanumDrive(hardwareMap)/* .apply { poseEstimate = Trajectories.leftStartPos } */
     }
 
     override fun loop() {
@@ -37,8 +36,8 @@ class LeftCoordGetter : OpMode() {
             )
         )
         drive.update()
-        arm adjustAccordingTo gamepads
-        claw changeAccordingTo gamepads
+        arm.update()
+        claw.update()
 
         val (x, y, heading) = drive.poseEstimate
         telemetry.addData("x", x)

@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.*
-import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline.Tag.*
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
 @Autonomous

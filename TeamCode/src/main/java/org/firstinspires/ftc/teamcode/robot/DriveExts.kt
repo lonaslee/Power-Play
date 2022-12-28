@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty
  *
  * @see SampleMecanumDrive.imu
  */
-fun SampleMecanumDrive.fieldcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
+fun SampleMecanumDrive.fieldcentric(gp1: GamepadExt, gp2: GamepadExt) {
     val y = -gp1.left_stick_y.toDouble()
     val x = gp1.left_stick_x * 1.1
     val turn = gp1.right_stick_x.toDouble()
@@ -34,16 +34,9 @@ fun SampleMecanumDrive.fieldcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt)
 }
 
 /**
- * @see SampleMecanumDrive.fieldcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt)
- */
-infix fun SampleMecanumDrive.fieldcentricAccordingTo(gps: Pair<GamepadExt, GamepadExt>) =
-    fieldcentricAccordingTo(gps.first, gps.second)
-
-
-/**
  * Updates powers to robot centric values based on gamepad input and [speed].
  */
-fun SampleMecanumDrive.robotcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
+fun SampleMecanumDrive.robotcentric(gp1: GamepadExt, gp2: GamepadExt) {
     setWeightedDrivePower(
         Pose2d(
             -gp1.left_stick_y.toDouble() * speed,
@@ -55,18 +48,19 @@ fun SampleMecanumDrive.robotcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt)
 }
 
 /**
- * @see SampleMecanumDrive.robotcentricAccordingTo(gp1: GamepadExt, gp2: GamepadExt)
+ * @see SampleMecanumDrive.update(gp1: GamepadExt, gp2: GamepadExt)
  */
-infix fun SampleMecanumDrive.robotcentricAccordingTo(gps: Pair<GamepadExt, GamepadExt>) =
-    robotcentricAccordingTo(gps.first, gps.second)
-
+fun SampleMecanumDrive.update(gps: Pair<GamepadExt, GamepadExt>, robotCentric: Boolean = false) {
+    if (!robotCentric) fieldcentric(gps.first, gps.second)
+    else robotcentric(gps.first, gps.second)
+}
 
 /**
  * Constant that powers will be multiplied by in extension functions that set motor powers. This
  * value is static to the SampleMecanumDrive class.
  *
- * @see SampleMecanumDrive.robotcentricAccordingTo
- * @see SampleMecanumDrive.fieldcentricAccordingTo
+ * @see SampleMecanumDrive.robotcentric
+ * @see SampleMecanumDrive.update
  */
 var SampleMecanumDrive.speed: Double by object {
     private var backingField = 0.6

@@ -17,16 +17,16 @@ class TeleOp1 : OpMode() {
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun init() {
-        arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap, telemetry, arm = arm)
-        drive = SampleMecanumDrive(hardwareMap)
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
+        arm = Arm(hardwareMap, gamepads)
+        claw = Claw(hardwareMap, gamepads, arm = arm)
+        drive = SampleMecanumDrive(hardwareMap)
     }
 
     override fun loop() {
-        drive fieldcentricAccordingTo gamepads
-        arm adjustAccordingTo gamepads
-        claw changeAccordingTo gamepads
+        drive.update(gamepads)
+        arm.update()
+        claw.update()
 
         gamepads.onEach { it.update() }
         tm.update()

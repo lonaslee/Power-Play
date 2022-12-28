@@ -8,8 +8,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
-import org.firstinspires.ftc.teamcode.robot.Arm3
-import org.firstinspires.ftc.teamcode.robot.Arm3.Height3
 import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.openftc.easyopencv.OpenCvCamera
@@ -25,16 +23,16 @@ class AutoRight : OpMode() {
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
-    private var stage = 0;
+    private var stage = 0
 
     override fun loop() {
         if (stage == 0) {
-            arm.height = Arm.Height.MID
+            arm.state = Arm.Height.MID
             stage++
         }
         if (!drive.isBusy) {
             claw.open()
-            arm.height = Arm.Height.GROUND
+            arm.state = Arm.Height.GROUND
             stage++
         }
 

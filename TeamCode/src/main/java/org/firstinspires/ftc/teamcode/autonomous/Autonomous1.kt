@@ -18,7 +18,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 
 @Autonomous(group = "comp-auto")
 class Autonomous1 : LinearOpMode() {
-    private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry);
+    private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
         val pipeline = AprilTagPipeline(tm)

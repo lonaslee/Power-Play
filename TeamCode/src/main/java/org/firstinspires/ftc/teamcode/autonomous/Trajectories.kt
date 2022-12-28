@@ -12,12 +12,12 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
     private val Int.rad get() = Math.toRadians(this.toDouble())
 
     val leftback = drive.trajectorySequenceBuilder(leftStartPos)
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .lineToSplineHeading(Pose2d(-36, -40, 45))
         .addTemporalMarker { claw.open() }
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-36, -24, 116))
         .splineTo(Vector2d(-56, -12), 180.rad)
 
@@ -26,14 +26,14 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.3)
 
         // to middle junction
-        .addTemporalMarker { arm.height = BACKMID }
+        .addTemporalMarker { arm.state = BACKMID }
         .waitSeconds(0.6)
         .lineToSplineHeading(Pose2d(-36, -25, 27))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // repeat grabs
@@ -43,56 +43,56 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.3)
 
         // to middle junction
-        .addTemporalMarker { arm.height = BACKMID }
+        .addTemporalMarker { arm.state = BACKMID }
         .waitSeconds(0.6)
         .lineToSplineHeading(Pose2d(-32, -12, 135))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
         // grab 1
         .addTemporalMarker { claw.close() }
         .waitSeconds(0.3)
 
         // to middle junction
-        .addTemporalMarker { arm.height = BACKMID }
+        .addTemporalMarker { arm.state = BACKMID }
         .waitSeconds(0.6)
         .lineToSplineHeading(Pose2d(-32, -12, 135))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
         // grab 1
         .addTemporalMarker { claw.close() }
         .waitSeconds(0.3)
 
         // to middle junction
-        .addTemporalMarker { arm.height = BACKMID }
+        .addTemporalMarker { arm.state = BACKMID }
         .waitSeconds(0.6)
         .lineToSplineHeading(Pose2d(-32, -12, 135))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
         // grab 1
         .addTemporalMarker { claw.close() }
         .waitSeconds(0.3)
 
         // to middle junction
-        .addTemporalMarker { arm.height = BACKMID }
+        .addTemporalMarker { arm.state = BACKMID }
         .waitSeconds(0.6)
         .lineToSplineHeading(Pose2d(-32, -12, 135))
         .addTemporalMarker { claw.open() }
         .waitSeconds(0.4)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // park
@@ -104,13 +104,13 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
 
     val left = drive.trajectorySequenceBuilder(leftStartPos)
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .lineToSplineHeading(Pose2d(-32, -32, 45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-36, -24, 116))
         .splineTo(Vector2d(-56, -12), 180.rad)
 
@@ -119,14 +119,14 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.15)
 
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .waitSeconds(0.3)
         .lineToSplineHeading(Pose2d(-32, -12, -45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // grab 2
@@ -134,14 +134,14 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.15)
 
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .waitSeconds(0.3)
         .lineToSplineHeading(Pose2d(-32, -12, -45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // grab 3
@@ -149,14 +149,14 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.15)
 
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .waitSeconds(0.3)
         .lineToSplineHeading(Pose2d(-32, -12, -45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // grab 4
@@ -164,14 +164,14 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.15)
 
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .waitSeconds(0.3)
         .lineToSplineHeading(Pose2d(-32, -12, -45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
         // to stack
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-56, -12, 180))
 
         // grab 5
@@ -179,13 +179,13 @@ class Trajectories(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         .waitSeconds(0.15)
 
         // to middle junction
-        .addTemporalMarker { arm.height = MID }
+        .addTemporalMarker { arm.state = MID }
         .waitSeconds(0.3)
         .lineToSplineHeading(Pose2d(-32, -12, -45))
         .addTemporalMarker { println("OPEN CLAW");claw.open() }
         .waitSeconds(0.1)
 
-        .addTemporalMarker { arm.height = STACK }
+        .addTemporalMarker { arm.state = STACK }
         .lineToSplineHeading(Pose2d(-36, -36, 270))
         .lineToConstantHeading(Vector2d(-12, -36))
 

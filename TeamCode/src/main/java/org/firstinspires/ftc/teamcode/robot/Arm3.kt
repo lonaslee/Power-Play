@@ -47,7 +47,7 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
 
     private var goingDown = false
 
-    fun update() {
+    private fun updatePID() {
         lowControl.setPID(kP, kI, kD)
         midControl.setPID(mP, mI, mD)
         backControl.setPIDF(bP, bI, bD, bF)
@@ -68,19 +68,18 @@ class Arm3(hardwareMap: HardwareMap, private val telemetry: Telemetry) {
         telemetry.addData("ff", feedforward)
     }
 
-    fun adjustAccordingTo(gp1: GamepadExt, gp2: GamepadExt) {
-        if (gp1 pressed gp1::dpad_up || gp2 pressed gp2::dpad_up) height = height.next
-        else if (gp1 pressed gp1::dpad_down || gp2 pressed gp2::dpad_down) height = height.prev
-        else if (gp1 pressed gp1::x || gp2 pressed gp2::x) height = MID
-        else if (gp1 pressed gp1::b || gp2 pressed gp2::b) height = LOW
-        update()
+    fun update(gp1: GamepadExt, gp2: GamepadExt) {
+        if (anypressed(gp1::dpad_up, gp2::dpad_up)) height = height.next
+        else if (anypressed(gp1::dpad_down, gp2::dpad_down)) height = height.prev
+        else if (anypressed(gp1::x, gp2::x)) height = MID
+        else if (anypressed(gp1::b, gp2::b)) height = LOW
+        updatePID()
     }
 
-    infix fun adjustAccordingTo(gps: Pair<GamepadExt, GamepadExt>) =
-        adjustAccordingTo(gps.component1(), gps.component2())
+    infix fun update(gps: Pair<GamepadExt, GamepadExt>) = update(gps.component1(), gps.component2())
 
     companion object {
-        const val kP = 0.002 // done
+        const val kP = 0.002
         const val kI = 0.0
         const val kD = 0.0
         const val kCos = 0.005

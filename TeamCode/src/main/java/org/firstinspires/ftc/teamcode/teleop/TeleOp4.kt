@@ -5,8 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.Gamepad
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.*
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
@@ -27,25 +25,28 @@ class TeleOp4 : OpMode() {
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun init() {
-        arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap, arm = arm)
-        drive = SampleMecanumDrive(hardwareMap)
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
+        arm = Arm(hardwareMap, gamepads)
+        claw = Claw(hardwareMap, gamepads, telemetry, arm = arm)
+        drive = SampleMecanumDrive(hardwareMap)
 
         webcam = createWebcam(hardwareMap, pipeline = pipeline)
     }
 
-    var picking = false
+    private var picking = false
     override fun loop() {
-        if (gamepads.first pressed Gamepad::left_bumper) picking = !picking
-        if (picking && pipeline.detected) {
-            pickPID.setPID(pP, pI, pD)
-            gamepads.first.right_stick_x = -pickPID.calculate(pipeline.error).toFloat()
+        if (pressed(gamepads.first::left_bumper)) picking = !picking
+        if (picking) {
+            if (pipeline.detected) {
+                pickPID.setPID(pP, pI, pD)
+                gamepads.first.right_stick_x = -pickPID.calculate(pipeline.error).toFloat()
+            }
+            if (claw.state == Claw.CLOSE_POS) picking = false
         }
 
-        drive fieldcentricAccordingTo gamepads
-        arm adjustAccordingTo gamepads
-        claw changeAccordingTo gamepads
+        drive.update(gamepads)
+        arm.update()
+        claw.update()
 
         gamepads.onEach { it.update() }
         tm.update()

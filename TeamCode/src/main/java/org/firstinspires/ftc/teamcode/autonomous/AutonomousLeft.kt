@@ -5,15 +5,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.autonomous.LeftTraj.Companion.rad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.robot.*
 import org.firstinspires.ftc.teamcode.vision.createWebcam
-import org.openftc.easyopencv.OpenCvCamera
-import org.openftc.easyopencv.OpenCvCameraFactory
-import org.openftc.easyopencv.OpenCvCameraRotation
 
 @Autonomous
 class AutonomousLeft : LinearOpMode() {
@@ -29,14 +25,14 @@ class AutonomousLeft : LinearOpMode() {
         claw = Claw(hardwareMap, arm = arm).apply { close() }
         drive = SampleMecanumDrive(hardwareMap)
         drive.followTrajectorySequenceAsync(drive.trajectorySequenceBuilder(Pose2d())
-            .addTemporalMarker { arm.height = Arm.Height.MID }
+            .addTemporalMarker { arm.state = Arm.Height.MID }
             .splineToLinearHeading(LeftTraj.Pose2d(31, -3, -40), 0.rad)
             .waitSeconds(0.2)
             .addTemporalMarker { claw.open() }
             .waitSeconds(0.2)
-            .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.height = Arm.Height.STACK }
+            .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = Arm.Height.STACK }
             .lineToLinearHeading(LeftTraj.Pose2d(28, 0, 90))
-            .addTemporalMarker { arm.height = Arm.Height.GROUND }
+            .addTemporalMarker { arm.state = Arm.Height.GROUND }
             .build())
         createWebcam(hardwareMap, telemetry, pipeline)
 
