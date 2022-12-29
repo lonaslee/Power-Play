@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode.robot
+package org.firstinspires.ftc.teamcode.robot.subsystems
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.robot.GamepadExt
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max

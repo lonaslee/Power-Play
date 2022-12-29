@@ -6,7 +6,12 @@ import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.*
+import org.firstinspires.ftc.teamcode.robot.GamepadExt
+import org.firstinspires.ftc.teamcode.robot.pressed
+import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
+import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
+import org.firstinspires.ftc.teamcode.robot.subsystems.update
+import org.firstinspires.ftc.teamcode.robot.sync
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline.RED
 import org.firstinspires.ftc.teamcode.vision.createWebcam
@@ -41,7 +46,7 @@ class TeleOp3 : OpMode() {
                 pickPID.setPID(pP, pI, pD)
                 gamepads.first.right_stick_x = -pickPID.calculate(pipeline.error).toFloat()
             }
-            if (claw.state == Claw.States.CLOSED) picking = false
+            if (claw.state == Claw.CLOSED) picking = false
         }
 
         drive.update(gamepads)

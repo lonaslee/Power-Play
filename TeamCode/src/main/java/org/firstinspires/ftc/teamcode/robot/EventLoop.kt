@@ -2,16 +2,22 @@ package org.firstinspires.ftc.teamcode.robot
 
 import kotlin.reflect.KProperty
 
-class EventLoop(
-    private val opModeIsActive: () -> Boolean, private val gamepads: Pair<GamepadExt, GamepadExt>? = null
-) {
-    fun interface Callback {
-        operator fun invoke()
-    }
+typealias Callback = () -> Unit
+typealias Predicate = () -> Boolean
 
-    val updates = mutableListOf<() -> Unit>()
+class EventLoop(private val opModeIsActive: Predicate) {
+    /**
+     * Routines that need to be called on every loop.
+     */
+    val updates = mutableListOf<Callback>()
 
-    private val keyEvents = mutableListOf<Pair<() -> Boolean, Callback>>()
+    /**
+     * Routines that happen once over an interval of time. Each [Callback] is executed while its [Predicate]
+     * returns true, and the pair is removed otherwise.
+     */
+    val singleEvents = mutableListOf<Pair<Predicate, Callback>>()
+
+    private val keyEvents = mutableListOf<Pair<Predicate, Callback>>()
 
     fun onPressed(key: KProperty<*>, func: Callback) {
         keyEvents.add({ pressed(key) } to func)
@@ -29,9 +35,13 @@ class EventLoop(
         keyEvents.add({ keys.any { pressed(it) } } to func)
     }
 
+    /**
+     * Start the event loop, which will run blocking until the method passed in the constructor returns false.
+     */
     fun run() {
         while (opModeIsActive()) {
-            if (gamepads != null) keyEvents.filter { it.first() }.forEach { it.second() }
+            keyEvents.filter { it.first() }.forEach { it.second() }
+            singleEvents.apply { retainAll { it.first() } }.forEach { it.second() }
 
             updates.forEach { it() }
         }

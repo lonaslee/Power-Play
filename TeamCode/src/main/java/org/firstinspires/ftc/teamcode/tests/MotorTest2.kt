@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.subsystems.RobotConfig
 
 @TeleOp
 @Config

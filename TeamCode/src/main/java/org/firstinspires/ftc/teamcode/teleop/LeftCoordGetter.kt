@@ -6,11 +6,10 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.Arm
-import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.robot.GamepadExt
+import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
+import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.robot.sync
-import org.firstinspires.ftc.teamcode.robot.update
 
 @TeleOp
 class LeftCoordGetter : OpMode() {

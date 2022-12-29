@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot
+package org.firstinspires.ftc.teamcode.robot.subsystems
 
 enum class RobotConfig {
     LEFT_FRONT, LEFT_BACK, RIGHT_FRONT, RIGHT_BACK, IMU, LOW_LIFT, TOP_LIFT, CLAW, WEBCAM_1;

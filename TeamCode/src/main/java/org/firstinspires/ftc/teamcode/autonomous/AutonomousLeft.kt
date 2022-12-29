@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.autonomous.LeftTraj.Companion.rad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.Arm
-import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
+import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
@@ -23,7 +23,7 @@ class AutonomousLeft : LinearOpMode() {
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap, arm = arm).apply { close() }
+        claw = Claw(hardwareMap).apply { close() }
         drive = SampleMecanumDrive(hardwareMap)
         drive.followTrajectorySequenceAsync(drive.trajectorySequenceBuilder(Pose2d())
             .addTemporalMarker { arm.state = Arm.States.MID }

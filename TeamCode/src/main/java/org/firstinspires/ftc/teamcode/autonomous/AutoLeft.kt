@@ -5,8 +5,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.Arm
-import org.firstinspires.ftc.teamcode.robot.Claw
+import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
+import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 

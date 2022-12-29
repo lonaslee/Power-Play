@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot
+package org.firstinspires.ftc.teamcode.robot.subsystems
 
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
@@ -12,7 +12,7 @@ class Claw(
         direction = Servo.Direction.FORWARD
     }
 
-    object States : Subsystem.States {
+    companion object States : Subsystem.States {
         const val OPENED = 0.56
         const val CLOSED = 0.69
         const val HALF_OPENED = 0.6
@@ -21,25 +21,25 @@ class Claw(
 
     override val state
         get() = when (servo.position) {
-            in States.OPENED - 0.01..States.OPENED + 0.01 -> States.OPENED
-            in States.CLOSED - 0.01..States.CLOSED + 0.01 -> States.CLOSED
-            else                                          -> States.HALF_OPENED
+            in OPENED - 0.01..OPENED + 0.01 -> OPENED
+            in CLOSED - 0.01..CLOSED + 0.01 -> CLOSED
+            else                            -> HALF_OPENED
         }
 
     fun open() {
-        servo.position = States.OPENED
+        servo.position = OPENED
     }
 
     fun halfOpen() {
-        servo.position = States.HALF_OPENED
+        servo.position = HALF_OPENED
     }
 
     fun close() {
-        servo.position = States.CLOSED
+        servo.position = CLOSED
     }
 
     fun change() {
-        if (state == States.CLOSED) open()
+        if (state == CLOSED) open()
         else close()
     }
 }
