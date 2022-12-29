@@ -9,7 +9,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.Arm
 import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.robot.GamepadExt
-import org.firstinspires.ftc.teamcode.robot.onEach
+import org.firstinspires.ftc.teamcode.robot.sync
+import org.firstinspires.ftc.teamcode.robot.update
 
 @TeleOp
 class LeftCoordGetter : OpMode() {
@@ -22,29 +23,26 @@ class LeftCoordGetter : OpMode() {
 
     override fun init() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        arm = Arm(hardwareMap, gamepads)
-        claw = Claw(hardwareMap, gamepads, arm = arm)
+        arm = Arm(hardwareMap)
+        claw = Claw(hardwareMap)
         drive = SampleMecanumDrive(hardwareMap)/* .apply { poseEstimate = Trajectories.leftStartPos } */
     }
 
     override fun loop() {
         drive.setWeightedDrivePower(
             Pose2d(
-                (-gamepad1.left_stick_y).toDouble() * .4,
-                (-gamepad1.left_stick_x).toDouble() * .4,
+                (-gamepad1.left_stick_y).toDouble() * .4, (-gamepad1.left_stick_x).toDouble() * .4,
                 (-gamepad1.right_stick_x).toDouble() * .4
             )
         )
         drive.update()
-        arm.update()
-        claw.update()
 
         val (x, y, heading) = drive.poseEstimate
         telemetry.addData("x", x)
         telemetry.addData("y", y)
         telemetry.addData("heading", Math.toDegrees(heading))
 
-        gamepads.onEach { it.update() }
+        gamepads.sync()
         tm.update()
     }
 }

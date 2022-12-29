@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot
 
+
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import kotlin.math.abs
@@ -14,12 +15,13 @@ import kotlin.reflect.KProperty
  *
  * @see SampleMecanumDrive.imu
  */
+@Deprecated("if the new DriveExt class doesn't blow up this will be removed")
 fun SampleMecanumDrive.fieldcentric(gp1: GamepadExt, gp2: GamepadExt) {
     val y = -gp1.left_stick_y.toDouble()
     val x = gp1.left_stick_x * 1.1
     val turn = gp1.right_stick_x.toDouble()
 
-    val botHeading = -imu.angularOrientation.firstAngle.toDouble()
+    val botHeading = rawExternalHeading
     val rotX = x * cos(botHeading) - y * sin(botHeading)
     val rotY = x * sin(botHeading) + y * cos(botHeading)
 
@@ -36,11 +38,11 @@ fun SampleMecanumDrive.fieldcentric(gp1: GamepadExt, gp2: GamepadExt) {
 /**
  * Updates powers to robot centric values based on gamepad input and [speed].
  */
+@Deprecated("")
 fun SampleMecanumDrive.robotcentric(gp1: GamepadExt, gp2: GamepadExt) {
     setWeightedDrivePower(
         Pose2d(
-            -gp1.left_stick_y.toDouble() * speed,
-            -gp1.left_stick_x.toDouble() * speed,
+            -gp1.left_stick_y.toDouble() * speed, -gp1.left_stick_x.toDouble() * speed,
             -gp1.right_stick_x.toDouble() * speed
         )
     )
@@ -50,6 +52,11 @@ fun SampleMecanumDrive.robotcentric(gp1: GamepadExt, gp2: GamepadExt) {
 /**
  * @see SampleMecanumDrive.update(gp1: GamepadExt, gp2: GamepadExt)
  */
+@Deprecated(
+    "", ReplaceWith(
+        "DriveExt.update(Pair<GamepadExt, GamepadExt>)"
+    )
+)
 fun SampleMecanumDrive.update(gps: Pair<GamepadExt, GamepadExt>, robotCentric: Boolean = false) {
     if (!robotCentric) fieldcentric(gps.first, gps.second)
     else robotcentric(gps.first, gps.second)
@@ -62,7 +69,7 @@ fun SampleMecanumDrive.update(gps: Pair<GamepadExt, GamepadExt>, robotCentric: B
  * @see SampleMecanumDrive.robotcentric
  * @see SampleMecanumDrive.update
  */
-var SampleMecanumDrive.speed: Double by object {
+@Deprecated("", ReplaceWith("DriveExt.speed")) var SampleMecanumDrive.speed: Double by object {
     private var backingField = 0.6
     operator fun getValue(thisRef: SampleMecanumDrive, property: KProperty<*>) = backingField
     operator fun setValue(thisRef: SampleMecanumDrive, property: KProperty<*>, value: Double) {

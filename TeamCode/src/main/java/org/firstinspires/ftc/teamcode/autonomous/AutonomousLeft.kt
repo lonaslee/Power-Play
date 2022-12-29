@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.autonomous.LeftTraj.Companion.rad
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.robot.Arm
+import org.firstinspires.ftc.teamcode.robot.Claw
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
-import org.firstinspires.ftc.teamcode.robot.*
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
 @Autonomous
@@ -25,14 +26,14 @@ class AutonomousLeft : LinearOpMode() {
         claw = Claw(hardwareMap, arm = arm).apply { close() }
         drive = SampleMecanumDrive(hardwareMap)
         drive.followTrajectorySequenceAsync(drive.trajectorySequenceBuilder(Pose2d())
-            .addTemporalMarker { arm.state = Arm.Height.MID }
+            .addTemporalMarker { arm.state = Arm.States.MID }
             .splineToLinearHeading(LeftTraj.Pose2d(31, -3, -40), 0.rad)
             .waitSeconds(0.2)
             .addTemporalMarker { claw.open() }
             .waitSeconds(0.2)
-            .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = Arm.Height.STACK }
+            .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = Arm.States.STACK }
             .lineToLinearHeading(LeftTraj.Pose2d(28, 0, 90))
-            .addTemporalMarker { arm.state = Arm.Height.GROUND }
+            .addTemporalMarker { arm.state = Arm.States.GROUND }
             .build())
         createWebcam(hardwareMap, telemetry, pipeline)
 
@@ -50,12 +51,12 @@ class AutonomousLeft : LinearOpMode() {
         }
         when (dir) {
             AprilTagPipeline.Tag.LEFT -> drive.followTrajectory(
-                drive.trajectoryBuilder(LeftTraj.endPose)
+                drive.trajectoryBuilder(LeftTraj.Pose2d(55, 10, 90))
                     .forward(28.0)
                     .build()
             )
             AprilTagPipeline.Tag.RIGHT -> drive.followTrajectory(
-                drive.trajectoryBuilder(LeftTraj.endPose)
+                drive.trajectoryBuilder(LeftTraj.Pose2d(55, 10, 90))
                     .back(28.0)
                     .build()
             )

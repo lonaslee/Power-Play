@@ -18,17 +18,16 @@ class TeleOp2 : OpMode() {
 
     override fun init() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        arm = Arm(hardwareMap, gamepads)
-        claw = Claw(hardwareMap, gamepads, arm = arm)
+        arm = Arm(hardwareMap)
+        claw = Claw(hardwareMap)
         drive = SampleMecanumDrive(hardwareMap)
     }
 
     override fun loop() {
         drive.update(gamepads)
         arm.update()
-        claw.update()
 
-        gamepads.onEach { it.update() }
+        gamepads.sync()
         tm.update()
     }
 }

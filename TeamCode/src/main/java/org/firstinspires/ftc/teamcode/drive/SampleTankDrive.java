@@ -58,19 +58,17 @@ public class SampleTankDrive extends TankDrive {
     public static double VX_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
-    private final TrajectorySequenceRunner trajectorySequenceRunner;
+    private TrajectorySequenceRunner trajectorySequenceRunner;
 
     private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
     private static final TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(MAX_ACCEL);
 
-    private final TrajectoryFollower follower;
+    private TrajectoryFollower follower;
 
-    private final List<DcMotorEx> motors;
-    private final List<DcMotorEx> leftMotors;
-    private final List<DcMotorEx> rightMotors;
-    private final BNO055IMU imu;
+    private List<DcMotorEx> motors, leftMotors, rightMotors;
+    private BNO055IMU imu;
 
-    private final VoltageSensor batteryVoltageSensor;
+    private VoltageSensor batteryVoltageSensor;
 
     public SampleTankDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH);
