@@ -19,27 +19,15 @@ class Claw(
         override val all = listOf(CLOSED, HALF_OPENED, OPENED)
     }
 
-    override val state
-        get() = when (servo.position) {
-            in OPENED - 0.01..OPENED + 0.01 -> OPENED
-            in CLOSED - 0.01..CLOSED + 0.01 -> CLOSED
-            else                            -> HALF_OPENED
+    override var state = OPENED
+        set(value) {
+            if (field != value) {
+                field = value
+                servo.position = value
+            }
         }
 
-    fun open() {
-        servo.position = OPENED
-    }
-
-    fun halfOpen() {
-        servo.position = HALF_OPENED
-    }
-
-    fun close() {
-        servo.position = CLOSED
-    }
-
     fun change() {
-        if (state == CLOSED) open()
-        else close()
+        state = if (state == CLOSED) OPENED else CLOSED
     }
 }

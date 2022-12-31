@@ -26,7 +26,7 @@ class LeftTraj(
         .addTemporalMarker { arm.state = Arm.MID }
         .splineToLinearHeading(Pose2d(31, -3, -40), 0.rad)
         .waitSeconds(0.2)
-        .addTemporalMarker { claw.open() }
+        .addTemporalMarker { claw.state = Claw.OPENED }
         .waitSeconds(0.2)
         .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = Arm.STACK }
         .strafeLeft(10.0)
@@ -34,39 +34,39 @@ class LeftTraj(
         .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
         .forward(10.5)
         .waitSeconds(0.1)
-        .addTemporalMarker { claw.close() }
+        .addTemporalMarker { claw.state = Claw.CLOSED }
         .waitSeconds(0.2)
         .addTemporalMarker { arm.state = Arm.MID }
         .lineToSplineHeading(Pose2d(49, -5, 55))
         .addTemporalMarker { arm.state = Arm.BACKMID }
         .waitSeconds(1.5)
-        .addTemporalMarker { claw.open() }
+        .addTemporalMarker { claw.state = Claw.OPENED }
         .waitSeconds(0.2)
         .addTemporalMarker { arm.state = Arm.STACK }
         // to stack 2
         .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
         .forward(10.5)
         .waitSeconds(0.1)
-        .addTemporalMarker { claw.close() }
+        .addTemporalMarker { claw.state = Claw.CLOSED }
         .waitSeconds(0.2)
         .addTemporalMarker { arm.state = Arm.MID }
         .lineToSplineHeading(Pose2d(49, -5, 55))
         .addTemporalMarker { arm.state = Arm.BACKMID }
         .waitSeconds(1.5)
-        .addTemporalMarker { claw.open() }
+        .addTemporalMarker { claw.state = Claw.OPENED }
         .waitSeconds(0.2)
         .addTemporalMarker { arm.state = Arm.STACK }
         // to stack 3
         .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
         .forward(10.5)
         .waitSeconds(0.1)
-        .addTemporalMarker { claw.close() }
+        .addTemporalMarker { claw.state = Claw.CLOSED }
         .waitSeconds(0.2)
         .addTemporalMarker { arm.state = Arm.MID }
         .lineToSplineHeading(Pose2d(49, -5, 55))
         .addTemporalMarker { arm.state = Arm.BACKMID }
         .waitSeconds(1.5)
-        .addTemporalMarker { claw.open() }
+        .addTemporalMarker { claw.state = Claw.OPENED }
         .waitSeconds(0.2)
 
     val left = coneTraj.lineToLinearHeading(Pose2d(53, 24, 0))

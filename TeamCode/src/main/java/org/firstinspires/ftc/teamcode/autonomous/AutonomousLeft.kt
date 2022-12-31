@@ -23,13 +23,13 @@ class AutonomousLeft : LinearOpMode() {
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap).apply { close() }
+        claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap)
         drive.followTrajectorySequenceAsync(drive.trajectorySequenceBuilder(Pose2d())
-            .addTemporalMarker { arm.state = Arm.States.MID }
+            .addTemporalMarker { arm.state = Arm.MID }
             .splineToLinearHeading(LeftTraj.Pose2d(31, -3, -40), 0.rad)
             .waitSeconds(0.2)
-            .addTemporalMarker { claw.open() }
+            .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(0.2)
             .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = Arm.States.STACK }
             .lineToLinearHeading(LeftTraj.Pose2d(28, 0, 90))

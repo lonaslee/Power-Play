@@ -46,8 +46,8 @@ class TeleOp4 : LinearOpMode() {
 
         EventLoop(::opModeIsActive).apply {
             updates += listOf(arm::update, { drive.update(gamepads) }, {
-                if (claw.state == Claw.OPENED && arm.state > MID) claw.halfOpen()
-                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.open()
+                if (claw.state == Claw.OPENED && arm.state > MID) claw.state = Claw.HALF_OPENED
+                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.state = Claw.OPENED
             }, gamepads::sync)
 
             onAnyPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
@@ -60,7 +60,7 @@ class TeleOp4 : LinearOpMode() {
 
             /* aim at cone */
             onAnyPressed(gp1::right_bumper, gp2::right_bumper) {
-                claw.open()
+                claw.state = Claw.OPENED
                 singleEvents += { claw.state != CLOSED } to {
                     if (pipeline.detected) {
                         pickPID.setPID(TeleOp3.pP, TeleOp3.pI, TeleOp3.pD)

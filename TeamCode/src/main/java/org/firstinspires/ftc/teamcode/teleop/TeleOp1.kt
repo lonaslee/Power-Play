@@ -36,8 +36,8 @@ class TeleOp1 : LinearOpMode() {
 
         EventLoop(::opModeIsActive).apply {
             updates += listOf(arm::update, { drive.update(gamepads) }, {
-                if (claw.state == Claw.OPENED && arm.state > MID) claw.halfOpen()
-                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.open()
+                if (claw.state == Claw.OPENED && arm.state > MID) claw.state = Claw.HALF_OPENED
+                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.state = Claw.OPENED
             }, gamepads::sync)
 
             onAnyPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }

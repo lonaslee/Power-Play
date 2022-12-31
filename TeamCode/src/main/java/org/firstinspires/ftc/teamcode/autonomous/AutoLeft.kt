@@ -22,7 +22,7 @@ class AutoLeft : LinearOpMode() {
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap).apply { close() }
+        claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTraj(drive, arm, claw)
 
