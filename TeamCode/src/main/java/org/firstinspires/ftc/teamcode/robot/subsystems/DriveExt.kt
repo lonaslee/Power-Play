@@ -15,7 +15,7 @@ class DriveExt(
 ) : SampleMecanumDrive(hardwareMap), Subsystem {
     private var lastPose = Pose2d()
 
-    object States : Subsystem.States {
+  companion object States : Subsystem.States {
         const val STATIONARY = 0
         const val MOVING = 1
 
@@ -23,7 +23,7 @@ class DriveExt(
     }
 
     override val state
-        get() = if (lastPose != poseEstimate) States.MOVING else States.STATIONARY
+        get() = if (lastPose != poseEstimate) MOVING else STATIONARY
 
     fun update(gamepads: Pair<GamepadExt, GamepadExt>) {
         if (!robotcentric) fieldcentric(gamepads)
@@ -42,7 +42,7 @@ class DriveExt(
         val x = gamepads.first.left_stick_x * 1.1
         val turn = gamepads.first.right_stick_x.toDouble()
 
-        val (rotX, rotY) = rawExternalHeading.let { Pair(x * cos(it) - y * sin(it), x * sin(it) + y * cos(it)) }
+        val (rotX, rotY) = (-rawExternalHeading).let { Pair(x * cos(it) - y * sin(it), x * sin(it) + y * cos(it)) }
 
         val denom = max(abs(y) + abs(x) + abs(turn), 1.0)
         setMotorPowers(

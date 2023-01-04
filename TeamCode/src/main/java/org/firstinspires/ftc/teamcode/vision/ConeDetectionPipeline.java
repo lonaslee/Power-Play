@@ -62,7 +62,9 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-        input = input.submat(new Rect(0, input.height() / 5, input.width(), input.height() / 2));
+        Rect sub = new Rect(0, input.height() / 5, input.width(), input.height() / 2);
+        Imgproc.rectangle(input, sub, DetectionUtils.GREEN);
+//        input = input.submat();
 
         double lo_offset = input.width() / 2.0 - MAX_OFFSET;
         double hi_offset = input.width() / 2.0 + MAX_OFFSET;
@@ -85,10 +87,13 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
         } else {
             Imgproc.drawContours(input, List.of(approxCone), -1, DetectionUtils.BLUE);
 
-            double middle = Objects.requireNonNull(DetectionUtils.getContourCenter(approxCone)).x;
-            Imgproc.line(input, new Point(middle, 0), new Point(middle, input.height()), DetectionUtils.RED);
+            Point center = DetectionUtils.getContourCenter(approxCone);
+            if (center != null) {
+                double middle = center.x;
+                Imgproc.line(input, new Point(middle, 0), new Point(middle, input.height()), DetectionUtils.RED);
 
-            error = (lo_offset < middle && middle < hi_offset) ? 0 : input.width() / 2.0 - middle;
+                error = (lo_offset < middle && middle < hi_offset) ? 0 : input.width() / 2.0 - middle;
+            }
         }
 
         if (telemetry != null) {
@@ -100,7 +105,10 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
     @Nullable
     private MatOfPoint approximateMaxHull() {
-        MatOfPoint maxAreaContour = Collections.max(DetectionUtils.getConvexHulls(contours), Comparator.comparing(Imgproc::contourArea));
+        List<MatOfPoint> mint = DetectionUtils.getConvexHulls(contours);
+        if (mint.size() == 0) return null;
+
+        MatOfPoint maxAreaContour = Collections.max(mint, Comparator.comparing(Imgproc::contourArea));
         if (Imgproc.contourArea(maxAreaContour) < 1500) return null;
 
         MatOfPoint2f matAs2f = DetectionUtils.matToMat2f(maxAreaContour);

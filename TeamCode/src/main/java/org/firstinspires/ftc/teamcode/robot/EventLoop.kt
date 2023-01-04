@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.robot
 
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.reflect.KProperty
 
 typealias Callback = () -> Unit
 typealias Predicate = () -> Boolean
 
-class EventLoop(private val opModeIsActive: Predicate) {
+class EventLoop(private val opModeIsActive: Predicate, private val telemetry: Telemetry? = null) {
     /**
      * Routines that need to be called on every loop.
      */
@@ -40,9 +41,14 @@ class EventLoop(private val opModeIsActive: Predicate) {
      */
     fun run() {
         while (opModeIsActive()) {
-            keyEvents.filter { it.first() }.forEach { it.second() }
-            singleEvents.apply { retainAll { it.first() } }.forEach { it.second() }
+            telemetry?.addData("size", updates.size)
+            telemetry?.addData("keys", keyEvents.size)
+            telemetry?.addData("single", singleEvents.size)
 
+            keyEvents.filter { it.first() }
+                .forEach { it.second() }
+            if (singleEvents.size >= 1) singleEvents.apply { retainAll { it.first() } }
+                .forEach { println("run second"); it.second() }
             updates.forEach { it() }
         }
     }

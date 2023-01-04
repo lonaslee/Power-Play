@@ -17,10 +17,8 @@ val bot = DefaultBotBuilder(meepmeep).setConstraints(60.0, 60.0, 180.rad, 180.ra
 val drive = bot.drive
 
 fun main() {
-    drive.poseEstimate = Pose2d(-36.0, -60.0, 90.0)
     bot.followTrajectorySequence(
         drive.trajectorySequenceBuilder(Pose2d())
-            .lineToLinearHeading(Pose2d(-5.0, 46.0, Math.toRadians(50.0)))
             .build()!!
     )
 

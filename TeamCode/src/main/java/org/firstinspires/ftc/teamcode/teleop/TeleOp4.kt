@@ -44,11 +44,12 @@ class TeleOp4 : LinearOpMode() {
         val gp2 = GamepadExt(gamepad2)
         val gamepads = gp1 to gp2
 
-        EventLoop(::opModeIsActive).apply {
+        EventLoop(::opModeIsActive, tm).apply {
             updates += listOf(arm::update, { drive.update(gamepads) }, {
                 if (claw.state == Claw.OPENED && arm.state > MID) claw.state = Claw.HALF_OPENED
-                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.state = Claw.OPENED
-            }, gamepads::sync)
+                else if (claw.state == Claw.HALF_OPENED && arm.state <= MID) claw.state =
+                    Claw.OPENED
+            }, gamepads::sync, { tm.update(); Unit })
 
             onAnyPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
             onAnyPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
@@ -62,9 +63,11 @@ class TeleOp4 : LinearOpMode() {
             onAnyPressed(gp1::right_bumper, gp2::right_bumper) {
                 claw.state = Claw.OPENED
                 singleEvents += { claw.state != CLOSED } to {
+                    println("invoke det")
                     if (pipeline.detected) {
                         pickPID.setPID(TeleOp3.pP, TeleOp3.pI, TeleOp3.pD)
-                        gp1.right_stick_x = -pickPID.calculate(pipeline.error).toFloat()
+                        gp1.right_stick_x = pickPID.calculate(pipeline.error)
+                            .toFloat()
                     }
                 }
             }
@@ -72,11 +75,12 @@ class TeleOp4 : LinearOpMode() {
             /* turn 180 left */
             onPressed(gp1::dpad_left) {
                 singleEvents += object : Callback {
-                    val targetAngle = drive.poseEstimate.heading + 180
+                    val targetAngle = drive.rawExternalHeading + 180
                     override operator fun invoke() {
+                        println("invoke left")
                         gp1.right_stick_x = -1.0F
                     }
-                }.let { { drive.poseEstimate.heading < it.targetAngle } to it }
+                }.let { { (drive.rawExternalHeading < it.targetAngle).also { b -> println("$b : ${drive.poseEstimate.heading} - ${it.targetAngle}") } } to it }
             }
 
             /* turn 180 right */
@@ -84,18 +88,20 @@ class TeleOp4 : LinearOpMode() {
                 singleEvents += object : Callback {
                     val targetAngle = drive.poseEstimate.heading - 180
                     override operator fun invoke() {
+                        println("invoke right")
                         gp1.right_stick_x = 1.0F
                     }
                 }.let { { drive.poseEstimate.heading > it.targetAngle } to it }
             }
-        }.also {
-            waitForStart()
-            it.run()
         }
+            .also {
+                waitForStart()
+                it.run()
+            }
     }
 
     companion object {
-        @JvmField var pP = 0.002
+        @JvmField var pP = 0.1
         @JvmField var pI = 0.0
         @JvmField var pD = 0.0
     }
