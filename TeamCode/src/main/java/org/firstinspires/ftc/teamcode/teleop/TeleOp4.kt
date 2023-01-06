@@ -101,7 +101,7 @@ class TeleOp4 : LinearOpMode() {
     }
 
     companion object {
-        @JvmField var pP = 0.1
+        @JvmField var pP = 0.001
         @JvmField var pI = 0.0
         @JvmField var pD = 0.0
     }

@@ -5,12 +5,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.GamepadExt
 import org.firstinspires.ftc.teamcode.robot.pressed
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.update
+import org.firstinspires.ftc.teamcode.robot.subsystems.DriveExt
 import org.firstinspires.ftc.teamcode.robot.sync
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline.RED
@@ -21,7 +20,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 class TeleOp3 : OpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm
-    private lateinit var drive: SampleMecanumDrive
+    private lateinit var drive: DriveExt
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
     private lateinit var webcam: OpenCvWebcam
     private val pipeline = ConeDetectionPipeline(RED)
@@ -33,7 +32,7 @@ class TeleOp3 : OpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap)
-        drive = SampleMecanumDrive(hardwareMap)
+        drive = DriveExt(hardwareMap)
 
         webcam = createWebcam(hardwareMap, pipeline = pipeline)
     }

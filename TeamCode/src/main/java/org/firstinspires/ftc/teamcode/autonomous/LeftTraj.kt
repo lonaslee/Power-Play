@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
+import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline.Tag
 
 @Config
 class LeftTraj(
@@ -16,10 +16,10 @@ class LeftTraj(
         fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
     }
 
-    fun byTag(tag: AprilTagPipeline.Tag) = when (tag) {
-        AprilTagPipeline.Tag.LEFT  -> left
-        AprilTagPipeline.Tag.RIGHT -> right
-        else                       -> middle
+    fun byTag(tag: Tag) = when (tag) {
+        Tag.LEFT  -> left
+        Tag.RIGHT -> right
+        else      -> middle
     }
 
     private val coneTraj = drive.trajectorySequenceBuilder(Pose2d())

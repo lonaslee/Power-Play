@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
+import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
 @Autonomous
@@ -18,7 +19,7 @@ class AutoLeft : LinearOpMode() {
     private lateinit var trajs: LeftTraj
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-    private val pipeline = AprilTagPipeline(tm)
+    private val pipeline: SignalSleevePipeline = AprilTagPipeline(tm)
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
