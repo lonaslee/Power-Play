@@ -13,10 +13,9 @@ class Claw(
     }
 
     companion object States : Subsystem.States {
-        const val OPENED = 0.56
-        const val CLOSED = 0.69
-        const val HALF_OPENED = 0.6
-        override val all = listOf(CLOSED, HALF_OPENED, OPENED)
+        const val OPENED = 0.0
+        const val CLOSED = 0.13
+        override val all = listOf(CLOSED, OPENED)
     }
 
     override var state = OPENED

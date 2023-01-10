@@ -7,32 +7,31 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.CLOSED
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
 @Autonomous
-class AutoLeft : LinearOpMode() {
+class LeftAuto : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm
     private lateinit var drive: SampleMecanumDrive
-    private lateinit var trajs: LeftTraj
+    private lateinit var trajs: LeftTrajectory
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
     private val pipeline: SignalSleevePipeline = AprilTagPipeline(tm)
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap)
+        claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap)
-        trajs = LeftTraj(drive, arm, claw)
+        trajs = LeftTrajectory(drive, arm, claw)
 
         createWebcam(hardwareMap, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
-        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+        drive.followTrajectorySequenceAsync(trajs.coneTraj)
 
         while (opModeIsActive()) {
             arm.update()

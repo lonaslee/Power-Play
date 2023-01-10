@@ -31,6 +31,7 @@ class TeleOp2 : LinearOpMode() {
         EventLoop(::opModeIsActive).apply {
             onPressed(gamepads.first::dpad_up) { arm.state = Arm2.next(arm.state) }
             onPressed(gamepads.first::dpad_down) { arm.state = Arm2.prev(arm.state) }
+
             onPressed(gamepads.first::left_bumper) { claw.change() }
 
             updates += listOf({ drive.update(gamepads) }, arm::update, { tm.update(); Unit }, gamepads::sync)
