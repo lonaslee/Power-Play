@@ -11,8 +11,7 @@ import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.STACK
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.CLOSED
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.OPENED
-import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
-
+import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline.Tag
 
 @Config
 class LeftTraj(
@@ -40,16 +39,14 @@ class LeftTraj(
         fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
     }
 
-    fun byTag(tag: SignalSleevePipeline.Tag) = when (tag) {
-        SignalSleevePipeline.Tag.LEFT -> left
-        SignalSleevePipeline.Tag.RIGHT -> right
+    fun byTag(tag: Tag) = when (tag) {
+        Tag.LEFT -> left
+        Tag.RIGHT -> right
         else -> middle
     }
 
 
     private val coneTraj = drive.trajectorySequenceBuilder(Pose2d())
-        .addTemporalMarker { claw.state = CLOSED }
-        .waitSeconds(0.2)
         .addTemporalMarker { arm.state = MID }
         .splineToLinearHeading(Pose2d(31, -3, -40), 0.rad)
         .waitSeconds(0.2)

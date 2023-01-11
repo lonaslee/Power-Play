@@ -28,7 +28,7 @@ class Arm(
         const val GROUND = -170
         const val STACK = -70
         const val LOW = 70
-        const val MID = 160
+        const val MID = 170
         const val BACKMID = 360
         const val BACKLOW = 400
 

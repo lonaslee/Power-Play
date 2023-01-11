@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.CLOSED
+import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.OPENED
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
@@ -30,13 +31,21 @@ class AutoLeft : LinearOpMode() {
 
         createWebcam(hardwareMap, telemetry, pipeline)
 
+        while (!isStarted && !isStopRequested) {
+            if (pipeline.verdict != SignalSleevePipeline.Tag.UNKNOWN) {
+                claw.state = CLOSED
+                drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+                break
+            }
+        }
+
         waitForStart()
         if (isStopRequested) return
-        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
 
         while (opModeIsActive()) {
             arm.update()
             drive.update()
+            if (!drive.isBusy) break
         }
     }
 }

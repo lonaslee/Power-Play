@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.robot.GamepadExt
+import org.firstinspires.ftc.teamcode.robot.anypressed
 import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
 import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
 import org.firstinspires.ftc.teamcode.robot.sync
@@ -35,6 +36,17 @@ class LeftCoordGetter : OpMode() {
             )
         )
         drive.update()
+
+        if (anypressed(gamepads.first::dpad_up)) {
+            arm.state = Arm.next(arm.state)
+        } else if (anypressed(gamepads.first::dpad_down)) {
+            arm.state = Arm.prev(arm.state)
+        }
+        arm.update()
+
+        if (anypressed(gamepads.first::left_bumper)) {
+            claw.change()
+        }
 
         val (x, y, heading) = drive.poseEstimate
         telemetry.addData("x", x)
