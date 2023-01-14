@@ -31,16 +31,11 @@ class AutoLeft : LinearOpMode() {
 
         createWebcam(hardwareMap, telemetry, pipeline)
 
-        while (!isStarted && !isStopRequested) {
-            if (pipeline.verdict != SignalSleevePipeline.Tag.UNKNOWN) {
-                claw.state = CLOSED
-                drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
-                break
-            }
-        }
-
         waitForStart()
         if (isStopRequested) return
+        claw.state = CLOSED
+        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+        sleep(500)
 
         while (opModeIsActive()) {
             arm.update()

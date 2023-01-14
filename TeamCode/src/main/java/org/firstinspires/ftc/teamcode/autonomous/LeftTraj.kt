@@ -42,59 +42,65 @@ class LeftTraj(
         fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
     }
 
-    fun byTag(tag: Tag) = drive.trajectorySequenceBuilder(Pose2d())
-        .addTemporalMarker { arm.state = MID }
-        .splineToLinearHeading(Pose2d(30, -3, -40), 0.rad)
-        .waitSeconds(0.2)
-        .addTemporalMarker { claw.state = OPENED }
-        .waitSeconds(0.2)
-        .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = STACK }
-        .strafeLeft(10.0)
-        // to stack
-        .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
-        .forward(d)
-        .waitSeconds(0.1)
-        .addTemporalMarker { claw.state = CLOSED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = MID }
-        .lineToSplineHeading(oPose)
-        .addTemporalMarker { arm.state = BACKMID }
-        .waitSeconds(1.5)
-        .addTemporalMarker { claw.state = OPENED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = STACK }
-        // to stack 2
-        .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
-        .forward(d)
-        .waitSeconds(0.1)
-        .addTemporalMarker { claw.state = CLOSED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = MID }
-        .lineToSplineHeading(aPose)
-        .addTemporalMarker { arm.state = BACKMID }
-        .waitSeconds(1.5)
-        .addTemporalMarker { claw.state = OPENED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = STACK }
-        // to stack 3
-        .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
-        .forward(d)
-        .waitSeconds(0.1)
-        .addTemporalMarker { claw.state = CLOSED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = MID }
-        .lineToSplineHeading(bPose)
-        .addTemporalMarker { arm.state = BACKMID }
-        .waitSeconds(1.5)
-        .addTemporalMarker { claw.state = OPENED }
-        .waitSeconds(0.2)
-        .addTemporalMarker { arm.state = GROUND }
-        .lineToLinearHeading(
-            when (tag) {
-                Tag.LEFT -> Pose2d(53, 24, 0)
-                Tag.RIGHT -> Pose2d(54, -24, 0)
-                else -> Pose2d(53, 0, 0)
-            }
-        )
+    fun byTag(tag: Tag) = when (tag) {
+        Tag.LEFT -> left
+        Tag.RIGHT -> right
+        else -> middle
+    }
+
+    private val coneTraj
+        get() = drive.trajectorySequenceBuilder(Pose2d())
+            .addTemporalMarker { arm.state = MID }
+            .splineToLinearHeading(Pose2d(30, -3, -40), 0.rad)
+            .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = OPENED }
+            .waitSeconds(0.2)
+            .UNSTABLE_addTemporalMarkerOffset(0.3) { arm.state = STACK }
+            .strafeLeft(10.0)
+            // to stack
+            .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
+            .forward(d)
+            .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = CLOSED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = MID }
+            .lineToSplineHeading(oPose)
+            .addTemporalMarker { arm.state = BACKMID }
+            .waitSeconds(1.5)
+            .addTemporalMarker { claw.state = OPENED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = STACK }
+            // to stack 2
+            .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
+            .forward(d)
+            .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = CLOSED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = MID }
+            .lineToSplineHeading(aPose)
+            .addTemporalMarker { arm.state = BACKMID }
+            .waitSeconds(1.5)
+            .addTemporalMarker { claw.state = OPENED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = STACK }
+            // to stack 3
+            .splineToLinearHeading(Pose2d(55, 10, 90), 0.rad)
+            .forward(d)
+            .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = CLOSED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = MID }
+            .lineToSplineHeading(bPose)
+            .addTemporalMarker { arm.state = BACKMID }
+            .waitSeconds(1.5)
+            .addTemporalMarker { claw.state = OPENED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = GROUND }
+
+    val left = coneTraj.lineToLinearHeading(Pose2d(53, 24, 0))
+        .build()!!
+    val right = coneTraj.lineToLinearHeading(Pose2d(54, -24, 0))
+        .build()!!
+    val middle = coneTraj.lineToLinearHeading(Pose2d(53, 0, 0))
         .build()!!
 }
