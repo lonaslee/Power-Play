@@ -28,14 +28,15 @@ class Arm(
         const val GROUND = -170
         const val STACK = -70
         const val LOW = 70
-        const val MID = 170
-        const val BACKMID = 360
+        const val MID = 180
+        const val BACKMID = 305
         const val BACKLOW = 400
 
         override val all = listOf(GROUND, STACK, LOW, MID, BACKMID, BACKLOW)
         override fun next(this_: Number) = super.next(this_).toInt()
         override fun prev(this_: Number) = super.prev(this_).toInt()
     }
+
 
     private var goingDown = false
     private var stackHeight = STACK

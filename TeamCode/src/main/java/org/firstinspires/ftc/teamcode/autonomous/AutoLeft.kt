@@ -33,11 +33,14 @@ class AutoLeft : LinearOpMode() {
 
         waitForStart()
         if (isStopRequested) return
+        claw.state = CLOSED
         drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+        sleep(500)
 
         while (opModeIsActive()) {
             arm.update()
             drive.update()
+            if (!drive.isBusy) break
         }
     }
 }
