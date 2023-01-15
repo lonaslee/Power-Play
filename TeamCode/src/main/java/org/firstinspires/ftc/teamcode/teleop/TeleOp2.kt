@@ -4,12 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.robot.EventLoop
-import org.firstinspires.ftc.teamcode.robot.GamepadExt
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm2
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.DriveExt
-import org.firstinspires.ftc.teamcode.robot.sync
+import org.firstinspires.ftc.teamcode.subsystems.Arm2
+import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 
 @TeleOp
 class TeleOp2 : LinearOpMode() {
@@ -34,7 +31,12 @@ class TeleOp2 : LinearOpMode() {
 
             onPressed(gamepads.first::left_bumper) { claw.change() }
 
-            updates += listOf({ drive.update(gamepads) }, arm::update, { tm.update(); Unit }, gamepads::sync)
+            updates += listOf(
+                { drive.update(gamepads) },
+                arm::update,
+                { tm.update(); Unit },
+                gamepads::sync
+            )
         }.also {
             waitForStart()
             it.run()

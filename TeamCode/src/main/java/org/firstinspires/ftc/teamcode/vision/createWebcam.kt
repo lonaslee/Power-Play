@@ -4,12 +4,8 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.teamcode.robot.subsystems.RobotConfig
-import org.openftc.easyopencv.OpenCvCamera
-import org.openftc.easyopencv.OpenCvCameraFactory
-import org.openftc.easyopencv.OpenCvCameraRotation
-import org.openftc.easyopencv.OpenCvPipeline
-import org.openftc.easyopencv.OpenCvWebcam
+import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
+import org.openftc.easyopencv.*
 
 fun createWebcam(
     hardwareMap: HardwareMap, telemetry: Telemetry? = null, pipeline: OpenCvPipeline? = null

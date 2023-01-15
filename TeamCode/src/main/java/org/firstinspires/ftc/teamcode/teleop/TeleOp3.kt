@@ -5,12 +5,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.robot.GamepadExt
-import org.firstinspires.ftc.teamcode.robot.pressed
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.DriveExt
-import org.firstinspires.ftc.teamcode.robot.sync
+import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline.RED
 import org.firstinspires.ftc.teamcode.vision.createWebcam

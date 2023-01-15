@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import org.firstinspires.ftc.teamcode.autonomous.LeftTraj.Companion.rad
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.DriveExt
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Claw
 
 
 @com.acmerobotics.dashboard.config.Config

@@ -16,38 +16,35 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ConeDetectionPipeline extends OpenCvPipeline {
     public static final Scalar[] RED = new Scalar[]{new Scalar(0, 100, 20), new Scalar(10, 255, 255)};
-    public static final Scalar[] BLUE = new Scalar[]{new Scalar(100, 70, 50), new Scalar(130, 255, 255)};
+    public static final Scalar[] BLUE = new Scalar[]{new Scalar(110, 50, 50), new Scalar(130, 255, 255)};
     public static final int MAX_OFFSET = 3;
 
     @Nullable
     private final Telemetry telemetry;
 
-    private final Scalar LOWER_BOUND;
-    private final Scalar UPPER_BOUND;
+    @Nonnull
+    private final Scalar[] bounds;
 
     @TestOnly
     public ConeDetectionPipeline(@Nullable Telemetry telemetry) {
         this.telemetry = telemetry;
-        LOWER_BOUND = RED[0];
-        UPPER_BOUND = RED[1];
+        bounds = RED;
     }
 
-    public ConeDetectionPipeline(Scalar[] color) {
+    public ConeDetectionPipeline(@Nonnull Scalar[] color) {
         this.telemetry = null;
-        LOWER_BOUND = color[0];
-        UPPER_BOUND = color[1];
+        bounds = color;
     }
 
-    public ConeDetectionPipeline(@Nullable Telemetry telemetry, Scalar[] color) {
+    public ConeDetectionPipeline(@Nonnull Scalar[] color, @Nonnull Telemetry telemetry) {
         this.telemetry = telemetry;
-        LOWER_BOUND = color[0];
-        UPPER_BOUND = color[1];
+        bounds = color;
     }
 
     private final Mat hsv = new Mat();
@@ -64,7 +61,6 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
         Rect sub = new Rect(0, input.height() / 5, input.width(), input.height() / 2);
         Imgproc.rectangle(input, sub, DetectionUtils.GREEN);
-//        input = input.submat();
 
         double lo_offset = input.width() / 2.0 - MAX_OFFSET;
         double hi_offset = input.width() / 2.0 + MAX_OFFSET;
@@ -73,7 +69,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-        Core.inRange(hsv, LOWER_BOUND, UPPER_BOUND, mask);
+        Core.inRange(hsv, bounds[0], bounds[1], mask);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
 

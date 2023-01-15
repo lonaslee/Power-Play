@@ -66,7 +66,7 @@ public class DetectionUtils {
     @NotNull
     public static ArrayList<MatOfPoint2f> getApproximates(@NotNull List<MatOfPoint> contours, double epilisonMultiplier) {
         ArrayList<MatOfPoint2f> approxs = new ArrayList<>(contours.size());
-        contours.forEach(it -> approxs.add(getApproximate(it)));
+        contours.forEach(it -> approxs.add(getApproximate(it, epilisonMultiplier)));
         return approxs;
     }
 
@@ -144,9 +144,8 @@ public class DetectionUtils {
 
     public static void drawBoundingRects(@NotNull Mat input, @NotNull List<RotatedRect> rotatedRects) {
         rotatedRects.stream().map(RotatedRect::boundingRect)
-                    .collect(Collectors.toList()).forEach(it -> {
-                        Imgproc.rectangle(input, it, GREEN);
-                    });
+                    .collect(Collectors.toList())
+                    .forEach(it -> Imgproc.rectangle(input, it, GREEN));
     }
 
     public static void drawRectCenters(@NotNull Mat img, @NotNull List<Rect> rects) {

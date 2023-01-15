@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.BACKMID
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.GROUND
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.MID
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.STACK
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.CLOSED
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw.States.OPENED
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.MID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.STACK
+import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.subsystems.Claw.States.CLOSED
+import org.firstinspires.ftc.teamcode.subsystems.Claw.States.OPENED
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline.Tag
 
 @com.acmerobotics.dashboard.config.Config
@@ -31,8 +31,6 @@ class LeftTraj(
 
         @JvmField var d = 11.0
 
-        val endPose = Pose2d(55, 10, 90)
-
         val Int.rad get() = Math.toRadians(this.toDouble())
 
         val aPose get() = Pose2d(a_x, a_y, Math.toRadians(a_h))
@@ -43,9 +41,9 @@ class LeftTraj(
     }
 
     fun byTag(tag: Tag) = when (tag) {
-        Tag.LEFT -> left
+        Tag.LEFT  -> left
         Tag.RIGHT -> right
-        else -> middle
+        else      -> middle
     }
 
     private val coneTraj

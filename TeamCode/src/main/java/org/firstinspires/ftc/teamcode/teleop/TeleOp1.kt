@@ -4,16 +4,13 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.robot.EventLoop
-import org.firstinspires.ftc.teamcode.robot.GamepadExt
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.BACKMID
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.GROUND
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.LOW
-import org.firstinspires.ftc.teamcode.robot.subsystems.Arm.States.MID
-import org.firstinspires.ftc.teamcode.robot.subsystems.Claw
-import org.firstinspires.ftc.teamcode.robot.subsystems.DriveExt
-import org.firstinspires.ftc.teamcode.robot.sync
+import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOW
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.MID
+import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 import org.openftc.easyopencv.OpenCvWebcam
 
 @TeleOp
@@ -37,17 +34,16 @@ class TeleOp1 : LinearOpMode() {
         EventLoop(::opModeIsActive).apply {
             updates += listOf(arm::update, { drive.update(gamepads) }, gamepads::sync)
 
-            onAnyPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
-            onAnyPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
-            onAnyPressed(gp1::dpad_down, gp2::dpad_down) { arm.state = Arm.prev(arm.state) }
-            onAnyPressed(gp1::a, gp2::a) { arm.state = GROUND }
-            onAnyPressed(gp1::x, gp2::x) { arm.state = LOW }
-            onAnyPressed(gp1::y, gp2::y) { arm.state = MID }
-            onAnyPressed(gp1::b, gp2::b) { arm.state = BACKMID }
+            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
+            onPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
+            onPressed(gp1::dpad_down, gp2::dpad_down) { arm.state = Arm.prev(arm.state) }
+            onPressed(gp1::a, gp2::a) { arm.state = GROUND }
+            onPressed(gp1::x, gp2::x) { arm.state = LOW }
+            onPressed(gp1::y, gp2::y) { arm.state = MID }
+            onPressed(gp1::b, gp2::b) { arm.state = BACKMID }
+        }.also {
+            waitForStart()
+            it.run()
         }
-            .also {
-                waitForStart()
-                it.run()
-            }
     }
 }
