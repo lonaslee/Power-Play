@@ -34,7 +34,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
     @TestOnly
     public ConeDetectionPipeline(@Nullable Telemetry telemetry) {
         this.telemetry = telemetry;
-        bounds = RED;
+        bounds = BLUE;
     }
 
     public ConeDetectionPipeline(@Nonnull Scalar[] color) {
@@ -59,15 +59,16 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-        Rect sub = new Rect(0, input.height() / 5, input.width(), input.height() / 2);
-        Imgproc.rectangle(input, sub, DetectionUtils.GREEN);
+        Rect roi = new Rect(0, input.height() / 4, input.width(), input.height() / 2);
+        Imgproc.rectangle(input, roi, DetectionUtils.GREEN);
+        Mat inputroi = new Mat(input, roi);
 
         double lo_offset = input.width() / 2.0 - MAX_OFFSET;
         double hi_offset = input.width() / 2.0 + MAX_OFFSET;
         Imgproc.line(input, new Point(lo_offset, 0), new Point(input.width() / 2.0 - MAX_OFFSET, input.height()), DetectionUtils.GREEN);
         Imgproc.line(input, new Point(hi_offset, 0), new Point(input.width() / 2.0 + MAX_OFFSET, input.height()), DetectionUtils.GREEN);
 
-        Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+        Imgproc.cvtColor(inputroi, hsv, Imgproc.COLOR_RGB2HSV);
 
         Core.inRange(hsv, bounds[0], bounds[1], mask);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
@@ -81,7 +82,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
         if (!detected) {
             error = 0;
         } else {
-            Imgproc.drawContours(input, List.of(approxCone), -1, DetectionUtils.BLUE);
+            Imgproc.drawContours(inputroi, List.of(approxCone), -1, DetectionUtils.BLUE);
 
             Point center = DetectionUtils.getContourCenter(approxCone);
             if (center != null) {
@@ -96,6 +97,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
             telemetry.addData("error", error);
             telemetry.update();
         }
+        inputroi.release();
         return input;
     }
 

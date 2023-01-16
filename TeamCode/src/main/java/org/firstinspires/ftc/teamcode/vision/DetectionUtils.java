@@ -117,6 +117,24 @@ public class DetectionUtils {
         return matOfPoint;
     }
 
+    @NotNull
+    public static List<MatOfPoint> mat2fToMatList(@NotNull List<MatOfPoint2f> matOfPoint2fs) {
+        return matOfPoint2fs.stream().map(DetectionUtils::mat2fToMat)
+                            .collect(Collectors.toList());
+    }
+
+
+    public static void filterByArea(@NotNull List<MatOfPoint> contours, double minArea) {
+        filterByArea(contours, minArea, Double.MAX_VALUE);
+    }
+
+    public static void filterByArea(@NotNull List<MatOfPoint> contours, double minArea, double maxArea) {
+        contours.removeIf(c -> {
+            double area = Imgproc.contourArea(c);
+            return !(minArea <= area && area <= maxArea);
+        });
+    }
+
 
     public static double getRotatedRectHorizontalDistance(@NotNull RotatedRect rect) {
         Point[] pts = new Point[4];

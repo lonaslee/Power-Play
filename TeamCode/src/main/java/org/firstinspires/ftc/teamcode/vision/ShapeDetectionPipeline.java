@@ -5,22 +5,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 
 public final class ShapeDetectionPipeline extends OpenCvPipeline {
-    private static final Scalar LO_BOUND = new Scalar(50.0, 10.0, 0.0);
-    private static final Scalar HI_BOUND = new Scalar(200.0, 100.0, 255.0);
+    public static Scalar LO_BOUND = new Scalar(50.0, 10.0, 0.0);
+    public static Scalar HI_BOUND = new Scalar(200.0, 100.0, 255.0);
+    public static Size blurSize = new Size(5, 7);
 
     @Nullable
     private final Telemetry telemetry;
@@ -29,7 +30,7 @@ public final class ShapeDetectionPipeline extends OpenCvPipeline {
         this.telemetry = null;
     }
 
-    public ShapeDetectionPipeline(@Nonnull Telemetry telemetry) {
+    public ShapeDetectionPipeline(@NotNull Telemetry telemetry) {
         this.telemetry = telemetry;
     }
 
@@ -40,17 +41,21 @@ public final class ShapeDetectionPipeline extends OpenCvPipeline {
 
     private final List<MatOfPoint> contours = new ArrayList<>();
 
-    @Nonnull
-    public Mat processFrame(@Nonnull Mat input) {
-        reset();
+    @NotNull
+    @Override
+    public Mat processFrame(@NotNull Mat input) {
+        Rect roi = new Rect(input.width() * 5 / 12, input.height() * 5 / 12, input.width() / 6, input.height() / 6);
+        Imgproc.rectangle(input, roi, DetectionUtils.GREEN);
+        Mat inputroi = new Mat(input, roi);
 
-        Imgproc.cvtColor(input, ycrcb, Imgproc.COLOR_RGB2YCrCb);
+        Imgproc.cvtColor(inputroi, ycrcb, Imgproc.COLOR_RGB2YCrCb);
         Core.inRange(ycrcb, LO_BOUND, HI_BOUND, mask);
 
-        Imgproc.GaussianBlur(mask, mask, new Size(5, 7), 0);
+        Imgproc.GaussianBlur(mask, mask, blurSize, 0);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
 
+        contours.clear();
         Imgproc.findContours(mask, contours, hierarchy, 0, 1);
         contours.removeIf(c -> Imgproc.contourArea(c) < 100);
 
@@ -58,8 +63,7 @@ public final class ShapeDetectionPipeline extends OpenCvPipeline {
 
         List<MatOfPoint> apxmint = approxs.stream().map(DetectionUtils::mat2fToMat)
                                           .collect(Collectors.toList());
-        Imgproc.drawContours(input, apxmint, -1, DetectionUtils.GREEN);
-        DetectionUtils.drawContourCenters(input, apxmint);
+        Imgproc.drawContours(inputroi, apxmint, -1, DetectionUtils.GREEN);
 
         if (telemetry != null) {
             for (MatOfPoint2f apx : approxs) {
@@ -69,14 +73,7 @@ public final class ShapeDetectionPipeline extends OpenCvPipeline {
             }
             telemetry.update();
         }
+        inputroi.release();
         return input;
-    }
-
-    private void reset() {
-        ycrcb.release();
-        mask.release();
-        hierarchy.release();
-
-        contours.clear();
     }
 }
