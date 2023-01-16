@@ -24,17 +24,14 @@ class LeftAuto : LinearOpMode() {
     override fun runOpMode() {
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
-        drive =
-            SampleMecanumDrive(
-                hardwareMap
-            )
+        drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTrajectory(drive, arm, claw)
 
         createWebcam(hardwareMap, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
-        drive.followTrajectorySequenceAsync(trajs.coneTraj)
+        drive.followTrajectorySequenceAsync(trajs.initPoseTraj)
 
         while (opModeIsActive()) {
             arm.update()

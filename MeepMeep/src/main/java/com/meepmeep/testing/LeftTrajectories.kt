@@ -2,104 +2,40 @@ package com.meepmeep.testing
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.noahbres.meepmeep.core.toRadians
 import com.noahbres.meepmeep.roadrunner.DriveShim
-import java.util.Vector
+import kotlin.math.atan2
 
 
 class LeftTrajectories(drive: DriveShim) {
-    val trajectory = drive.trajectorySequenceBuilder(Pose2d(-36, -60, 90))
-        // to middle junction
-        .addTemporalMarker {  }
-        .lineToSplineHeading(Pose2d(-32, -32, 45))
-        .addTemporalMarker {}
-        .waitSeconds(0.2)
+    val trajectory = drive.trajectorySequenceBuilder(initialPose)
+        .splineToSplineHeading(Pose2d(6, 53, -45), 6.0)
+        .splineToLinearHeading(Pose2d(-20, 48, 90), head(90))
+        .lineToSplineHeading(Pose2d(6, 53, 135))
+        .splineToLinearHeading(Pose2d(-20, 48, 90), head(90))
 
-        // to stack
-        .addTemporalMarker { }
-        .lineToSplineHeading(Pose2d(-36, -24, 180))
-        .splineToConstantHeading(Vector2d(-56, -12), 180.rad)
+        .build()!!
 
-        // grab 1
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
+    val zt = drive.trajectorySequenceBuilder(Pose2d())
+        .splineToSplineHeading(Pose2d(53, 6, -135), -5.2)
+        .splineToLinearHeading(Pose2d(48, -20, 90), head(90))
+        .lineToSplineHeading(Pose2d(53, 6, 135))
 
-        // to middle junction
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-        .lineToSplineHeading(Pose2d(-32, -12, -45))
-        .addTemporalMarker {  }
-        .waitSeconds(0.2)
-
-        // to stack
-        .addTemporalMarker { }
-        .lineToSplineHeading(Pose2d(-56, -12, 180))
-
-        // grab 2
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-
-        // to middle junction
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-        .lineToSplineHeading(Pose2d(-32, -12, -45))
-        .addTemporalMarker {  }
-        .waitSeconds(0.2)
-
-        // to stack
-        .addTemporalMarker {  }
-        .lineToSplineHeading(Pose2d(-56, -12, 180))
-
-        // grab 3
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-
-        // to middle junction
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-        .lineToSplineHeading(Pose2d(-32, -12, -45))
-        .addTemporalMarker {  }
-        .waitSeconds(0.2)
-
-        // to stack
-        .addTemporalMarker {  }
-        .lineToSplineHeading(Pose2d(-56, -12, 180))
-
-        // grab 4
-        .addTemporalMarker { }
-        .waitSeconds(0.3)
-
-        // to middle junction
-        .addTemporalMarker {  }
-        .waitSeconds(0.3)
-        .lineToSplineHeading(Pose2d(-32, -12, -45))
-        .addTemporalMarker { }
-        .waitSeconds(0.2)
-
-        // to stack
-        .addTemporalMarker {  }
-        .lineToSplineHeading(Pose2d(-56, -12, 180))
-
-        // grab 5
-        .addTemporalMarker { }
-        .waitSeconds(0.3)
-
-        // to middle junction
-        .addTemporalMarker { }
-        .waitSeconds(0.3)
-        .lineToSplineHeading(Pose2d(-32, -12, -45))
-        .addTemporalMarker { }
-        .waitSeconds(0.2)
-
-        .addTemporalMarker {  }
-        .lineToSplineHeading(Pose2d(-36, -36, 270))
-        .lineToConstantHeading(Vector2d(-12, -36))
-
-        .build()!! // so excited!! NullPointerException!! lets go!!
+        .build()!!
 
     companion object {
-        fun Pose2d(x: Int = 0, y: Int = 0, heading: Int = 0) =
-            Pose2d(x.toDouble(), y.toDouble(), heading.rad)
+        val initialPose =/*Pose2d(0.0,0.0,90.0) */ Pose2d(-36.0, -60.0, 90.toRadians())
 
-        fun Vector2d(x: Int = 0, y: Int = 0) = Vector2d(x.toDouble(), y.toDouble())
+//        fun Pose2d(x: Int = 0, y: Int = 0, heading: Int = 0) =
+//            Pose2d(x + initialPose.x, y + initialPose.y, heading.toRadians() + initialPose.heading)
+
+        fun Pose2d(x: Int = 0, y: Int = 0, heading: Int = 0) =
+            Pose2d(x.toDouble(), y.toDouble(), heading.toRadians())
+
+        fun Vector2d(x: Int = 0, y: Int = 0) = Vector2d(x + initialPose.x, y + initialPose.y)
+
+        fun head(a: Int) = a.toRadians() + initialPose.heading
+
+        fun Int.toRadians() = toDouble().toRadians()
     }
 }

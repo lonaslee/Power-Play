@@ -31,6 +31,7 @@ class Arm(
         const val MID = 180
         const val BACKMID = 305
         const val BACKLOW = 400
+        const val LOWER = Int.MAX_VALUE
 
         override val all = listOf(GROUND, STACK, LOW, MID, BACKMID, BACKLOW)
         override fun next(this_: Number) = super.next(this_).toInt()
@@ -43,15 +44,15 @@ class Arm(
     override var state = GROUND
         set(value) {
             if (state == value) return
+
             goingDown = state > value
-            if (goingDown && value == STACK) {
-                stackHeight -= 20
-                println("SUBTRACT")
-            }
-            field = value
+            if (goingDown && value == STACK) stackHeight -= 20
+
+            if (value == LOWER) field += if (field < BACKMID) -20 else 20
+            else field = value
         }
 
-    private object PIDConstants {
+    private object FFConstants {
         const val kCos = 0.13
         const val dCos = 0.01
         const val TICKS_IN_DEGREES = 220 / 90.0
@@ -63,11 +64,11 @@ class Arm(
         val pow = if (goingDown && (state == GROUND || state == STACK)) {
             downControl.calculate(
                 curPos, if (state == GROUND) state.toDouble() else stackHeight.toDouble()
-            ) + PIDConstants.dCos * cos(Math.toRadians(state / PIDConstants.TICKS_IN_DEGREES))
+            ) + FFConstants.dCos * cos(Math.toRadians(state / FFConstants.TICKS_IN_DEGREES))
         } else {
             control.calculate(
                 curPos, state.toDouble()
-            ) + PIDConstants.kCos * cos(Math.toRadians(state / PIDConstants.TICKS_IN_DEGREES))
+            ) + FFConstants.kCos * cos(Math.toRadians(state / FFConstants.TICKS_IN_DEGREES))
         }
 
         motors.forEach { it.power = pow }
@@ -76,7 +77,7 @@ class Arm(
 
         telemetry?.addData("_currentPos", curPos)
         telemetry?.addData("_targetPos", state)
-        telemetry?.addData("angle", curPos / PIDConstants.TICKS_IN_DEGREES)
+        telemetry?.addData("angle", curPos / FFConstants.TICKS_IN_DEGREES)
         telemetry?.addData("pow", pow)
     }
 }

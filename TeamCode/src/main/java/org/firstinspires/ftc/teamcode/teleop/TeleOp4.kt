@@ -9,7 +9,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOW
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOWER
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.MID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.STACK
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.Claw.States.CLOSED
 import org.firstinspires.ftc.teamcode.subsystems.Claw.States.OPENED
@@ -18,6 +20,8 @@ import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline.RED
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 import org.openftc.easyopencv.OpenCvWebcam
+import kotlin.math.PI
+import kotlin.math.abs
 
 @TeleOp
 @com.acmerobotics.dashboard.config.Config
@@ -43,18 +47,27 @@ class TeleOp4 : LinearOpMode() {
         val gamepads = gp1 to gp2
 
         EventLoop(::opModeIsActive, tm).apply {
-            updates += listOf(arm::update,
+            updates += listOf({ arm.update() },
                 { drive.update(gamepads) },
-                gamepads::sync,
-                { tm.update(); Unit })
+                { gamepads.sync() },
+                { tm.update(); Unit },
+                { pickPID.constants = Triple(pP, pI, pD) },
+                { turnPID.constants = Triple(tP, tI, tD) })
 
-            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
             onPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
             onPressed(gp1::dpad_down, gp2::dpad_down) { arm.state = Arm.prev(arm.state) }
             onPressed(gp1::a, gp2::a) { arm.state = GROUND }
             onPressed(gp1::x, gp2::x) { arm.state = LOW }
             onPressed(gp1::y, gp2::y) { arm.state = MID }
             onPressed(gp1::b, gp2::b) { arm.state = BACKMID }
+
+            onPressed(gp1::left_bumper, gp2::left_bumper) {
+                when (arm.state) {
+                    GROUND, STACK -> claw.change()
+                    in Arm.all    -> arm.state = LOWER
+                    else          -> claw.state = OPENED // arm is lowered
+                }
+            }
 
             /* aim at cone */
             var aiming = false
@@ -68,46 +81,46 @@ class TeleOp4 : LinearOpMode() {
                 if (claw.state == CLOSED) aiming = false
             }
 
-            fun wrapAngle(ang: Double): Double {
-                if (ang > 360) return ang - 360
-                if (ang > 180) return -360 + ang
-                return ang
-            }
 
-            val ndeg = 361.0
+            fun wrap(ang: Double) =
+                if (ang > PI) ang - 2 * PI else if (ang < -PI) ang + 2 * PI else ang
 
             /* turn 180 left */
-            var leftAngle = ndeg
+            var leftAngle: Double? = null
 
             onPressed(gp1::dpad_left) {
-                leftAngle = if (leftAngle == ndeg) wrapAngle(drive.poseEstimate.heading + 180)
-                else ndeg
+                leftAngle = if (leftAngle == null) wrap(drive.poseEstimate.heading + PI)
+                else null
                 println("left target : $leftAngle")
             }
 
-            runIf({ leftAngle != ndeg && gp1.right_stick_x == 0F }) {
+            runIf({
+                leftAngle != null && (gp1.right_stick_x == 0F && wrap(drive.poseEstimate.heading) !in leftAngle!! - 2.rad..leftAngle!! + 2.rad).also {
+                    if (!it) leftAngle = null
+                }
+            }) {
                 gp1.right_stick_x =
-                    turnPID.calculate(leftAngle, wrapAngle(drive.poseEstimate.heading)).toFloat()
-                        .also { println("left : ${wrapAngle(drive.poseEstimate.heading)} $it") }
-                if (wrapAngle(drive.poseEstimate.heading) in (leftAngle - 2)..(leftAngle + 2)) leftAngle =
-                    ndeg
+                    -abs(turnPID.calculate(leftAngle!!, wrap(drive.poseEstimate.heading))).toFloat()
+                        .also { println("left : ${wrap(drive.poseEstimate.heading)} $it") }
             }
 
             /* turn 180 right */
-            var rightAngle = ndeg
+            var rightAngle: Double? = null
 
             onPressed(gp1::dpad_right) {
-                rightAngle = if (rightAngle == ndeg) wrapAngle(drive.poseEstimate.heading - 180)
-                else ndeg
+                rightAngle = if (rightAngle == null) wrap(drive.poseEstimate.heading - PI)
+                else null
                 println("right target : $rightAngle")
             }
 
-            runIf({ rightAngle != ndeg && gp1.right_stick_x == 0F }) {
+            runIf({
+                rightAngle != null && (gp1.right_stick_x == 0F && wrap(drive.poseEstimate.heading) !in (rightAngle!! - 2.rad)..(rightAngle!! + 2.rad)).also {
+                    if (!it) rightAngle = null
+                }
+            }) {
                 gp1.left_stick_x =
-                    turnPID.calculate(rightAngle, wrapAngle(drive.poseEstimate.heading)).toFloat()
-                        .also { println("right : ${wrapAngle(drive.poseEstimate.heading)} - $it") }
-                if (wrapAngle(drive.poseEstimate.heading) in (rightAngle - 2)..(rightAngle + 2)) rightAngle =
-                    ndeg
+                    abs(turnPID.calculate(rightAngle!!, wrap(drive.poseEstimate.heading))).toFloat()
+                        .also { println("right : ${wrap(drive.poseEstimate.heading)} - $it") }
             }
         }.also {
             waitForStart()
@@ -123,5 +136,7 @@ class TeleOp4 : LinearOpMode() {
         @JvmField var tP = 0.01
         @JvmField var tI = 0.0
         @JvmField var tD = 0.0
+
+        private val Int.rad get() = this * PI / 180
     }
 }

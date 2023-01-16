@@ -22,7 +22,7 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
     }
 
     /**
-     * Execute a [Callback] when a key is pressed.
+     * Execute a [Callback] when a key is [pressed].
      */
     fun onPressed(key: KProperty<*>, func: Callback) {
         conditionals += { pressed(key) } to func
@@ -33,7 +33,7 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
     }
 
     /**
-     * Execute a [Callback] when a key is released.
+     * Execute a [Callback] when a key is [released].
      */
     fun onReleased(key: KProperty<*>, func: Callback) {
         conditionals += { released(key) } to func
@@ -41,6 +41,17 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
 
     fun onReleased(vararg keys: KProperty<*>, func: Callback) {
         conditionals += { keys.any { pressed(it) } } to func
+    }
+
+    /**
+     * Execute a [Callback] when a trigger or joystick axis has been [moved].
+     */
+    fun onMoved(key: KProperty<*>, func: Callback) {
+        conditionals += { moved(key) } to func
+    }
+
+    fun onMoved(vararg keys: KProperty<*>, func: Callback) {
+        conditionals += { keys.any { moved(it) } } to func
     }
 
     /**

@@ -37,14 +37,14 @@ class LeftCoordGetter : OpMode() {
         )
         drive.update()
 
-        if (anypressed(gamepads.first::dpad_up)) {
+        if (pressed(gamepads.first::dpad_up)) {
             arm.state = Arm.next(arm.state)
-        } else if (anypressed(gamepads.first::dpad_down)) {
+        } else if (pressed(gamepads.first::dpad_down)) {
             arm.state = Arm.prev(arm.state)
         }
         arm.update()
 
-        if (anypressed(gamepads.first::left_bumper)) {
+        if (pressed(gamepads.first::left_bumper)) {
             claw.change()
         }
 
