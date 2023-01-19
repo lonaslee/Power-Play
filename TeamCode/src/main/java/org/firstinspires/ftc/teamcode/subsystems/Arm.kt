@@ -9,7 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.cos
 
-class Arm(
+@com.acmerobotics.dashboard.config.Config
+open class Arm(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
 ) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
@@ -25,17 +26,32 @@ class Arm(
     private val downControl = PIDFController(0.002, 0.0, 0.0006, 0.0)
 
     companion object States : Subsystem.States {
-        const val GROUND = -170
-        const val STACK = -70
-        const val LOW = 70
-        const val MID = 180
-        const val BACKMID = 305
-        const val BACKLOW = 400
+        @JvmField var GROUND = -170
+        @JvmField var STACK = -70
+        @JvmField var LOW = 0
+        @JvmField var MID = 140
+        @JvmField var HIGH = 200
+        @JvmField var BACKLOW = 300
         const val LOWER = Int.MAX_VALUE
+        @JvmField var LOWINC = 20
 
-        override val all = listOf(GROUND, STACK, LOW, MID, BACKMID, BACKLOW)
+        @JvmField var kP = 0.0085
+        @JvmField var kI = 0.0
+        @JvmField var kD = 0.0007
+
+        @JvmField var dP = 0.002
+        @JvmField var dI = 0.0
+        @JvmField var dD = 0.0006
+        @JvmField var dF = -0.0004
+
+        @JvmField var kCos  = 0.13
+        @JvmField var dCos = 0.01
+
+        override val all = listOf(GROUND, STACK, LOW, MID, HIGH, BACKLOW)
         override fun next(this_: Number) = super.next(this_).toInt()
         override fun prev(this_: Number) = super.prev(this_).toInt()
+
+        const val TICKS_IN_DEGREES = 220 / 90.0
     }
 
 
@@ -48,27 +64,24 @@ class Arm(
             goingDown = state > value
             if (goingDown && value == STACK) stackHeight -= 20
 
-            if (value == LOWER) field += if (field < BACKMID) -20 else 20
+            if (value == LOWER) field += if (field < HIGH) -LOWINC else LOWINC
             else field = value
         }
 
-    private object FFConstants {
-        const val kCos = 0.13
-        const val dCos = 0.01
-        const val TICKS_IN_DEGREES = 220 / 90.0
-    }
+    open fun update() {
+        control.setPID(kP, kI, kD)
+        downControl.setPIDF(dP, dI, dD, dF)
 
-    fun update() {
         val curPos = low.currentPosition - 170.0
 
         val pow = if (goingDown && (state == GROUND || state == STACK)) {
             downControl.calculate(
                 curPos, if (state == GROUND) state.toDouble() else stackHeight.toDouble()
-            ) + FFConstants.dCos * cos(Math.toRadians(state / FFConstants.TICKS_IN_DEGREES))
+            ) + dCos * cos(Math.toRadians(state / TICKS_IN_DEGREES))
         } else {
             control.calculate(
                 curPos, state.toDouble()
-            ) + FFConstants.kCos * cos(Math.toRadians(state / FFConstants.TICKS_IN_DEGREES))
+            ) + kCos * cos(Math.toRadians(state / TICKS_IN_DEGREES))
         }
 
         motors.forEach { it.power = pow }
@@ -77,7 +90,7 @@ class Arm(
 
         telemetry?.addData("_currentPos", curPos)
         telemetry?.addData("_targetPos", state)
-        telemetry?.addData("angle", curPos / FFConstants.TICKS_IN_DEGREES)
+        telemetry?.addData("angle", curPos / TICKS_IN_DEGREES)
         telemetry?.addData("pow", pow)
     }
 }

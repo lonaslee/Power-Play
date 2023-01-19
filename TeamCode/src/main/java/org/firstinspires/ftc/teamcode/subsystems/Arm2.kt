@@ -15,7 +15,7 @@ import kotlin.math.cos
 @com.acmerobotics.dashboard.config.Config
 class Arm2(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
-) : Subsystem {
+) : Arm(hardwareMap, telemetry) {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
     private val top = hardwareMap[RobotConfig.TOP_LIFT.s] as DcMotorEx
     private val motors = listOf(low, top).onEach {
@@ -28,20 +28,9 @@ class Arm2(
     private val control = PIDController(0.0085, 0.0, 0.0007)
     private val downControl = PIDFController(0.002, 0.0, 0.0006, 0.0)
 
-    companion object States : Subsystem.States {
-        const val GROUND = -170
-        const val STACK = -70
-        const val LOW = 70
-        const val MID = 160
-        const val BACKMID = 360
-        const val BACKLOW = 400
-
-        override val all = listOf(GROUND, STACK, LOW, MID, BACKMID, BACKLOW)
-        override fun next(this_: Number) = super.next(this_).toInt()
-        override fun prev(this_: Number) = super.prev(this_).toInt()
-
-        @JvmField var mV = 15.0
-        @JvmField var mA = 15.0
+    companion object {
+        @JvmField var mV = 600.0
+        @JvmField var mA = 600.0
     }
 
     private var profile = MotionProfileGenerator.generateSimpleMotionProfile(
@@ -69,33 +58,27 @@ class Arm2(
             field = value
         }
 
-    private object PIDConstants {
-        const val kCos = 0.13
-        const val dCos = 0.01
-        const val TICKS_IN_DEGREES = 220 / 90.0
-    }
+    override fun update() {
+        control.setPID(kP, kI, kD)
+        downControl.setPIDF(dP, dI, dD, dF)
 
-    fun update() {
         val curPos = low.currentPosition - 170.0
         val profileState = profile[timer.time()]
 
-        val pow =
-            (if (goingDown && (state == GROUND || state == STACK)) downControl to PIDConstants.dCos
-            else control to PIDConstants.kCos).let { (controller, cosConstant) ->
-                controller.calculate(
-                    curPos, profileState.x
-                ) + cosConstant * cos(
-                    Math.toRadians(state / PIDConstants.TICKS_IN_DEGREES)
-                )
-            }
+        val pow = (if (goingDown && (state == GROUND || state == STACK)) downControl to dCos
+        else control to kCos).let { (controller, cosConstant) ->
+            controller.calculate(
+                curPos, profileState.x
+            ) + cosConstant * cos(Math.toRadians(state / TICKS_IN_DEGREES))
+        }
 
         motors.forEach { it.power = pow }
 
         telemetry?.addData("stack", stackHeight)
 
         telemetry?.addData("_currentPos", curPos)
-        telemetry?.addData("_targetPos", state)
-        telemetry?.addData("angle", curPos / PIDConstants.TICKS_IN_DEGREES)
+        telemetry?.addData("_targetPos", profileState.x)
+        telemetry?.addData("angle", curPos / TICKS_IN_DEGREES)
         telemetry?.addData("pow", pow)
     }
 }

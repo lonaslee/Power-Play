@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Arm2
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.DriveExt
@@ -26,8 +27,8 @@ class TeleOp2 : LinearOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
 
         EventLoop(::opModeIsActive).apply {
-            onPressed(gamepads.first::dpad_up) { arm.state = Arm2.next(arm.state) }
-            onPressed(gamepads.first::dpad_down) { arm.state = Arm2.prev(arm.state) }
+            onPressed(gamepads.first::dpad_up) { arm.state = Arm.next(arm.state) }
+            onPressed(gamepads.first::dpad_down) { arm.state = Arm.prev(arm.state) }
 
             onPressed(gamepads.first::left_bumper) { claw.change() }
 

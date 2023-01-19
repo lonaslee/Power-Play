@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.HIGH
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOW
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.MID
@@ -23,7 +23,7 @@ class TeleOp1 : LinearOpMode() {
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
-        arm = Arm(hardwareMap)
+        arm = Arm(hardwareMap, tm)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
 
@@ -40,7 +40,7 @@ class TeleOp1 : LinearOpMode() {
             onPressed(gp1::a, gp2::a) { arm.state = GROUND }
             onPressed(gp1::x, gp2::x) { arm.state = LOW }
             onPressed(gp1::y, gp2::y) { arm.state = MID }
-            onPressed(gp1::b, gp2::b) { arm.state = BACKMID }
+            onPressed(gp1::b, gp2::b) { arm.state = HIGH }
         }.also {
             waitForStart()
             it.run()

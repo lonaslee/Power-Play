@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
 import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.HIGH
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOW
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.LOWER
@@ -59,7 +59,7 @@ class TeleOp4 : LinearOpMode() {
             onPressed(gp1::a, gp2::a) { arm.state = GROUND }
             onPressed(gp1::x, gp2::x) { arm.state = LOW }
             onPressed(gp1::y, gp2::y) { arm.state = MID }
-            onPressed(gp1::b, gp2::b) { arm.state = BACKMID }
+            onPressed(gp1::b, gp2::b) { arm.state = HIGH }
 
             onPressed(gp1::left_bumper, gp2::left_bumper) {
                 when (arm.state) {

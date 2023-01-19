@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.BACKMID
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.HIGH
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.MID
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.STACK
@@ -63,7 +63,7 @@ class LeftTraj(
             .waitSeconds(0.2)
             .addTemporalMarker { arm.state = MID }
             .lineToSplineHeading(oPose)
-            .addTemporalMarker { arm.state = BACKMID }
+            .addTemporalMarker { arm.state = HIGH }
             .waitSeconds(1.5)
             .addTemporalMarker { claw.state = OPENED }
             .waitSeconds(0.2)
@@ -76,7 +76,7 @@ class LeftTraj(
             .waitSeconds(0.2)
             .addTemporalMarker { arm.state = MID }
             .lineToSplineHeading(aPose)
-            .addTemporalMarker { arm.state = BACKMID }
+            .addTemporalMarker { arm.state = HIGH }
             .waitSeconds(1.5)
             .addTemporalMarker { claw.state = OPENED }
             .waitSeconds(0.2)
@@ -89,7 +89,7 @@ class LeftTraj(
             .waitSeconds(0.2)
             .addTemporalMarker { arm.state = MID }
             .lineToSplineHeading(bPose)
-            .addTemporalMarker { arm.state = BACKMID }
+            .addTemporalMarker { arm.state = HIGH }
             .waitSeconds(1.5)
             .addTemporalMarker { claw.state = OPENED }
             .waitSeconds(0.2)
