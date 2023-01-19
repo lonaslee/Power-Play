@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
-open class Arm(
+class Arm(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
 ) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
@@ -44,7 +44,7 @@ open class Arm(
         @JvmField var dD = 0.0006
         @JvmField var dF = -0.0004
 
-        @JvmField var kCos  = 0.13
+        @JvmField var kCos = 0.13
         @JvmField var dCos = 0.01
 
         override val all = listOf(GROUND, STACK, LOW, MID, HIGH, BACKLOW)
@@ -68,7 +68,7 @@ open class Arm(
             else field = value
         }
 
-    open fun update() {
+    fun update() {
         control.setPID(kP, kI, kD)
         downControl.setPIDF(dP, dI, dD, dF)
 

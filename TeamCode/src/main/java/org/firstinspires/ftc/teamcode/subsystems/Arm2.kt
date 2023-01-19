@@ -10,12 +10,24 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.STACK
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.TICKS_IN_DEGREES
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dCos
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dD
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dF
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dI
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dP
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kCos
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kD
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kI
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kP
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
 class Arm2(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
-) : Arm(hardwareMap, telemetry) {
+) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
     private val top = hardwareMap[RobotConfig.TOP_LIFT.s] as DcMotorEx
     private val motors = listOf(low, top).onEach {
@@ -58,7 +70,7 @@ class Arm2(
             field = value
         }
 
-    override fun update() {
+    fun update() {
         control.setPID(kP, kI, kD)
         downControl.setPIDF(dP, dI, dD, dF)
 
