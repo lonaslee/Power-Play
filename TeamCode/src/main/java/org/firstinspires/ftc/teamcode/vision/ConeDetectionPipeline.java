@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.teleop.Alliance;
 import org.jetbrains.annotations.TestOnly;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -21,34 +22,36 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ConeDetectionPipeline extends OpenCvPipeline {
-    public static final Scalar[] RED = new Scalar[]{new Scalar(0, 100, 20), new Scalar(10, 255, 255)};
-    public static final Scalar[] BLUE = new Scalar[]{new Scalar(110, 50, 50), new Scalar(130, 255, 255)};
+    private static final Scalar[] RED1 = new Scalar[]{new Scalar(0, 50, 50), new Scalar(10, 255, 255)};
+    private static final Scalar[] RED2 = new Scalar[]{new Scalar(170, 50, 50), new Scalar(180, 255, 255)};
+    private static final Scalar[] BLUE = new Scalar[]{new Scalar(100, 50, 50), new Scalar(130, 255, 255)};
     public static final int MAX_OFFSET = 3;
 
     @Nullable
     private final Telemetry telemetry;
 
     @Nonnull
-    private final Scalar[] bounds;
+    private final Alliance alliance;
 
     @TestOnly
     public ConeDetectionPipeline(@Nullable Telemetry telemetry) {
         this.telemetry = telemetry;
-        bounds = BLUE;
+        alliance = Alliance.RED;
     }
 
-    public ConeDetectionPipeline(@Nonnull Scalar[] color) {
+    public ConeDetectionPipeline(@Nonnull Alliance alliance) {
         this.telemetry = null;
-        bounds = color;
+        this.alliance = alliance;
     }
 
-    public ConeDetectionPipeline(@Nonnull Scalar[] color, @Nonnull Telemetry telemetry) {
+    public ConeDetectionPipeline(@Nonnull Alliance alliance, @Nonnull Telemetry telemetry) {
         this.telemetry = telemetry;
-        bounds = color;
+        this.alliance = alliance;
     }
 
     private final Mat hsv = new Mat();
     private final Mat mask = new Mat();
+    private final Mat mask2 = new Mat();
     private final Mat kernel = new Mat();
     private final Mat hierarchy = new Mat();
 
@@ -70,7 +73,13 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
         Imgproc.cvtColor(inputroi, hsv, Imgproc.COLOR_RGB2HSV);
 
-        Core.inRange(hsv, bounds[0], bounds[1], mask);
+        if (alliance == Alliance.RED) {
+            Core.inRange(hsv, RED1[0], RED1[1], mask);
+            Core.inRange(hsv, RED2[0], RED2[1], mask2);
+            Core.bitwise_or(mask, mask2, mask);
+        } else {
+            Core.inRange(hsv, BLUE[0], BLUE[1], mask);
+        }
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
 

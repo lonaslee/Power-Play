@@ -28,8 +28,8 @@ open class Arm(
     companion object States : Subsystem.States {
         const val GROUND = -170
         const val STACK = -70
-        const val LOW = 0
-        const val MID = 90
+        const val LOW = 10
+        const val MID = 100
         const val HIGH = 210
         const val BACKHIGH = 250
         const val BACKMID = 365
