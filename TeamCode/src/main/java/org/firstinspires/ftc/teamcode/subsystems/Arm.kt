@@ -26,28 +26,34 @@ open class Arm(
     private val downControl = PIDFController(0.002, 0.0, 0.0006, 0.0)
 
     companion object States : Subsystem.States {
-        @JvmField var GROUND = -170
-        @JvmField var STACK = -70
-        @JvmField var LOW = 0
-        @JvmField var MID = 140
-        @JvmField var HIGH = 200
-        @JvmField var BACKLOW = 300
+        const val GROUND = -170
+        const val STACK = -70
+        const val LOW = 0
+        const val MID = 90
+        const val HIGH = 210
+        const val BACKHIGH = 250
+        const val BACKMID = 365
+        const val BACKLOW = 470
+        const val BACKGROUND = 600
+
         const val LOWER = Int.MAX_VALUE
         @JvmField var LOWINC = 20
 
-        @JvmField var kP = 0.0085
+        @JvmField var kP = 0.015
         @JvmField var kI = 0.0
-        @JvmField var kD = 0.0007
+        @JvmField var kD = 0.0
 
         @JvmField var dP = 0.002
         @JvmField var dI = 0.0
         @JvmField var dD = 0.0006
         @JvmField var dF = -0.0004
 
-        @JvmField var kCos  = 0.13
+        @JvmField var kCos = 0.15
         @JvmField var dCos = 0.01
 
-        override val all = listOf(GROUND, STACK, LOW, MID, HIGH, BACKLOW)
+        override val all =
+            listOf(GROUND, STACK, LOW, MID, HIGH, BACKHIGH, BACKMID, BACKLOW, BACKGROUND)
+
         override fun next(this_: Number) = super.next(this_).toInt()
         override fun prev(this_: Number) = super.prev(this_).toInt()
 

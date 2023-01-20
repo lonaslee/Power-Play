@@ -32,7 +32,10 @@ class TeleOp1 : LinearOpMode() {
         val gamepads = gp1 to gp2
 
         EventLoop(::opModeIsActive).apply {
-            updates += listOf(arm::update, { drive.update(gamepads) }, gamepads::sync)
+            updates += listOf({ arm.update() },
+                { drive.update(gamepads) },
+                { gamepads.sync() },
+                { tm.update() })
 
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
             onPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }

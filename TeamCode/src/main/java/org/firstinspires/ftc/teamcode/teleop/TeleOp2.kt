@@ -25,10 +25,17 @@ class TeleOp2 : LinearOpMode() {
         drive = DriveExt(hardwareMap)
 
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
+        val gp1 = gamepads.first
+        val gp2 = gamepads.second
 
         EventLoop(::opModeIsActive).apply {
             onPressed(gamepads.first::dpad_up) { arm.state = Arm.next(arm.state) }
             onPressed(gamepads.first::dpad_down) { arm.state = Arm.prev(arm.state) }
+
+            onPressed(gp1::a, gp2::a) { arm.state = Arm.GROUND }
+            onPressed(gp1::x, gp2::x) { arm.state = Arm.LOW }
+            onPressed(gp1::y, gp2::y) { arm.state = Arm.MID }
+            onPressed(gp1::b, gp2::b) { arm.state = Arm.HIGH }
 
             onPressed(gamepads.first::left_bumper) { claw.change() }
 

@@ -34,7 +34,7 @@ class DriveExt(
         lastPose = poseEstimate
     }
 
-    var speed = 0.6
+    var speed = 0.8
 
     /**
      * Updates powers to field centric values based on gamepad input, imu angle, and [speed].
