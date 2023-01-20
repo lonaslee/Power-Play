@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Claw
 @com.acmerobotics.dashboard.config.Config
 class LeftTrajectory(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
     val initPoseTraj = drive.trajectorySequenceBuilder(Pose2d())
-        .splineToSplineHeading(aPose, aH)
+        .splineToSplineHeading(aPose, aH.rad)
         .waitSeconds(5.0)
-        .splineToLinearHeading(bPose, bH)
+        .splineToLinearHeading(bPose, bH.rad)
         .waitSeconds(5.0)
         .lineToSplineHeading(cPose)
         .build()!!
@@ -20,12 +20,12 @@ class LeftTrajectory(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
         @JvmField var aX = 53.0
         @JvmField var aY = 6.0
         @JvmField var aD = 135
-        @JvmField var aH = -5.2
+        @JvmField var aH = -5
 
         @JvmField var bX = 48.0
         @JvmField var bY = -20.0
         @JvmField var bD = 90
-        @JvmField var bH = 90.rad
+        @JvmField var bH = 90
 
         @JvmField var cX = 53.0
         @JvmField var cY = 6.0

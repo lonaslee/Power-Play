@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 
+@com.acmerobotics.dashboard.config.Config
 class Claw(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
 ) : Subsystem {
@@ -13,8 +14,10 @@ class Claw(
     }
 
     companion object States : Subsystem.States {
-        const val OPENED = 0.0
-        const val CLOSED = 0.13
+        @JvmField var OPENED = 0.0
+        @JvmField var CLOSED = 0.13
+        @JvmField var HALF_OPENED = 0.1
+
         override val all = listOf(CLOSED, OPENED)
     }
 
