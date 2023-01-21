@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.Claw.States.CLOSED
 import org.firstinspires.ftc.teamcode.subsystems.Claw.States.OPENED
 import org.firstinspires.ftc.teamcode.subsystems.DriveExt
+import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
-import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline.RED
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 import org.openftc.easyopencv.OpenCvWebcam
 import kotlin.math.PI
@@ -30,7 +30,7 @@ class TeleOp4 : LinearOpMode() {
     private lateinit var arm: Arm
     private lateinit var drive: DriveExt
     private lateinit var webcam: OpenCvWebcam
-    private val pipeline = ConeDetectionPipeline(RED)
+    private val pipeline = ConeDetectionPipeline(Alliance.RED)
     private val pickPID = PIDController(pP, pI, pD)
     private val turnPID = PIDController(tP, tI, tD)
 
@@ -40,7 +40,7 @@ class TeleOp4 : LinearOpMode() {
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
-        webcam = createWebcam(hardwareMap, pipeline = pipeline)
+        webcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_1, pipeline = pipeline)
 
         val gp1 = GamepadExt(gamepad1)
         val gp2 = GamepadExt(gamepad2)
@@ -64,8 +64,8 @@ class TeleOp4 : LinearOpMode() {
             onPressed(gp1::left_bumper, gp2::left_bumper) {
                 when (arm.state) {
                     GROUND, STACK -> claw.change()
-                    in Arm.all    -> arm.state = LOWER
-                    else          -> claw.state = OPENED // arm is lowered
+                    in Arm.all -> arm.state = LOWER
+                    else -> claw.state = OPENED // arm is lowered
                 }
             }
 

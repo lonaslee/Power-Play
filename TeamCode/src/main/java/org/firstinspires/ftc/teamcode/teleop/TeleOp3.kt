@@ -5,10 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
-import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Arm2
-import org.firstinspires.ftc.teamcode.subsystems.Claw
-import org.firstinspires.ftc.teamcode.subsystems.DriveExt
+import org.firstinspires.ftc.teamcode.subsystems.*
 import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 import org.openftc.easyopencv.OpenCvWebcam
@@ -30,7 +27,7 @@ class TeleOp3 : LinearOpMode() {
         arm = Arm2(hardwareMap, tm)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
-        webcam = createWebcam(hardwareMap, pipeline = pipeline)
+        webcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_1, pipeline = pipeline)
 
         val gp1 = gamepads.first
         val gp2 = gamepads.second

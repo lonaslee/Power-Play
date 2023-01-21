@@ -24,7 +24,6 @@ class TeleOp2 : LinearOpMode() {
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
 
-        gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         val gp1 = gamepads.first
         val gp2 = gamepads.second
 

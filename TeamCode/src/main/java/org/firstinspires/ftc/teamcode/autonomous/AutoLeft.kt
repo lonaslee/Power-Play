@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.Claw.States.CLOSED
+import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
@@ -25,13 +26,10 @@ class AutoLeft : LinearOpMode() {
     override fun runOpMode() {
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap)
-        drive =
-            SampleMecanumDrive(
-                hardwareMap
-            )
+        drive = SampleMecanumDrive(hardwareMap)
         trajs = LeftTraj(drive, arm, claw)
 
-        createWebcam(hardwareMap, telemetry, pipeline)
+        createWebcam(hardwareMap, RobotConfig.WEBCAM_1, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return

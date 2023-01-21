@@ -8,10 +8,12 @@ import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.openftc.easyopencv.*
 
 fun createWebcam(
-    hardwareMap: HardwareMap, telemetry: Telemetry? = null, pipeline: OpenCvPipeline? = null
+    hardwareMap: HardwareMap,
+    configName: RobotConfig,
+    telemetry: Telemetry? = null,
+    pipeline: OpenCvPipeline? = null
 ): OpenCvWebcam = OpenCvCameraFactory.getInstance().createWebcam(
-    hardwareMap[RobotConfig.WEBCAM_1.s] as WebcamName,
-    hardwareMap.appContext.resources.getIdentifier(
+    hardwareMap[configName.s] as WebcamName, hardwareMap.appContext.resources.getIdentifier(
         "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
     )
 ).apply {
