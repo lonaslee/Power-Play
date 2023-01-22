@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
@@ -25,18 +26,21 @@ class LeftAuto : LinearOpMode() {
     override fun runOpMode() {
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap)
-        drive = SampleMecanumDrive(hardwareMap)
+        drive = SampleMecanumDrive(hardwareMap).apply { poseEstimate = LeftTrajectory.startPose }
         trajs = LeftTrajectory(drive, arm, claw)
 
         createWebcam(hardwareMap, RobotConfig.WEBCAM_2, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
-        drive.followTrajectorySequenceAsync(trajs.initPoseTraj)
+        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
 
         while (opModeIsActive()) {
             arm.update()
             drive.update()
+            if (!drive.isBusy) break
         }
+        DriveExt.PoseStorage.pose = drive.poseEstimate
+        while (opModeIsActive()) arm.update()
     }
 }

@@ -1,11 +1,5 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.GREEN;
-import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.HI_YELLOW;
-import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.LO_YELLOW;
-import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.getApproximates;
-import static org.firstinspires.ftc.teamcode.vision.DetectionUtils.getRotatedRects;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -13,100 +7,76 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public final class PoleDetectionPipeline extends OpenCvPipeline {
+import javax.annotation.Nonnull;
+
+public class PoleDetectionPipeline extends OpenCvPipeline {
+    private static final Scalar[] BOUNDS = new Scalar[]{new Scalar(10.0, 125.0, 150.0), new Scalar(35.0, 255.0, 255.0)};
+    private static final Size BLURSIZE = new Size(1, 1);
+    public static final int MAX_OFFSET = 1;
+
     private final Telemetry telemetry;
 
-    public PoleDetectionPipeline(Telemetry telemetry) {
+    public PoleDetectionPipeline(@Nonnull Telemetry telemetry) {
         this.telemetry = telemetry;
     }
 
+    public PoleDetectionPipeline() {
+        telemetry = null;
+    }
+
+    public double error = Double.NaN;
+
+    public boolean getDetected() {
+        return !Double.isNaN(error);
+    }
+
+    private final Mat hsv = new Mat();
+    private final Mat mask = new Mat();
+    private final Mat kernel = new Mat();
+    private final Mat hierarchy = new Mat();
+
+    private final List<MatOfPoint> contours = new ArrayList<>();
+
     @Override
     public Mat processFrame(Mat input) {
-        // get yellow mask
-        Mat hsv = new Mat();
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
-        Mat mask = new Mat();
-        Core.inRange(hsv, LO_YELLOW, HI_YELLOW, mask);
-        Imgproc.GaussianBlur(mask, mask, new Size(5, 15), 0);
+        Core.inRange(hsv, BOUNDS[0], BOUNDS[1], mask);
+        Imgproc.GaussianBlur(mask, mask, BLURSIZE, 0);
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
 
-        // get mat with only mask color range
-        Mat bitAnd = new Mat();
-        Core.bitwise_and(input, input, bitAnd, mask);
+        contours.clear();
+        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // find contours
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
+        List<MatOfPoint2f> approxs = DetectionUtils.getApproximates(contours);
+        List<RotatedRect> rotatedRects = DetectionUtils.getRotatedRects(approxs);
 
-        Imgproc.drawContours(input, contours, -1, GREEN, 1);
-        telemetry.addData("s", contours.size());
-        telemetry.update();
-        if (true) return input;
+        if (rotatedRects.size() != 0) {
+            RotatedRect widest = Collections.max(rotatedRects, Comparator.comparing((rect -> rect.size.width)));
+            Imgproc.rectangle(input, widest.boundingRect(), DetectionUtils.GREEN);
 
-        // approximate contours
-        List<MatOfPoint2f> approx2f = getApproximates(contours);
-        List<MatOfPoint> approxContours = approx2f.stream().map(DetectionUtils::mat2fToMat).collect(Collectors.toList());
-        List<RotatedRect> approxRects = getRotatedRects(approx2f);
+            double middle = widest.center.x;
+            Imgproc.line(input, new Point(middle, 0), new Point(middle, input.height()), DetectionUtils.RED);
 
-        // filter out bad contours
-        List<Integer> badIndices = new ArrayList<>();
-        if (false) for (int i = 0; i < approxContours.size(); i++) {
-            Point[] points = new Point[4]; // top left is origin, going positive down and right
-            approxRects.get(i).points(points);
-
-            double topHorizontal = points[1].x - points[0].x;
-            double lowHorizontal = points[2].x - points[3].x;
-            double rightVertical = points[2].y - points[1].y;
-            double leftVertical = points[3].y - points[0].y;
-
-
-            if (Stream.of(rightVertical, leftVertical).anyMatch(it -> it < 5)) {
-                badIndices.add(i);
-                telemetry.addData("TH", topHorizontal);
-                telemetry.addData("LH", lowHorizontal);
-                telemetry.addData("RV", rightVertical);
-                telemetry.addData("LV", leftVertical);
-            }
-        }
-        if (0 != 0) for (Integer badIndex : badIndices) {
-            List.of(contours, approxContours, approxRects).forEach(it -> it.remove(badIndex));
+            error = input.width() / 2.0 - middle;
+        } else {
+            error = Double.NaN;
         }
 
-        telemetry.addLine(badIndices.toString());
-
-        // add what this sees to the output image
-//        drawContourCenters(input, contours);
-        Imgproc.drawContours(input, approxContours, -1, GREEN, 1);
-
-
-        // find widest contour, which should be the closest junction
-        int widestIdx = 0;
-        for (int i = 0; i < approxRects.size(); i++) {
-            if (approxRects.get(i).boundingRect().width > approxRects.get(widestIdx).boundingRect().width)
-                widestIdx = i;
+        if (telemetry != null) {
+            telemetry.addData("pole error", error);
+            telemetry.update();
         }
-
-        for (RotatedRect rect : approxRects) {
-            telemetry.addData(String.format("area %f - %f", rect.size.width, rect.size.height), rect.size.width * rect.size.height);
-        }
-
-        Point[] points = new Point[4];
-        approxRects.get(widestIdx).points(points);
-
-        telemetry.addData("wf", points[1].x - points[0].x);
-        telemetry.addData("hf", points[3].y - points[0].y);
-
-        telemetry.update();
-
         return input;
     }
 }

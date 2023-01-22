@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop
 
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.reflect.KProperty
+import kotlin.system.measureNanoTime
 
 typealias Callback = () -> Unit
 typealias Predicate = () -> Boolean
@@ -58,13 +59,11 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
      * Start the event loop, which will run blocking until the method passed in the constructor returns false.
      */
     fun run() {
-        while (running()) {
-            val s = System.nanoTime()
-
+        var time = 0L
+        while (running()) time = measureNanoTime {
+            telemetry?.addData("hz", 1e9 / time)
             conditionals.filter { it.first() }.forEach { it.second() }
             updates.forEach { it() }
-
-            telemetry?.addData("t", System.nanoTime() - s)
         }
     }
 }

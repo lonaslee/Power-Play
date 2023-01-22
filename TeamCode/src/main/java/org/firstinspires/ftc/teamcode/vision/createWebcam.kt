@@ -7,6 +7,14 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.openftc.easyopencv.*
 
+const val CAMERA_WIDTH = 640
+const val CAMERA_HEIGHT = 480
+
+/**
+ * Creates an [OpenCvWebcam] from the hardwaremap using the provided config's name. This
+ * opens it and starts streaming using [CAMERA_WIDTH] and [CAMERA_HEIGHT], and streams it
+ * to [FtcDashboard]. If a pipeline is given, the camera's pipeline will be set to it.
+ */
 fun createWebcam(
     hardwareMap: HardwareMap,
     configName: RobotConfig,
@@ -18,7 +26,8 @@ fun createWebcam(
     )
 ).apply {
     openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
-        override fun onOpened() = startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
+        override fun onOpened() = startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT)
+
         override fun onError(errorCode: Int) {
             "Camera error. Code: $errorCode".let { telemetry?.addLine(it); println(it) }
         }

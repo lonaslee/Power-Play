@@ -16,13 +16,35 @@ val meepmeep = MeepMeep(800).apply {
 }
 val bot = DefaultBotBuilder(meepmeep).setConstraints(
     60.0, 60.0, 180.toRadians(), 180.toRadians(), 14.0
-).build()
+).setDimensions(14.0, 18.0).build()
 val drive = bot.drive
 
 fun main() {
     bot.followTrajectorySequence(
-        LeftTrajectories(drive).zt
+        drive.trajectorySequenceBuilder(Pose2d(-31.0, -61.0, (-90).rad))
+            .setReversed(true)
+            .splineTo(Vector2d(-30, -6), (55).rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 1
+//            .splineTo(Vector2d(-58, -12), (180).rad)
+//            .waitSeconds(1.0)
+//            .setReversed(true)
+//            .splineTo(Vector2d(-30, -6), (55).rad)
+//            .waitSeconds(0.5)
+//            .setReversed(false)
+            // park
+//            .splineTo(Vector2d(-36, -12), 270.rad)
+//            .splineToSplineHeading(Pose2d(-12, -12, 270), 0.rad)
+            .splineToSplineHeading(Pose2d(-60, -12, 270), 180.rad)
+
+            .waitSeconds(0.5)
+            .build()!!
     )
 
     meepmeep.addEntity(bot).start()
 }
+
+val Int.rad get() = this.toDouble().toRadians()
+fun Vector2d(x: Int, y: Int) = Vector2d(x.toDouble(), y.toDouble())
+fun Pose2d(x: Int, y: Int, h: Int = 0) = Pose2d(x.toDouble(), y.toDouble(), h.rad)

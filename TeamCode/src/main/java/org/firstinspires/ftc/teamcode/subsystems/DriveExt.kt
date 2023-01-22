@@ -13,7 +13,6 @@ import kotlin.math.sin
 class DriveExt(
     hardwareMap: HardwareMap,
     private val telemetry: Telemetry? = null,
-    private var robotcentric: Boolean = false
 ) : SampleMecanumDrive(hardwareMap), Subsystem {
     private var lastPose = Pose2d()
 
@@ -28,10 +27,11 @@ class DriveExt(
         get() = if (lastPose != poseEstimate) MOVING else STATIONARY
 
     fun update(gamepads: Pair<GamepadExt, GamepadExt>) {
-        if (!robotcentric) fieldcentric(gamepads)
-        else robotcentric(gamepads)
+        if (!isBusy) {
+            driveFieldCentric(gamepads)
+            lastPose = poseEstimate
+        }
         super.update()
-        lastPose = poseEstimate
     }
 
     var speed = 0.8
@@ -39,16 +39,13 @@ class DriveExt(
     /**
      * Updates powers to field centric values based on gamepad input, imu angle, and [speed].
      */
-    private fun fieldcentric(gamepads: Pair<GamepadExt, GamepadExt>) {
+    private fun driveFieldCentric(gamepads: Pair<GamepadExt, GamepadExt>) {
         val y = -gamepads.first.left_stick_y.toDouble()
         val x = gamepads.first.left_stick_x * 1.1
         val turn = gamepads.first.right_stick_x.toDouble()
 
-        val (rotX, rotY) = (-rawExternalHeading).let {
-            Pair(
-                x * cos(it) - y * sin(it),
-                x * sin(it) + y * cos(it)
-            )
+        val (rotX, rotY) = (rawExternalHeading).let {
+            Pair(x * cos(it) - y * sin(it), x * sin(it) + y * cos(it))
         }
 
         val denom = max(abs(y) + abs(x) + abs(turn), 1.0)
@@ -61,15 +58,17 @@ class DriveExt(
     }
 
     /**
-     * Updates powers to robot centric values based on gamepad input and [speed].
+     * Stop following the current trajectory, if there is one.
      */
-    private fun robotcentric(gp1: Pair<GamepadExt, GamepadExt>) {
-        setWeightedDrivePower(
-            Pose2d(
-                -gp1.first.left_stick_y.toDouble() * speed,
-                -gp1.first.left_stick_x.toDouble() * speed,
-                -gp1.first.right_stick_x.toDouble() * speed
-            )
-        )
+    fun exitTrajectory() {
+        trajectorySequenceRunner.currentTrajectorySequence = null
+        trajectorySequenceRunner.remainingMarkers.clear()
+    }
+
+    object PoseStorage {
+        /**
+         * Stores the pose of the robot at the end of autonomous.
+         */
+        var pose = Pose2d()
     }
 }

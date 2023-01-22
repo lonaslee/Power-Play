@@ -30,7 +30,7 @@ class TeleOp4 : LinearOpMode() {
     private lateinit var arm: Arm
     private lateinit var drive: DriveExt
     private lateinit var webcam: OpenCvWebcam
-    private val pipeline = ConeDetectionPipeline(Alliance.RED)
+    private val pipeline = ConeDetectionPipeline.redConeDetector()
     private val pickPID = PIDController(pP, pI, pD)
     private val turnPID = PIDController(tP, tI, tD)
 

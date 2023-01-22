@@ -45,9 +45,10 @@ class Arm2(
         @JvmField var mA = 600.0
     }
 
-    private var profile = MotionProfileGenerator.generateSimpleMotionProfile(
-        MotionState(GROUND.toDouble(), 0.0, 0.0), MotionState(GROUND.toDouble(), 0.0, 0.0), mV, mA
-    )
+    private var curState = MotionState(GROUND.toDouble(), 0.0, 0.0)
+    private var profile =
+        MotionProfileGenerator.generateSimpleMotionProfile(curState, curState, mV, mA)
+
     private val timer = ElapsedTime()
 
     private var goingDown = false
@@ -60,9 +61,10 @@ class Arm2(
                 stackHeight -= 20
                 println("SUBTRACT -> $stackHeight")
             }
+
             timer.reset()
             profile = MotionProfileGenerator.generateSimpleMotionProfile(
-                MotionState(state.toDouble(), 0.0, 0.0),
+                curState,
                 MotionState((if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0),
                 mV,
                 mA
@@ -70,17 +72,18 @@ class Arm2(
             field = value
         }
 
+
     fun update() {
         control.setPID(kP, kI, kD)
         downControl.setPIDF(dP, dI, dD, dF)
 
         val curPos = low.currentPosition - 170.0
-        val profileState = profile[timer.time()]
+        curState = profile[timer.time()]
 
         val pow = (if (goingDown && (state == GROUND || state == STACK)) downControl to dCos
         else control to kCos).let { (controller, cosConstant) ->
             controller.calculate(
-                curPos, profileState.x
+                curPos, curState.x
             ) + cosConstant * cos(Math.toRadians(state / TICKS_IN_DEGREES))
         }
 
@@ -89,7 +92,7 @@ class Arm2(
         telemetry?.addData("stack", stackHeight)
 
         telemetry?.addData("_currentPos", curPos)
-        telemetry?.addData("_targetPos", profileState.x)
+        telemetry?.addData("_targetPos", curState.x)
         telemetry?.addData("angle", curPos / TICKS_IN_DEGREES)
         telemetry?.addData("pow", pow)
     }

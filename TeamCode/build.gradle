@@ -18,11 +18,6 @@ apply from: '../build.dependencies.gradle'
 apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-    packagingOptions {
-        jniLibs {
-            pickFirsts += ['**/*.so']
-        }
-    }
     namespace = 'org.firstinspires.ftc.teamcode'
     androidResources {
         noCompress 'tflite'
@@ -30,6 +25,11 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+    }
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/*.so', '**/*.so']
+        }
     }
     kotlinOptions {
         jvmTarget = "1.8"

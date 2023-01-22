@@ -1,42 +1,84 @@
 package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Claw
+import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 
 
 @com.acmerobotics.dashboard.config.Config
-class LeftTrajectory(drive: SampleMecanumDrive, arm: Arm, claw: Claw) {
-    val initPoseTraj = drive.trajectorySequenceBuilder(Pose2d())
-        .splineToSplineHeading(aPose, aH.rad)
-        .waitSeconds(5.0)
-        .splineToLinearHeading(bPose, bH.rad)
-        .waitSeconds(5.0)
-        .lineToSplineHeading(cPose)
-        .build()!!
+class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm, val claw: Claw) {
+    val coneTraj
+        get() = drive.trajectorySequenceBuilder(startPose)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 1
+            .splineTo(pickVec, (bH).rad)
+            .waitSeconds(1.0)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 2
+            .splineTo(pickVec, (bH).rad)
+            .waitSeconds(1.0)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 3
+            .splineTo(pickVec, (bH).rad)
+            .waitSeconds(1.0)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 4
+            .splineTo(pickVec, (bH).rad)
+            .waitSeconds(1.0)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+            // pick 5
+            .splineTo(pickVec, (bH).rad)
+            .waitSeconds(1.0)
+            .setReversed(true)
+            .splineTo(dropVec, aH.rad)
+            .waitSeconds(0.5)
+            .setReversed(false)
+
+    val middle = coneTraj.splineTo(Vector2d(-36, -12), 270.rad).build()!!
+    val left = coneTraj.splineToSplineHeading(Pose2d(-60, -12, 270), 180.rad).build()!!
+    val right = coneTraj.splineToSplineHeading(Pose2d(-12, -12, 270), 0.rad).build()!!
+
+    fun byTag(tag: SignalSleevePipeline.Tag) = when (tag) {
+        SignalSleevePipeline.Tag.LEFT  -> left
+        SignalSleevePipeline.Tag.RIGHT -> right
+        else                           -> middle
+    }
 
     companion object {
-        @JvmField var aX = 53.0
-        @JvmField var aY = 6.0
-        @JvmField var aD = 135
-        @JvmField var aH = -5
+        @JvmField var aX = -30
+        @JvmField var aY = -6
+        @JvmField var aH = 55
 
-        @JvmField var bX = 48.0
-        @JvmField var bY = -20.0
-        @JvmField var bD = 90
-        @JvmField var bH = 90
+        @JvmField var bX = -58
+        @JvmField var bY = -12
+        @JvmField var bH = 180
 
-        @JvmField var cX = 53.0
-        @JvmField var cY = 6.0
-        @JvmField var cD = 135
+        val dropVec get() = Vector2d(aX, aY)
+        val pickVec get() = Vector2d(bX, bY)
 
-        val aPose get() = Pose2d(aX, aY, aD.rad)
-        val bPose get() = Pose2d(bX, bY, bD.rad)
-        val cPose get() = Pose2d(cX, cY, cD.rad)
+        val startPose = Pose2d(-31.0, -61.0, (-90).rad)
 
         val Int.rad get() = Math.toRadians(this.toDouble())
 
         fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
+        fun Vector2d(x: Int, y: Int) = Vector2d(x.toDouble(), y.toDouble())
     }
 }

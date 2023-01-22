@@ -2,15 +2,18 @@ package org.firstinspires.ftc.teamcode.teleop
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
+import org.firstinspires.ftc.teamcode.autonomous.LeftTrajectory.Companion.rad
 import org.firstinspires.ftc.teamcode.subsystems.*
-import org.firstinspires.ftc.teamcode.vision.ConeDetectionPipeline
-import org.firstinspires.ftc.teamcode.vision.createWebcam
+import org.firstinspires.ftc.teamcode.vision.*
+import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
 @TeleOp
+@com.acmerobotics.dashboard.config.Config
 class TeleOp3 : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm2
@@ -18,16 +21,25 @@ class TeleOp3 : LinearOpMode() {
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
-    private lateinit var webcam: OpenCvWebcam
-    private val pipeline = ConeDetectionPipeline(Alliance.RED)
-    private val pickPID = PIDController(TeleOp4.pP, TeleOp4.pI, TeleOp4.pD)
+    private lateinit var frontWebcam: OpenCvWebcam
+    private lateinit var backWebcam: OpenCvWebcam
+    private val coneDetector = ConeDetectionPipeline.redConeDetector()
+    private val poleDetector = PoleDetectionPipeline()
+    private val conePID = PIDController(pP, pI, pD)
+    private val polePID = PIDController(jP, jI, jD)
 
     override fun runOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         arm = Arm2(hardwareMap, tm)
         claw = Claw(hardwareMap)
-        drive = DriveExt(hardwareMap)
-        webcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_1, pipeline = pipeline)
+        drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
+
+        frontWebcam = createWebcam(
+            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
+        ).apply { stopStreaming() }
+        backWebcam = createWebcam(
+            hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector
+        ).apply { stopStreaming() }
 
         val gp1 = gamepads.first
         val gp2 = gamepads.second
@@ -42,27 +54,83 @@ class TeleOp3 : LinearOpMode() {
             onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
 
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
+            runIf({ arm.state > Arm.HIGH && claw.state == Claw.OPENED }) {
+                claw.state = Claw.HALF_OPENED
+            }
 
             /* aim at cone */
-            var aiming = false
+            var coneAiming = false
             onPressed(gp1::right_bumper, gp2::right_bumper) {
-                aiming = (!aiming)
-                if (aiming) claw.state = Claw.OPENED
+                coneAiming = !coneAiming
+                if (coneAiming) {
+                    claw.state = Claw.OPENED
+                    frontWebcam.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT)
+                } else frontWebcam.stopStreaming()
             }
-            runIf({ aiming }) {
-                if (pipeline.detected) gp1.right_stick_x =
-                    pickPID.calculate(pipeline.error).toFloat().also { println("aim $it") }
-                if (claw.state == Claw.CLOSED) aiming = false
+            runIf({ coneAiming }) {
+                if (coneDetector.detected) gp1.right_stick_x =
+                    conePID.calculate(coneDetector.error).toFloat().also { println("cone aim $it") }
+
+                if (claw.state == Claw.CLOSED) {
+                    coneAiming = false
+                    frontWebcam.stopStreaming()
+                }
+            }
+
+            /* aim at pole */
+            var poleAiming = false
+            onMoved(gp1::right_trigger, gp1::right_trigger) {
+                poleAiming = !poleAiming
+                if (poleAiming) backWebcam.startStreaming(
+                    CAMERA_HEIGHT, CAMERA_WIDTH, OpenCvCameraRotation.UPSIDE_DOWN
+                ) else backWebcam.stopStreaming()
+            }
+            runIf({ poleAiming }) {
+                if (poleDetector.detected) gp1.right_stick_x =
+                    polePID.calculate(poleDetector.error).toFloat().also { println("pole aim $it") }
+
+                if (claw.state != Claw.CLOSED) {
+                    poleAiming = false
+                    backWebcam.stopStreaming()
+                }
+            }
+
+            /* cycle a cone */
+            var cycling = false
+            onMoved(gp1::left_trigger) {
+                cycling = !cycling
+                if (arm.state != Arm.GROUND || claw.state != Claw.CLOSED) cycling = false
+                if (cycling) {
+                    drive.followTrajectorySequenceAsync(
+                        drive.trajectorySequenceBuilder(drive.poseEstimate)
+                            .setReversed(true)
+                            .splineTo(Vector2d(0.0, -32.0), 90.rad)
+                            .build()
+                    )
+                    arm.state = Arm.BACKHIGH
+                    poleAiming = true
+                } else drive.exitTrajectory()
             }
 
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },
                 { tm.update(); Unit },
-                { gamepads.sync() })
-
+                { gamepads.sync() },
+                { conePID.constants = Triple(pP, pI, pD) },
+                { polePID.constants = Triple(jP, jI, jD) })
         }.also {
             waitForStart()
             it.run()
         }
+    }
+
+    companion object {
+        @JvmField var jP = 0.001
+        @JvmField var jI = 0.0
+        @JvmField var jD = 0.0
+
+        @JvmField var pP = 0.001
+        @JvmField var pI = 0.0
+        @JvmField var pD = 0.0
     }
 }

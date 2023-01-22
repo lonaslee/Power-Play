@@ -45,14 +45,14 @@ public class TrajectorySequenceRunner {
 
     private final NanoClock clock;
 
-    private TrajectorySequence currentTrajectorySequence;
+    public TrajectorySequence currentTrajectorySequence; // modified for breakable trajectories (was private)
     private double currentSegmentStartTime;
     private int currentSegmentIndex;
     private int lastSegmentIndex;
 
     private Pose2d lastPoseError = new Pose2d();
 
-    List<TrajectoryMarker> remainingMarkers = new ArrayList<>();
+    public List<TrajectoryMarker> remainingMarkers = new ArrayList<>(); // modified for breakable trajectories (was package private)
 
     private final FtcDashboard dashboard;
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
@@ -139,7 +139,7 @@ public class TrajectorySequenceRunner {
                 targetPose = currentTrajectory.get(deltaTime);
             } else if (currentSegment instanceof TurnSegment) {
                 MotionState targetState = ((TurnSegment) currentSegment).getMotionProfile()
-                                                                        .get(deltaTime);
+                        .get(deltaTime);
 
                 turnController.setTargetPosition(targetState.getX());
 
@@ -174,7 +174,7 @@ public class TrajectorySequenceRunner {
             }
 
             while (remainingMarkers.size() > 0 && deltaTime > remainingMarkers.get(0)
-                                                                              .getTime()) {
+                    .getTime()) {
                 remainingMarkers.get(0).getCallback().onMarkerReached();
                 remainingMarkers.remove(0);
             }
@@ -215,7 +215,7 @@ public class TrajectorySequenceRunner {
                     fieldOverlay.setStroke(COLOR_INACTIVE_TRAJECTORY);
 
                     DashboardUtil.drawSampledPath(fieldOverlay, ((TrajectorySegment) segment).getTrajectory()
-                                                                                             .getPath());
+                            .getPath());
                 } else if (segment instanceof TurnSegment) {
                     Pose2d pose = segment.getStartPose();
 

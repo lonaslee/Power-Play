@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.teleop.Alliance;
 import org.jetbrains.annotations.TestOnly;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -21,6 +20,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+
 public class ConeDetectionPipeline extends OpenCvPipeline {
     private static final Scalar[] RED1 = new Scalar[]{new Scalar(0, 50, 50), new Scalar(10, 255, 255)};
     private static final Scalar[] RED2 = new Scalar[]{new Scalar(170, 50, 50), new Scalar(180, 255, 255)};
@@ -30,23 +30,41 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
     @Nullable
     private final Telemetry telemetry;
 
+    public enum ConeColor {RED, BLUE}
+
     @Nonnull
-    private final Alliance alliance;
+    public ConeColor conecolor;
 
     @TestOnly
     public ConeDetectionPipeline(@Nullable Telemetry telemetry) {
         this.telemetry = telemetry;
-        alliance = Alliance.RED;
+        conecolor = ConeColor.RED;
     }
 
-    public ConeDetectionPipeline(@Nonnull Alliance alliance) {
+    public ConeDetectionPipeline(@Nonnull ConeColor conecolor) {
         this.telemetry = null;
-        this.alliance = alliance;
+        this.conecolor = conecolor;
     }
 
-    public ConeDetectionPipeline(@Nonnull Alliance alliance, @Nonnull Telemetry telemetry) {
+    public ConeDetectionPipeline(@Nonnull ConeColor conecolor, @Nonnull Telemetry telemetry) {
         this.telemetry = telemetry;
-        this.alliance = alliance;
+        this.conecolor = conecolor;
+    }
+
+    @Nonnull
+    public static ConeDetectionPipeline redConeDetector() {
+        return new ConeDetectionPipeline(ConeColor.RED);
+    }
+
+    @Nonnull
+    public static ConeDetectionPipeline blueConeDetector() {
+        return new ConeDetectionPipeline(ConeColor.BLUE);
+    }
+
+    public double error = 0.0;
+
+    public boolean getDetected() {
+        return !Double.isNaN(error);
     }
 
     private final Mat hsv = new Mat();
@@ -56,9 +74,6 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
     private final Mat hierarchy = new Mat();
 
     private final List<MatOfPoint> contours = new ArrayList<>();
-
-    public double error = 0.0;
-    public boolean detected = false;
 
     @Override
     public Mat processFrame(Mat input) {
@@ -73,7 +88,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
         Imgproc.cvtColor(inputroi, hsv, Imgproc.COLOR_RGB2HSV);
 
-        if (alliance == Alliance.RED) {
+        if (conecolor == ConeColor.RED) {
             Core.inRange(hsv, RED1[0], RED1[1], mask);
             Core.inRange(hsv, RED2[0], RED2[1], mask2);
             Core.bitwise_or(mask, mask2, mask);
@@ -87,10 +102,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         MatOfPoint approxCone = approximateMaxHull();
-        detected = approxCone != null;
-        if (!detected) {
-            error = 0;
-        } else {
+        if (approxCone != null) {
             Imgproc.drawContours(inputroi, List.of(approxCone), -1, DetectionUtils.BLUE);
 
             Point center = DetectionUtils.getContourCenter(approxCone);
@@ -100,10 +112,12 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
                 error = (lo_offset < middle && middle < hi_offset) ? 0 : input.width() / 2.0 - middle;
             }
+        } else {
+            error = Double.NaN;
         }
 
         if (telemetry != null) {
-            telemetry.addData("error", error);
+            telemetry.addData("cone error", error);
             telemetry.update();
         }
         inputroi.release();
