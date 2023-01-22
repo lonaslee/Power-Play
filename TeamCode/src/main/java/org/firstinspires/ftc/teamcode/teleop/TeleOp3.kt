@@ -58,6 +58,10 @@ class TeleOp3 : LinearOpMode() {
                 claw.state = Claw.HALF_OPENED
             }
 
+            /* sprint mode */
+            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
+            onReturned(gp1::right_bumper) { drive.speed = 0.7 }
+
             /* aim at cone */
             var coneAiming = false
             onPressed(gp1::right_bumper, gp2::right_bumper) {
@@ -79,7 +83,7 @@ class TeleOp3 : LinearOpMode() {
 
             /* aim at pole */
             var poleAiming = false
-            onMoved(gp1::right_trigger, gp1::right_trigger) {
+            onMoved(gp1::left_bumper, gp2::left_trigger) {
                 poleAiming = !poleAiming
                 if (poleAiming) backWebcam.startStreaming(
                     CAMERA_HEIGHT, CAMERA_WIDTH, OpenCvCameraRotation.UPSIDE_DOWN
@@ -97,7 +101,7 @@ class TeleOp3 : LinearOpMode() {
 
             /* cycle a cone */
             var cycling = false
-            onMoved(gp1::left_trigger) {
+            onPressed(gp1::back) {
                 cycling = !cycling
                 if (arm.state != Arm.GROUND || claw.state != Claw.CLOSED) cycling = false
                 if (cycling) {
@@ -111,6 +115,7 @@ class TeleOp3 : LinearOpMode() {
                     poleAiming = true
                 } else drive.exitTrajectory()
             }
+            runIf({ cycling }) { if (!drive.isBusy) cycling = false }
 
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },

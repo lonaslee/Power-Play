@@ -34,7 +34,7 @@ class DriveExt(
         super.update()
     }
 
-    var speed = 0.8
+    var speed = 0.7
 
     /**
      * Updates powers to field centric values based on gamepad input, imu angle, and [speed].

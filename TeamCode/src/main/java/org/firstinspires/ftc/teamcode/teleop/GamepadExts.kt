@@ -35,7 +35,7 @@ fun Gamepads.sync() {
 }
 
 /**
- * Return if a Boolean button has been pressed.
+ * See if a Boolean button has been pressed.
  */
 fun pressed(button: KProperty<*>): Boolean {
     val gamepad = (button as CallableReference).boundReceiver as GamepadExt
@@ -43,7 +43,7 @@ fun pressed(button: KProperty<*>): Boolean {
 }
 
 /**
- * Return if a Boolean button has been released.
+ * See if a Boolean button has been released.
  */
 fun released(button: KProperty<*>): Boolean {
     val gamepad = (button as CallableReference).boundReceiver as GamepadExt
@@ -51,7 +51,7 @@ fun released(button: KProperty<*>): Boolean {
 }
 
 /**
- * Return if a Float trigger or joystick axis has been moved away from zero.
+ * See if a Float trigger or joystick axis has been moved away from zero.
  */
 fun moved(triggerOrJoystick: KProperty<*>): Boolean {
     val gamepad = (triggerOrJoystick as CallableReference).boundReceiver as GamepadExt
@@ -59,5 +59,17 @@ fun moved(triggerOrJoystick: KProperty<*>): Boolean {
         it.getFloat(gamepad.prev) == 0F && it.getFloat(
             gamepad
         ) != 0F
+    }
+}
+
+/**
+ * See if a Float trigger or joystick axis has been returned back to zero.
+ */
+fun returned(triggerOrJoystick: KProperty<*>): Boolean {
+    val gamepad = (triggerOrJoystick as CallableReference).boundReceiver as GamepadExt
+    return triggerOrJoystick.javaField!!.let {
+        it.getFloat(gamepad.prev) != 0F && it.getFloat(
+            gamepad
+        ) == 0F
     }
 }

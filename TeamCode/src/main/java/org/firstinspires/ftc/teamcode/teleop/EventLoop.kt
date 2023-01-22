@@ -64,6 +64,17 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
     }
 
     /**
+     * Execute a [Callback] when a trigger or joystick axis has been [returned].
+     */
+    fun onReturned(key: KProperty<*>, func: Callback) {
+        conditionals += { returned(key) } to func
+    }
+
+    fun onReturned(vararg keys: KProperty<*>, func: Callback) {
+        conditionals += { keys.any { returned(it) } } to func
+    }
+
+    /**
      * Start the event loop, which will run blocking until the method passed in the constructor returns false.
      */
     fun run() {

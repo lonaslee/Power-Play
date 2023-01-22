@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
-public class ConeDetectionPipeline extends OpenCvPipeline {
+public final class ConeDetectionPipeline extends OpenCvPipeline {
     private static final Scalar[] RED1 = new Scalar[]{new Scalar(0, 50, 50), new Scalar(10, 255, 255)};
     private static final Scalar[] RED2 = new Scalar[]{new Scalar(170, 50, 50), new Scalar(180, 255, 255)};
     private static final Scalar[] BLUE = new Scalar[]{new Scalar(100, 50, 50), new Scalar(130, 255, 255)};
@@ -118,7 +118,7 @@ public class ConeDetectionPipeline extends OpenCvPipeline {
 
         if (telemetry != null) {
             telemetry.addData("cone error", error);
-            telemetry.update();
+//            telemetry.update();
         }
         inputroi.release();
         return input;
