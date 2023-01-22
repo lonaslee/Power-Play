@@ -36,11 +36,18 @@ android {
     }
 }
 
+repositories {
+    maven { url = 'https://jitpack.io' }
+}
+
 dependencies {
     implementation project(':FtcRobotController')
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.21"
+
+    // photon
+    implementation 'com.github.Eeshwar-Krishnan:PhotonFTC:v2.0.4'
 
     // roadrunner
     implementation 'org.apache.commons:commons-math3:3.6.1'
