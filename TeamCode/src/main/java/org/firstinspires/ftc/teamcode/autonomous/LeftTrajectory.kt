@@ -10,11 +10,15 @@ import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 
 @com.acmerobotics.dashboard.config.Config
 class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm, val claw: Claw) {
-    val coneTraj
+    private val coneTraj
         get() = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.5)
+            .waitSeconds(0.3)
+            .addTemporalMarker { claw.state = Claw.OPENED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = Arm.STACK }
             .setReversed(false)
             // pick 1
             .splineTo(pickVec, (bH).rad)
@@ -57,9 +61,9 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm, val claw: Claw
     val right = coneTraj.splineToSplineHeading(Pose2d(-12, -12, 270), 0.rad).build()!!
 
     fun byTag(tag: SignalSleevePipeline.Tag) = when (tag) {
-        SignalSleevePipeline.Tag.LEFT  -> left
+        SignalSleevePipeline.Tag.LEFT -> left
         SignalSleevePipeline.Tag.RIGHT -> right
-        else                           -> middle
+        else -> middle
     }
 
     companion object {

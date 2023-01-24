@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
+import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
@@ -21,19 +22,20 @@ class LeftAuto : LinearOpMode() {
     private lateinit var trajs: LeftTrajectory
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-    private val pipeline: SignalSleevePipeline = AprilTagPipeline(tm)
+    private val pipeline: SignalSleevePipeline = ColorShapeDetectionPipeline(tm)
 
     override fun runOpMode() {
         arm = Arm(hardwareMap)
-        claw = Claw(hardwareMap)
+        claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap).apply { poseEstimate = LeftTrajectory.startPose }
         trajs = LeftTrajectory(drive, arm, claw)
 
-        createWebcam(hardwareMap, RobotConfig.WEBCAM_2, telemetry, pipeline)
+        val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, telemetry, pipeline)
 
         waitForStart()
         if (isStopRequested) return
         drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+        camera.closeCameraDeviceAsync {}
 
         while (opModeIsActive()) {
             arm.update()

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.vision;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +13,6 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,8 +21,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import androidx.annotation.NonNull;
 
-public final class ColorShapeDetectionPipeline extends OpenCvPipeline {
+
+@Config
+public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
     public enum Shape {CIRCLE, TRIANGLE, RECTANGLE, UNKNOWN}
 
     public enum Color {YELLOW, CYAN, MAGENTA, UNKNOWN}
@@ -68,16 +72,18 @@ public final class ColorShapeDetectionPipeline extends OpenCvPipeline {
         return Color.CYAN;
     }
 
-    public int getVerdict() {
+    @NonNull
+    @Override
+    public Tag getVerdict() {
         Color colorVerdict = getColorVerdict();
         Shape shapeVerdict = getShapeVerdict();
-        if (colorVerdict == Color.YELLOW && shapeVerdict == Shape.CIRCLE) return 1;
-        if (colorVerdict == Color.MAGENTA && shapeVerdict == Shape.RECTANGLE) return 2;
-        if (colorVerdict == Color.CYAN && shapeVerdict == Shape.TRIANGLE) return 3;
+        if (colorVerdict == Color.YELLOW && shapeVerdict == Shape.CIRCLE) return Tag.LEFT;
+        if (colorVerdict == Color.MAGENTA && shapeVerdict == Shape.RECTANGLE) return Tag.MIDDLE;
+        if (colorVerdict == Color.CYAN && shapeVerdict == Shape.TRIANGLE) return Tag.RIGHT;
 
         // something is goofy now
-        if (shapeVerdict == Shape.UNKNOWN) return colorVerdict.ordinal() + 1;
-        else return shapeVerdict.ordinal() + 1;
+        if (shapeVerdict == Shape.UNKNOWN) return Tag.values()[colorVerdict.ordinal()];
+        else return Tag.values()[shapeVerdict.ordinal()];
     }
 
     private Mat inputroi = new Mat();

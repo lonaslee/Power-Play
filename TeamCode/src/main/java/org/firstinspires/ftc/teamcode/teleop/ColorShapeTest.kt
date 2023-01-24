@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.teleop
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
+@TeleOp
 class ColorShapeTest : LinearOpMode() {
     override fun runOpMode() {
         val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
