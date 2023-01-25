@@ -19,14 +19,15 @@ fun createWebcam(
     hardwareMap: HardwareMap,
     configName: RobotConfig,
     telemetry: Telemetry? = null,
-    pipeline: OpenCvPipeline? = null
-): OpenCvWebcam = OpenCvCameraFactory.getInstance().createWebcam(
+    pipeline: OpenCvPipeline? = null,
+    orientation: OpenCvCameraRotation = OpenCvCameraRotation.UPRIGHT,
+    ): OpenCvWebcam = OpenCvCameraFactory.getInstance().createWebcam(
     hardwareMap[configName.s] as WebcamName, hardwareMap.appContext.resources.getIdentifier(
         "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
     )
 ).apply {
     openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
-        override fun onOpened() = startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT)
+        override fun onOpened() = startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, orientation)
 
         override fun onError(errorCode: Int) {
             "Camera error. Code: $errorCode".let { telemetry?.addLine(it); println(it) }

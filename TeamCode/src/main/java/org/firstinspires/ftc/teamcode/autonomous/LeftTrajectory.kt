@@ -4,28 +4,34 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Arm2
+import org.firstinspires.ftc.teamcode.subsystems.Arm3
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 
 
 @com.acmerobotics.dashboard.config.Config
-class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm, val claw: Claw) {
+class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Claw) {
     private val coneTraj
         get() = drive.trajectorySequenceBuilder(startPose)
             .setReversed(true)
             .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.3)
-            .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = Claw.OPENED }
+            .waitSeconds(t)
             .addTemporalMarker { arm.state = Arm.STACK }
             .setReversed(false)
             // pick 1
             .splineTo(pickVec, (bH).rad)
-            .waitSeconds(1.0)
+            .addTemporalMarker { claw.state = Claw.CLOSED }
+            .waitSeconds(0.2)
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .setReversed(true)
             .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.5)
+            .waitSeconds(0.2)
+            .addTemporalMarker { claw.state = Claw.OPENED }
+            .waitSeconds(t)
             .setReversed(false)
             // pick 2
             .splineTo(pickVec, (bH).rad)
@@ -67,13 +73,15 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm, val claw: Claw
     }
 
     companion object {
-        @JvmField var aX = -30
-        @JvmField var aY = -6
+        @JvmField var aX = -28
+        @JvmField var aY = -5
         @JvmField var aH = 55
 
         @JvmField var bX = -58
-        @JvmField var bY = -12
+        @JvmField var bY = -15
         @JvmField var bH = 180
+
+        @JvmField var t = 0.1
 
         val dropVec get() = Vector2d(aX, aY)
         val pickVec get() = Vector2d(bX, bY)

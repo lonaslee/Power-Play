@@ -24,7 +24,7 @@ class TeleOp3 : LinearOpMode() {
     private lateinit var frontWebcam: OpenCvWebcam
     private lateinit var backWebcam: OpenCvWebcam
     private val coneDetector = ConeDetectionPipeline.redConeDetector()
-    private val poleDetector = PoleDetectionPipeline()
+    private val poleDetector = PoleDetectionPipeline(tm)
     private val conePID = PIDController(pP, pI, pD)
     private val polePID = PIDController(jP, jI, jD)
 
@@ -34,17 +34,20 @@ class TeleOp3 : LinearOpMode() {
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
 
-        frontWebcam = createWebcam(
-            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
-        ).apply { stopStreaming() }
+//        frontWebcam = createWebcam(
+//            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
+//        ).apply { stopStreaming() }
         backWebcam = createWebcam(
-            hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector
-        ).apply { stopStreaming() }
+            hardwareMap,
+            RobotConfig.WEBCAM_2,
+            orientation = OpenCvCameraRotation.UPSIDE_DOWN,
+            pipeline = poleDetector
+        )
 
         val gp1 = gamepads.first
         val gp2 = gamepads.second
 
-        EventLoop(::opModeIsActive).apply {
+        EventLoop(::opModeIsActive, tm).apply {
             onPressed(gp1::dpad_up) { arm.state = Arm.next(arm.state) }
             onPressed(gp1::dpad_down) { arm.state = Arm.prev(arm.state) }
 
@@ -54,15 +57,12 @@ class TeleOp3 : LinearOpMode() {
             onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
 
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
-            runIf({ arm.state > Arm.HIGH && claw.state == Claw.OPENED }) {
-                claw.state = Claw.HALF_OPENED
-            }
 
             /* sprint mode */
-            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
-            onReturned(gp1::right_bumper) { drive.speed = 0.7 }
+//            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
+//            onReturned(gp1::right_trigger) { drive.speed = 0.7 }
 
-            /* aim at cone */
+            /* aim at cone
             var coneAiming = false
             onPressed(gp1::right_bumper, gp2::right_bumper) {
                 coneAiming = !coneAiming
@@ -80,14 +80,15 @@ class TeleOp3 : LinearOpMode() {
                     frontWebcam.stopStreaming()
                 }
             }
-
+*/
             /* aim at pole */
             var poleAiming = false
-            onMoved(gp1::left_bumper, gp2::left_trigger) {
+            onMoved(gp1::left_trigger, gp2::left_trigger) {
+                println("MOVED")
                 poleAiming = !poleAiming
-                if (poleAiming) backWebcam.startStreaming(
-                    CAMERA_HEIGHT, CAMERA_WIDTH, OpenCvCameraRotation.UPSIDE_DOWN
-                ) else backWebcam.stopStreaming()
+//                if (poleAiming) backWebcam.startStreaming(
+//                    CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN
+//                ) else backWebcam.stopStreaming()
             }
             runIf({ poleAiming }) {
                 if (poleDetector.detected) gp1.right_stick_x =
@@ -95,11 +96,11 @@ class TeleOp3 : LinearOpMode() {
 
                 if (claw.state != Claw.CLOSED) {
                     poleAiming = false
-                    backWebcam.stopStreaming()
+//                    backWebcam.stopStreaming()
                 }
             }
 
-            /* cycle a cone */
+            /* cycle a cone
             var cycling = false
             onPressed(gp1::back) {
                 cycling = !cycling
@@ -116,11 +117,12 @@ class TeleOp3 : LinearOpMode() {
                 } else drive.exitTrajectory()
             }
             runIf({ cycling }) { if (!drive.isBusy) cycling = false }
-
+*/
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },
                 { tm.update(); Unit },
                 { gamepads.sync() },
+                { tm.addData("p", poleAiming); Unit },
                 { conePID.constants = Triple(pP, pI, pD) },
                 { polePID.constants = Triple(jP, jI, jD) })
         }.also {

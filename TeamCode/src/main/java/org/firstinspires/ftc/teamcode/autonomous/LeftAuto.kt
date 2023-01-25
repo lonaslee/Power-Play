@@ -5,10 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Claw
-import org.firstinspires.ftc.teamcode.subsystems.DriveExt
-import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
+import org.firstinspires.ftc.teamcode.subsystems.*
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
@@ -17,7 +14,7 @@ import org.firstinspires.ftc.teamcode.vision.createWebcam
 @Autonomous
 class LeftAuto : LinearOpMode() {
     private lateinit var claw: Claw
-    private lateinit var arm: Arm
+    private lateinit var arm: Arm3
     private lateinit var drive: SampleMecanumDrive
     private lateinit var trajs: LeftTrajectory
 
@@ -25,7 +22,7 @@ class LeftAuto : LinearOpMode() {
     private val pipeline: SignalSleevePipeline = ColorShapeDetectionPipeline(tm)
 
     override fun runOpMode() {
-        arm = Arm(hardwareMap)
+        arm = Arm3(hardwareMap)
         claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap).apply { poseEstimate = LeftTrajectory.startPose }
         trajs = LeftTrajectory(drive, arm, claw)

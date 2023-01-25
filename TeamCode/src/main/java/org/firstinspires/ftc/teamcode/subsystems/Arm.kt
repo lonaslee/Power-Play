@@ -27,11 +27,11 @@ open class Arm(
 
     companion object States : Subsystem.States {
         const val GROUND = -170
-        const val STACK = -70
+        @JvmField var STACK = -40
         const val LOW = 10
         const val MID = 100
         const val HIGH = 210
-        const val BACKHIGH = 250
+        @JvmField var BACKHIGH = 270
         const val BACKMID = 365
         const val BACKLOW = 470
         const val BACKGROUND = 600
@@ -45,8 +45,8 @@ open class Arm(
 
         @JvmField var dP = 0.002
         @JvmField var dI = 0.0
-        @JvmField var dD = 0.0006
-        @JvmField var dF = -0.0004
+        @JvmField var dD = 0.0003
+        @JvmField var dF = -0.0002
 
         @JvmField var kCos = 0.15
         @JvmField var dCos = 0.01

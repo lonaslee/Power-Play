@@ -44,7 +44,7 @@ class DriveExt(
         val x = gamepads.first.left_stick_x * 1.1
         val turn = gamepads.first.right_stick_x.toDouble()
 
-        val (rotX, rotY) = (rawExternalHeading).let {
+        val (rotX, rotY) = (-rawExternalHeading).let {
             Pair(x * cos(it) - y * sin(it), x * sin(it) + y * cos(it))
         }
 

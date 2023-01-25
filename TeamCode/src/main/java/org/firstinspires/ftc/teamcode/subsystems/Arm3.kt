@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kP
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
-class Arm2(
+class Arm3(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
 ) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
@@ -41,8 +41,11 @@ class Arm2(
     private val downControl = PIDFController(dP, dI, dD, dF)
 
     companion object {
-        @JvmField var mA = 600.0
-        @JvmField var mV = 600.0
+        @JvmField var mA = 330.0
+        @JvmField var mV = 650.0
+
+        @JvmField var dA = 1200.0
+        @JvmField var dV = 1200.0
     }
 
     private var curState = MotionState(GROUND.toDouble(), 0.0, 0.0)
@@ -66,8 +69,8 @@ class Arm2(
             profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 curState,
                 MotionState((if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0),
-                mV,
-                mA
+                if (goingDown) dV else mV,
+                if (goingDown) dA else mA,
             )
             field = value
         }
