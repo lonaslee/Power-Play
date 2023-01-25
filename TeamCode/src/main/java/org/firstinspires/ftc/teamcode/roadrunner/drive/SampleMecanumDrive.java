@@ -39,6 +39,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -50,6 +52,7 @@ import org.firstinspires.ftc.teamcode.subsystems.RobotConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
@@ -76,13 +79,71 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
+    private final Object imuLock = new Object();
+    private boolean _threadedIMU = false;
+
+    public boolean threadedIMU() {
+        return _threadedIMU;
+    }
+
+    private Orientation imuOrientation = null;
+
+    public Orientation getIMUAngularOrientation() {
+        if (threadedIMU()) return imuOrientation;
+        return imu.getAngularOrientation();
+    }
+
+    private AngularVelocity imuAngularVelocity = null;
+
+    public AngularVelocity getIMUAngularVelocity() {
+        if (threadedIMU()) return imuAngularVelocity;
+        return imu.getAngularVelocity();
+    }
+
     private VoltageSensor batteryVoltageSensor;
 
+    public SampleMecanumDrive(HardwareMap hardwareMap, Callable<Boolean> running) {
+        this(hardwareMap, 0);
+
+        _threadedIMU = true;
+        synchronized (imuLock) {
+            imu = hardwareMap.get(BNO055IMU.class, RobotConfig.IMU.getS());
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+            imu.initialize(parameters);
+            BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
+        }
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    if (!running.call()) break;
+                } catch (Exception e) {
+                    throw new RuntimeException("Running call threw exception: " + e.getMessage());
+                }
+                synchronized (imuLock) {
+                    imuOrientation = imu.getAngularOrientation();
+                    imuAngularVelocity = imu.getAngularVelocity();
+                }
+            }
+        }).start();
+    }
+
     public SampleMecanumDrive(HardwareMap hardwareMap) {
+        this(hardwareMap, 0);
+
+        _threadedIMU = false;
+        imu = hardwareMap.get(BNO055IMU.class, RobotConfig.IMU.getS());
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        imu.initialize(parameters);
+        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
+    }
+
+    private SampleMecanumDrive(HardwareMap hardwareMap, int ignored) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
-        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID, new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -93,11 +154,13 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // _TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, RobotConfig.IMU.getS());
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
-
+        synchronized (imuLock) {
+            imu = hardwareMap.get(BNO055IMU.class, RobotConfig.IMU.getS());
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+            imu.initialize(parameters);
+            BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
+        }
         // TODO: If the hub containing the IMU you are using is mounted so that the "REV" logo does
         // not face up, remap the IMU axes so that the z-axis points upward (normal to the floor.)
         //
@@ -119,7 +182,6 @@ public class SampleMecanumDrive extends MecanumDrive {
         //
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
         // BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
-        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
 
         leftFront = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_FRONT.getS());
         leftRear = hardwareMap.get(DcMotorEx.class, RobotConfig.LEFT_BACK.getS());
@@ -129,8 +191,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         for (DcMotorEx motor : motors) {
-            MotorConfigurationType motorConfigurationType = motor.getMotorType()
-                                                                 .clone();
+            MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
             motor.setMotorType(motorConfigurationType);
         }
@@ -168,19 +229,11 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
-        return new TrajectorySequenceBuilder(
-                startPose,
-                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
-                MAX_ANG_VEL, MAX_ANG_ACCEL
-        );
+        return new TrajectorySequenceBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT, MAX_ANG_VEL, MAX_ANG_ACCEL);
     }
 
     public void turnAsync(double angle) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
-                        .turn(angle)
-                        .build()
-        );
+        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequenceBuilder(getPoseEstimate()).turn(angle).build());
     }
 
     public void turn(double angle) {
@@ -189,11 +242,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void followTrajectoryAsync(Trajectory trajectory) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(trajectory.start())
-                        .addTrajectory(trajectory)
-                        .build()
-        );
+        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequenceBuilder(trajectory.start()).addTrajectory(trajectory).build());
     }
 
     public void followTrajectory(Trajectory trajectory) {
@@ -221,8 +270,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForIdle() {
-        while (!Thread.currentThread().isInterrupted() && isBusy())
-            update();
+        while (!Thread.currentThread().isInterrupted() && isBusy()) update();
     }
 
     public boolean isBusy() {
@@ -242,10 +290,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
-        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
-                coefficients.p, coefficients.i, coefficients.d,
-                coefficients.f * 12 / batteryVoltageSensor.getVoltage()
-        );
+        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(coefficients.p, coefficients.i, coefficients.d, coefficients.f * 12 / batteryVoltageSensor.getVoltage());
 
         for (DcMotorEx motor : motors) {
             motor.setPIDFCoefficients(runMode, compensatedCoefficients);
@@ -255,18 +300,11 @@ public class SampleMecanumDrive extends MecanumDrive {
     public void setWeightedDrivePower(Pose2d drivePower) {
         Pose2d vel = drivePower;
 
-        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
-                + Math.abs(drivePower.getHeading()) > 1) {
+        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY()) + Math.abs(drivePower.getHeading()) > 1) {
             // re-normalize the powers according to the weights
-            double denom = VX_WEIGHT * Math.abs(drivePower.getX())
-                    + VY_WEIGHT * Math.abs(drivePower.getY())
-                    + OMEGA_WEIGHT * Math.abs(drivePower.getHeading());
+            double denom = VX_WEIGHT * Math.abs(drivePower.getX()) + VY_WEIGHT * Math.abs(drivePower.getY()) + OMEGA_WEIGHT * Math.abs(drivePower.getHeading());
 
-            vel = new Pose2d(
-                    VX_WEIGHT * drivePower.getX(),
-                    VY_WEIGHT * drivePower.getY(),
-                    OMEGA_WEIGHT * drivePower.getHeading()
-            ).div(denom);
+            vel = new Pose2d(VX_WEIGHT * drivePower.getX(), VY_WEIGHT * drivePower.getY(), OMEGA_WEIGHT * drivePower.getHeading()).div(denom);
         }
 
         setDrivePower(vel);
@@ -301,19 +339,16 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getAngularOrientation().firstAngle;
+        return getIMUAngularOrientation().firstAngle;
     }
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return (double) imu.getAngularVelocity().zRotationRate;
+        return (double) getIMUAngularVelocity().zRotationRate;
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
-        return new MinVelocityConstraint(Arrays.asList(
-                new AngularVelocityConstraint(maxAngularVel),
-                new MecanumVelocityConstraint(maxVel, trackWidth)
-        ));
+        return new MinVelocityConstraint(Arrays.asList(new AngularVelocityConstraint(maxAngularVel), new MecanumVelocityConstraint(maxVel, trackWidth)));
     }
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
