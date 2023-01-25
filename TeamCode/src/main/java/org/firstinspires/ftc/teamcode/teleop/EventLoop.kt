@@ -78,13 +78,12 @@ class EventLoop(private val running: Predicate, private val telemetry: Telemetry
      * Start the event loop, which will run blocking until the method passed in the constructor returns false.
      */
     fun run() {
-
         var time = 0L
         while (running()) time = measureNanoTime {
             conditionals.filter { it.first() }.forEach { it.second() }
             updates.forEach { it() }
 
-            telemetry?.addData("hz", 1e9 / time)
+            telemetry?.addData("hz", 1 / (time / 1e9))
             PhotonCore.CONTROL_HUB.clearBulkCache()
             PhotonCore.EXPANSION_HUB.clearBulkCache()
         }

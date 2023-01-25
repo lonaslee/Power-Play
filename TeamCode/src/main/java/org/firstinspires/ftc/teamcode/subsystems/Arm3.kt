@@ -41,11 +41,14 @@ class Arm3(
     private val downControl = PIDFController(dP, dI, dD, dF)
 
     companion object {
-        @JvmField var mA = 330.0
-        @JvmField var mV = 650.0
+        @JvmField var mA = 600.0
+        @JvmField var mV = 800.0
 
-        @JvmField var dA = 1200.0
-        @JvmField var dV = 1200.0
+        @JvmField var dA = 1400.0
+        @JvmField var dV = 1400.0
+
+        @JvmField var PERCENT = 0.8
+        @JvmField var MULTIPLIER = 0.5
     }
 
     private var curState = MotionState(GROUND.toDouble(), 0.0, 0.0)
@@ -66,15 +69,19 @@ class Arm3(
             }
 
             timer.reset()
-            profile = MotionProfileGenerator.generateSimpleMotionProfile(
-                curState,
-                MotionState((if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0),
-                if (goingDown) dV else mV,
-                if (goingDown) dA else mA,
+
+            val goal = MotionState(
+                (if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0
             )
+
+            profile = if (goingDown) MotionProfileGenerator.generateSimpleMotionProfile(
+                curState, goal, dV, dA
+            )
+            else MotionProfileGenerator.generateMotionProfile(curState, goal, { mV }, { s ->
+                (mA * if (s / (goal.x - curState.x) > PERCENT) MULTIPLIER else 1.0).also { println("GET ACCEL -> ${s / (goal.x - curState.x)} : $it") }
+            })
             field = value
         }
-
 
     fun update() {
         control.setPID(kP, kI, kD)

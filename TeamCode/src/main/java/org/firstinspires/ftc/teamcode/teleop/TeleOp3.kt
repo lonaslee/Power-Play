@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode.teleop
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
-import org.firstinspires.ftc.teamcode.autonomous.LeftTrajectory.Companion.rad
 import org.firstinspires.ftc.teamcode.subsystems.*
 import org.firstinspires.ftc.teamcode.vision.*
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -34,15 +32,12 @@ class TeleOp3 : LinearOpMode() {
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
 
-//        frontWebcam = createWebcam(
-//            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
-//        ).apply { stopStreaming() }
+        frontWebcam = createWebcam(
+            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
+        ).apply { stopStreaming() }
         backWebcam = createWebcam(
-            hardwareMap,
-            RobotConfig.WEBCAM_2,
-            orientation = OpenCvCameraRotation.UPSIDE_DOWN,
-            pipeline = poleDetector
-        )
+            hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,
+        ).apply { stopStreaming() }
 
         val gp1 = gamepads.first
         val gp2 = gamepads.second
@@ -59,10 +54,10 @@ class TeleOp3 : LinearOpMode() {
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
 
             /* sprint mode */
-//            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
-//            onReturned(gp1::right_trigger) { drive.speed = 0.7 }
+            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
+            onReturned(gp1::right_trigger) { drive.speed = 0.7 }
 
-            /* aim at cone
+            /* aim at cone */
             var coneAiming = false
             onPressed(gp1::right_bumper, gp2::right_bumper) {
                 coneAiming = !coneAiming
@@ -80,15 +75,14 @@ class TeleOp3 : LinearOpMode() {
                     frontWebcam.stopStreaming()
                 }
             }
-*/
+
             /* aim at pole */
             var poleAiming = false
             onMoved(gp1::left_trigger, gp2::left_trigger) {
-                println("MOVED")
                 poleAiming = !poleAiming
-//                if (poleAiming) backWebcam.startStreaming(
-//                    CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN
-//                ) else backWebcam.stopStreaming()
+                if (poleAiming) backWebcam.startStreaming(
+                    CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN
+                ) else backWebcam.stopStreaming()
             }
             runIf({ poleAiming }) {
                 if (poleDetector.detected) gp1.right_stick_x =
@@ -96,7 +90,7 @@ class TeleOp3 : LinearOpMode() {
 
                 if (claw.state != Claw.CLOSED) {
                     poleAiming = false
-//                    backWebcam.stopStreaming()
+                    backWebcam.stopStreaming()
                 }
             }
 
@@ -122,7 +116,6 @@ class TeleOp3 : LinearOpMode() {
                 { arm.update() },
                 { tm.update(); Unit },
                 { gamepads.sync() },
-                { tm.addData("p", poleAiming); Unit },
                 { conePID.constants = Triple(pP, pI, pD) },
                 { polePID.constants = Triple(jP, jI, jD) })
         }.also {

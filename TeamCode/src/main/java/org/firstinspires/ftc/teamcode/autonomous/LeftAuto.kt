@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.*
-import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
@@ -27,7 +26,7 @@ class LeftAuto : LinearOpMode() {
         drive = SampleMecanumDrive(hardwareMap).apply { poseEstimate = LeftTrajectory.startPose }
         trajs = LeftTrajectory(drive, arm, claw)
 
-        val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, telemetry, pipeline)
+        val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, pipeline)
 
         waitForStart()
         if (isStopRequested) return

@@ -40,7 +40,7 @@ class TeleOp4 : LinearOpMode() {
         arm = Arm(hardwareMap)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
-        webcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_1, pipeline = pipeline)
+        webcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_1)
 
         val gp1 = GamepadExt(gamepad1)
         val gp2 = GamepadExt(gamepad2)

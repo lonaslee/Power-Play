@@ -40,36 +40,15 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Cla
             .splineTo(dropVec, aH.rad)
             .waitSeconds(0.5)
             .setReversed(false)
-            // pick 3
-            .splineTo(pickVec, (bH).rad)
-            .waitSeconds(1.0)
-            .setReversed(true)
-            .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.5)
-            .setReversed(false)
-            // pick 4
-            .splineTo(pickVec, (bH).rad)
-            .waitSeconds(1.0)
-            .setReversed(true)
-            .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.5)
-            .setReversed(false)
-            // pick 5
-            .splineTo(pickVec, (bH).rad)
-            .waitSeconds(1.0)
-            .setReversed(true)
-            .splineTo(dropVec, aH.rad)
-            .waitSeconds(0.5)
-            .setReversed(false)
 
     val middle = coneTraj.splineTo(Vector2d(-36, -12), 270.rad).build()!!
     val left = coneTraj.splineToSplineHeading(Pose2d(-60, -12, 270), 180.rad).build()!!
     val right = coneTraj.splineToSplineHeading(Pose2d(-12, -12, 270), 0.rad).build()!!
 
     fun byTag(tag: SignalSleevePipeline.Tag) = when (tag) {
-        SignalSleevePipeline.Tag.LEFT -> left
+        SignalSleevePipeline.Tag.LEFT  -> left
         SignalSleevePipeline.Tag.RIGHT -> right
-        else -> middle
+        else                           -> middle
     }
 
     companion object {

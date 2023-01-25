@@ -14,7 +14,7 @@ class ColorShapeTest : LinearOpMode() {
         val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         val pipeline = ColorShapeDetectionPipeline(tm)
-        val backWebcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, tm, pipeline)
+        val backWebcam = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, pipeline)
 
         EventLoop(::opModeIsActive).apply {
             updates += listOf({ tm.update() }, {

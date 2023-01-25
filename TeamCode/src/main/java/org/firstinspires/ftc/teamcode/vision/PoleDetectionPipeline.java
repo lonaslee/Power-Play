@@ -20,7 +20,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public final class PoleDetectionPipeline extends OpenCvPipeline {
-    private static final Scalar[] BOUNDS = new Scalar[]{new Scalar(10.0, 125.0, 150.0), new Scalar(35.0, 255.0, 255.0)};
+    private static final Scalar[] BOUNDS = new Scalar[]{new Scalar(10.0, 100.0, 100.0), new Scalar(40.0, 255.0, 255.0)};
     private static final Size BLURSIZE = new Size(1, 1);
     public static final int MAX_OFFSET = 1;
 
