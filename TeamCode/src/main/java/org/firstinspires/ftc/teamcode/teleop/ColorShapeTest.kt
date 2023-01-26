@@ -29,11 +29,4 @@ class ColorShapeTest : LinearOpMode() {
             it.run()
         }
     }
-
-    companion object {
-        @JvmField var X = 120
-        @JvmField var Y = 100
-        @JvmField var W = 50
-        @JvmField var H = 60
-    }
 }

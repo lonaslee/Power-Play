@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.roadrunner.profile.AccelerationConstraint
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator
 import com.acmerobotics.roadrunner.profile.MotionState
 import com.arcrobotics.ftclib.controller.PIDController
@@ -47,13 +48,13 @@ class Arm3(
         @JvmField var dA = 1400.0
         @JvmField var dV = 1400.0
 
-        @JvmField var PERCENT = 0.8
-        @JvmField var MULTIPLIER = 0.5
+        @JvmField var PERCENT = 0.7
+        @JvmField var MULTIPLIER = 600
     }
 
     private var curState = MotionState(GROUND.toDouble(), 0.0, 0.0)
     private var profile =
-        MotionProfileGenerator.generateSimpleMotionProfile(curState, curState, mV, mA)
+        MotionProfileGenerator.generateMotionProfile(curState, curState, { mV }, { mA })
 
     private val timer = ElapsedTime()
 
@@ -63,6 +64,7 @@ class Arm3(
         set(value) {
             if (state == value) return
             goingDown = state > value
+
             if (goingDown && value == STACK && STACK > GROUND + 40) {
                 stackHeight -= 20
                 println("SUBTRACT -> $stackHeight")
@@ -70,17 +72,22 @@ class Arm3(
 
             timer.reset()
 
-            val goal = MotionState(
+            val (start, goal) = (curState to MotionState(
                 (if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0
-            )
+            )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
 
-            profile = if (goingDown) MotionProfileGenerator.generateSimpleMotionProfile(
-                curState, goal, dV, dA
-            )
-            else MotionProfileGenerator.generateMotionProfile(curState, goal, { mV }, { s ->
-                (mA * if (s / (goal.x - curState.x) > PERCENT) MULTIPLIER else 1.0)
-                    .also { println("$s = GET ACCEL -> ${s / (goal.x - curState.x)} : $it") }
-            })
+            profile = MotionProfileGenerator.generateMotionProfile(start,
+                goal,
+                { mV },
+                object : AccelerationConstraint {
+                    val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
+                    val totalDistance = (goal.x + positiveOffset) - (start.x + positiveOffset)
+                    override fun get(s: Double) = ((s + positiveOffset) / totalDistance).let {
+                        if (it < PERCENT) mA else MULTIPLIER * (it / 0.3)
+                    }
+                        .also { println("percent: ${(s + positiveOffset) / totalDistance} = accel: $it") }
+                }).let { if (goingDown) it.flipped() else it }
+
             field = value
         }
 
