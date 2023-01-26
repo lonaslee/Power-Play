@@ -78,7 +78,8 @@ class Arm3(
                 curState, goal, dV, dA
             )
             else MotionProfileGenerator.generateMotionProfile(curState, goal, { mV }, { s ->
-                (mA * if (s / (goal.x - curState.x) > PERCENT) MULTIPLIER else 1.0).also { println("GET ACCEL -> ${s / (goal.x - curState.x)} : $it") }
+                (mA * if (s / (goal.x - curState.x) > PERCENT) MULTIPLIER else 1.0)
+                    .also { println("$s = GET ACCEL -> ${s / (goal.x - curState.x)} : $it") }
             })
             field = value
         }

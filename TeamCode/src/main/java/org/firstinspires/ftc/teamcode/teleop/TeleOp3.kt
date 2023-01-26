@@ -25,7 +25,6 @@ class TeleOp3 : LinearOpMode() {
     private val poleDetector = PoleDetectionPipeline(tm)
     private val conePID = PIDController(pP, pI, pD)
     private val polePID = PIDController(jP, jI, jD)
-
     override fun runOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         arm = Arm2(hardwareMap, tm)

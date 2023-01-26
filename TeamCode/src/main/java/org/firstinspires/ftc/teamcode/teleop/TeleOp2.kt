@@ -4,15 +4,12 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Arm2
-import org.firstinspires.ftc.teamcode.subsystems.Claw
-import org.firstinspires.ftc.teamcode.subsystems.DriveExt
+import org.firstinspires.ftc.teamcode.subsystems.*
 
 @TeleOp
 class TeleOp2 : LinearOpMode() {
     private lateinit var claw: Claw
-    private lateinit var arm: Arm2
+    private lateinit var arm: Arm3
     private lateinit var drive: DriveExt
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
 
@@ -20,7 +17,7 @@ class TeleOp2 : LinearOpMode() {
 
     override fun runOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        arm = Arm2(hardwareMap, tm)
+        arm = Arm3(hardwareMap, tm)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
 
@@ -42,7 +39,6 @@ class TeleOp2 : LinearOpMode() {
                 { arm.update() },
                 { tm.update(); Unit },
                 { gamepads.sync() })
-
         }.also {
             waitForStart()
             it.run()
