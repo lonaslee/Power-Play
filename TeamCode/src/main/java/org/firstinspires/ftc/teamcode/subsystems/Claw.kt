@@ -14,8 +14,8 @@ class Claw(
     }
 
     companion object States : Subsystem.States {
-        @JvmField var OPENED = 0.0
-        @JvmField var CLOSED = 0.13
+        @JvmField var OPENED = 0.4
+        @JvmField var CLOSED = 0.6
         @JvmField var HALF_OPENED = 0.4
 
         override val all = listOf(CLOSED, OPENED)
