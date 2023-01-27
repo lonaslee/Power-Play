@@ -53,8 +53,8 @@ class TeleOp3 : LinearOpMode() {
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
 
             /* sprint mode */
-            onMoved(gp1::right_trigger) { drive.speed = 1.0 }
-            onReturned(gp1::right_trigger) { drive.speed = 0.7 }
+            onMoved(gp1::right_trigger) { drive.state = DriveExt.SPRINTING }
+            onReturned(gp1::right_trigger) { drive.state = DriveExt.NORMAL }
 
             /* aim at cone */
             var coneAiming = false
@@ -114,6 +114,14 @@ class TeleOp3 : LinearOpMode() {
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },
                 { tm.update(); Unit },
+                {
+                    if (drive.state != DriveExt.SPRINTING) {
+                        if (arm.state > Arm.STACK && drive.state == DriveExt.NORMAL) drive.state =
+                            DriveExt.SLOW
+                        if (arm.state <= Arm.STACK && drive.state == DriveExt.SLOW) drive.state =
+                            DriveExt.NORMAL
+                    }
+                },
                 { gamepads.sync() },
                 { conePID.constants = Triple(pP, pI, pD) },
                 { polePID.constants = Triple(jP, jI, jD) })

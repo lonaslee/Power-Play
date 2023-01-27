@@ -14,30 +14,25 @@ class DriveExt(
     hardwareMap: HardwareMap,
     private val telemetry: Telemetry? = null,
 ) : SampleMecanumDrive(hardwareMap), Subsystem {
-    private var lastPose = Pose2d()
-
     companion object States : Subsystem.States {
-        const val STATIONARY = 0
-        const val MOVING = 1
+        const val SPRINTING = 1.0
+        const val NORMAL = 0.7
+        const val SLOW = 0.5
 
-        override val all = listOf(0, 1)
+        override val all = listOf(SLOW, NORMAL, SPRINTING)
     }
 
-    override val state
-        get() = if (lastPose != poseEstimate) MOVING else STATIONARY
+    override var state = 0.7
 
     fun update(gamepads: Pair<GamepadExt, GamepadExt>) {
         if (!isBusy) {
             driveFieldCentric(gamepads)
-            lastPose = poseEstimate
         }
         super.update()
     }
 
-    var speed = 0.7
-
     /**
-     * Updates powers to field centric values based on gamepad input, imu angle, and [speed].
+     * Updates powers to field centric values based on gamepad input, imu angle, and [state].
      */
     private fun driveFieldCentric(gamepads: Pair<GamepadExt, GamepadExt>) {
         val y = -gamepads.first.left_stick_y.toDouble()
@@ -50,10 +45,10 @@ class DriveExt(
 
         val denom = max(abs(y) + abs(x) + abs(turn), 1.0)
         setMotorPowers(
-            (rotY + rotX + turn) / denom * speed,
-            (rotY - rotX + turn) / denom * speed,
-            (rotY + rotX - turn) / denom * speed,
-            (rotY - rotX - turn) / denom * speed,
+            (rotY + rotX + turn) / denom * state,
+            (rotY - rotX + turn) / denom * state,
+            (rotY + rotX - turn) / denom * state,
+            (rotY - rotX - turn) / denom * state,
         )
     }
 

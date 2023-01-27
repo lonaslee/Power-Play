@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.*
+import org.firstinspires.ftc.teamcode.teleop.EventLoop
 import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
@@ -28,17 +29,16 @@ class LeftAuto : LinearOpMode() {
 
         val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, pipeline)
 
-        waitForStart()
-        if (isStopRequested) return
-        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
-        camera.closeCameraDeviceAsync {}
+        EventLoop(::opModeIsActive, tm).apply {
+            updates += listOf(arm::update, drive::update)
+        }.also {
+            waitForStart()
+            if (isStopRequested) return
+            camera.closeCameraDeviceAsync {}
 
-        while (opModeIsActive()) {
-            arm.update()
-            drive.update()
-            if (!drive.isBusy) break
+            drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+            it.run()
         }
         DriveExt.PoseStorage.pose = drive.poseEstimate
-        while (opModeIsActive()) arm.update()
     }
 }
