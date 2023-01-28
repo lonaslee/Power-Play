@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 
 @TeleOp
 @com.acmerobotics.dashboard.config.Config
-class TeleOp3 : LinearOpMode() {
+class BlueTeleop : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3
     private lateinit var drive: DriveExt
@@ -23,7 +23,7 @@ class TeleOp3 : LinearOpMode() {
 
     private lateinit var frontWebcam: OpenCvWebcam
     private lateinit var backWebcam: OpenCvWebcam
-    private val coneDetector = ConeDetectionPipeline.redConeDetector()
+    private val coneDetector = ConeDetectionPipeline.blueConeDetector()
     private val poleDetector = PoleDetectionPipeline(tm)
     private val conePID = PIDController(pP, pI, pD)
     private val polePID = PIDController(jP, jI, jD)

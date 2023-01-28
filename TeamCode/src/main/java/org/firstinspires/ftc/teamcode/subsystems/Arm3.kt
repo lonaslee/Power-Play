@@ -35,7 +35,7 @@ class Arm3(
         @JvmField var kD = 0.0
 
         @JvmField var mA = 600.0
-        @JvmField var dA = 500.0
+        @JvmField var dA = 400.0
         @JvmField var mV = 800.0
 
         @JvmField var PERCENT = 0.7

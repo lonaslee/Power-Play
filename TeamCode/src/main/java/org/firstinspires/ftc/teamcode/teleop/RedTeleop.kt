@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 
 @TeleOp
 @com.acmerobotics.dashboard.config.Config
-class TeleOp3 : LinearOpMode() {
+class RedTeleop : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3
     private lateinit var drive: DriveExt

@@ -21,9 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import androidx.annotation.NonNull;
-
-
 @Config
 public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
     public enum Shape {CIRCLE, TRIANGLE, RECTANGLE, UNKNOWN}
@@ -72,7 +69,7 @@ public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
         return Color.CYAN;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public Tag getVerdict() {
         Color colorVerdict = getColorVerdict();
