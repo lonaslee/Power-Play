@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.DriveExt
 import org.openftc.easyopencv.OpenCvWebcam
 
-@TeleOp
+@TeleOp(group = "test")
 class TeleOp1 : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm2

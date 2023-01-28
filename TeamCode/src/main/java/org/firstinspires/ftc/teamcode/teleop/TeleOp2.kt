@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.*
 
-@TeleOp
+@TeleOp(group = "test")
 class TeleOp2 : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3

@@ -23,7 +23,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 import kotlin.math.PI
 import kotlin.math.abs
 
-@TeleOp
+@TeleOp(group = "test")
 @com.acmerobotics.dashboard.config.Config
 class TeleOp4 : LinearOpMode() {
     private lateinit var claw: Claw

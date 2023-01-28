@@ -3,17 +3,14 @@ package org.firstinspires.ftc.teamcode.teleop
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
 import org.firstinspires.ftc.teamcode.subsystems.*
 import org.firstinspires.ftc.teamcode.vision.*
-import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
-@TeleOp
-@com.acmerobotics.dashboard.config.Config
+@TeleOp(group = "a")
 class BlueTeleop : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3
@@ -24,35 +21,35 @@ class BlueTeleop : LinearOpMode() {
     private lateinit var frontWebcam: OpenCvWebcam
     private lateinit var backWebcam: OpenCvWebcam
     private val coneDetector = ConeDetectionPipeline.blueConeDetector()
-    private val poleDetector = PoleDetectionPipeline(tm)
-    private val conePID = PIDController(pP, pI, pD)
-    private val polePID = PIDController(jP, jI, jD)
+    private val poleDetector = PoleDetectionPipeline()
+    private val conePID = PIDController(0.001, 0.0, 0.0)
+    private val polePID = PIDController(0.001, 0.0, 0.0)
     override fun runOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        arm = Arm3(hardwareMap, tm)
+        arm = Arm3(hardwareMap)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
 
-        frontWebcam = createWebcam(
-            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
-        )
         backWebcam = createWebcam(
             hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,
+        )
+        frontWebcam = createWebcam(
+            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
         )
 
         val gp1 = gamepads.first
         val gp2 = gamepads.second
 
         EventLoop(::opModeIsActive, tm).apply {
-            onPressed(gp1::dpad_up) { arm.state = Arm.next(arm.state) }
-            onPressed(gp1::dpad_down) { arm.state = Arm.prev(arm.state) }
+            onPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
+            onPressed(gp1::dpad_down, gp2::dpad_down) { arm.state = Arm.prev(arm.state) }
 
-            onPressed(gp1::a, gp2::a) { arm.state = Arm.GROUND }
-            onPressed(gp1::x, gp2::x) { arm.state = Arm.MID }
-            onPressed(gp1::y, gp2::y) { arm.state = Arm.HIGH }
-            onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
+            onPressed(gp2::a) { arm.state = Arm.GROUND }
+            onPressed(gp2::x) { arm.state = Arm.MID }
+            onPressed(gp2::y) { arm.state = Arm.HIGH }
+            onPressed(gp2::b) { arm.state = Arm.BACKHIGH }
 
-            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
+            onPressed(gp2::left_bumper) { claw.change() }
 
             /* sprint mode */
             onMoved(gp1::left_trigger) { drive.state = DriveExt.SPRINTING }
@@ -82,7 +79,9 @@ class BlueTeleop : LinearOpMode() {
             }
             runIf({ poleAiming }) {
                 if (poleDetector.detected) gp1.right_stick_x =
-                   -polePID.calculate(poleDetector.error).toFloat().also { println("pole aim $it") }
+                    -polePID.calculate(poleDetector.error)
+                        .toFloat()
+                        .also { println("pole aim $it") }
 
                 if (claw.state != Claw.CLOSED) {
                     poleAiming = false
@@ -94,7 +93,6 @@ class BlueTeleop : LinearOpMode() {
                 cycling = !cycling
                 if (arm.state != Arm.GROUND || claw.state != Claw.CLOSED) cycling = false
                 if (cycling) {
-                    println("GO BACK")
                     drive.followTrajectoryAsync(
                         drive.trajectoryBuilder(Pose2d()).back(32.0).build()
                     )
@@ -104,34 +102,17 @@ class BlueTeleop : LinearOpMode() {
             }
             runIf({ cycling }) { if (!drive.isBusy) cycling = false }
 
-
-            updates += listOf({ drive.update(gamepads) },
-                { arm.update() },
-                { tm.update(); Unit },
-                {
-                    if (drive.state != DriveExt.SPRINTING) {
-                        if (arm.state > Arm.STACK && drive.state == DriveExt.NORMAL) drive.state =
-                            DriveExt.SLOW
-                        if (arm.state <= Arm.STACK && drive.state == DriveExt.SLOW) drive.state =
-                            DriveExt.NORMAL
-                    }
-                },
-                { gamepads.sync() },
-                { conePID.constants = Triple(pP, pI, pD) },
-                { polePID.constants = Triple(jP, jI, jD) })
+            updates += listOf({ drive.update(gamepads) }, { arm.update() }, { tm.update(); Unit }, {
+                if (drive.state != DriveExt.SPRINTING) {
+                    if (arm.state > Arm.STACK && drive.state == DriveExt.NORMAL) drive.state =
+                        DriveExt.SLOW
+                    if (arm.state <= Arm.STACK && drive.state == DriveExt.SLOW) drive.state =
+                        DriveExt.NORMAL
+                }
+            }, { gamepads.sync() })
         }.also {
             waitForStart()
             it.run()
         }
-    }
-
-    companion object {
-        @JvmField var jP = 0.001
-        @JvmField var jI = 0.0
-        @JvmField var jD = 0.0
-
-        @JvmField var pP = 0.001
-        @JvmField var pI = 0.0
-        @JvmField var pD = 0.0
     }
 }

@@ -85,10 +85,10 @@ public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
 
     private Mat inputroi = new Mat();
 
-    public static int topX = 250;
-    public static int topY = 60;
-    public static int width = 100;
-    public static int height = 140;
+    public static int topX = 445;
+    public static int topY = 200;
+    public static int width = 110;
+    public static int height = 170;
 
     @NotNull
     @Override

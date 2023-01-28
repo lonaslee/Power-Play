@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.vision.*
 import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
-@TeleOp
+@TeleOp(group = "test")
 @com.acmerobotics.dashboard.config.Config
 class TeleOp3 : LinearOpMode() {
     private lateinit var claw: Claw
@@ -23,7 +23,7 @@ class TeleOp3 : LinearOpMode() {
 
     private lateinit var frontWebcam: OpenCvWebcam
     private lateinit var backWebcam: OpenCvWebcam
-    private val coneDetector = ConeDetectionPipeline.redConeDetector()
+    private val coneDetector = ConeDetectionPipeline(ConeDetectionPipeline.ConeColor.RED, tm)
     private val poleDetector = PoleDetectionPipeline(tm)
     private val conePID = PIDController(pP, pI, pD)
     private val polePID = PIDController(jP, jI, jD)
@@ -33,11 +33,11 @@ class TeleOp3 : LinearOpMode() {
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
 
-        frontWebcam = createWebcam(
-            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
-        )
         backWebcam = createWebcam(
             hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,
+        )
+        frontWebcam = createWebcam(
+            hardwareMap, RobotConfig.WEBCAM_1, pipeline = coneDetector
         )
 
         val gp1 = gamepads.first

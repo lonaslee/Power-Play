@@ -61,7 +61,7 @@ public final class ConeDetectionPipeline extends OpenCvPipeline {
         return new ConeDetectionPipeline(ConeColor.BLUE);
     }
 
-    public double error = 0.0;
+    public double error = Double.NaN;
 
     public boolean getDetected() {
         return !Double.isNaN(error);
