@@ -24,10 +24,11 @@ class TeleOp2 : LinearOpMode() {
         val gp1 = gamepads.first
         val gp2 = gamepads.second
 
-        EventLoop(::opModeIsActive).apply {
+        EventLoop(::opModeIsActive, tm).apply {
             onPressed(gp1::dpad_up) { arm.state = Arm.next(arm.state) }
             onPressed(gp1::dpad_down) { arm.state = Arm.prev(arm.state) }
 
+            onPressed(gp1::right_bumper) { arm.state = Arm.STACK }
             onPressed(gp1::a, gp2::a) { arm.state = Arm.GROUND }
             onPressed(gp1::x, gp2::x) { arm.state = Arm.MID }
             onPressed(gp1::y, gp2::y) { arm.state = Arm.HIGH }

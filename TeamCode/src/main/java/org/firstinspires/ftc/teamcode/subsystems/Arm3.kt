@@ -4,25 +4,13 @@ import com.acmerobotics.roadrunner.profile.AccelerationConstraint
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator
 import com.acmerobotics.roadrunner.profile.MotionState
 import com.arcrobotics.ftclib.controller.PIDController
-import com.arcrobotics.ftclib.controller.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.GROUND
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.STACK
 import org.firstinspires.ftc.teamcode.subsystems.Arm.States.TICKS_IN_DEGREES
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dCos
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dD
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dF
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dI
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.dP
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kCos
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kD
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kI
-import org.firstinspires.ftc.teamcode.subsystems.Arm.States.kP
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
@@ -39,71 +27,72 @@ class Arm3(
     }
 
     private val control = PIDController(kP, kI, kD)
-    private val downControl = PIDFController(dP, dI, dD, dF)
 
     companion object {
-        @JvmField var mA = 600.0
-        @JvmField var mV = 800.0
+        @JvmField var kCos = 0.15
+        @JvmField var kP = 0.015
+        @JvmField var kI = 0.0
+        @JvmField var kD = 0.0
 
-        @JvmField var dA = 1400.0
-        @JvmField var dV = 1400.0
+        @JvmField var mA = 600.0
+        @JvmField var dA = 500.0
+        @JvmField var mV = 800.0
 
         @JvmField var PERCENT = 0.7
         @JvmField var MULTIPLIER = 600
     }
 
-    private var curState = MotionState(GROUND.toDouble(), 0.0, 0.0)
+    private var curState = MotionState(Arm.GROUND.toDouble(), 0.0, 0.0)
     private var profile =
         MotionProfileGenerator.generateMotionProfile(curState, curState, { mV }, { mA })
 
     private val timer = ElapsedTime()
 
     private var goingDown = false
-    private var stackHeight = STACK
-    override var state = GROUND
+    private var stackHeight = Arm.STACK
+    override var state = Arm.GROUND
         set(value) {
             if (state == value) return
             goingDown = state > value
 
-            if (goingDown && value == STACK && STACK > GROUND + 40) {
-                stackHeight -= 20
-                println("SUBTRACT -> $stackHeight")
-            }
+            if (goingDown && value == Arm.STACK && stackHeight > Arm.GROUND + 40) stackHeight -= 20
 
             timer.reset()
 
             val (start, goal) = (curState to MotionState(
-                (if (value != STACK) value else stackHeight).toDouble(), 0.0, 0.0
+                (if (value != Arm.STACK) value else stackHeight).toDouble(), 0.0, 0.0
             )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
 
+            println("VALUE : $value; BOOL : ${value in listOf(Arm.GROUND, Arm.HIGH, Arm.BACKHIGH)}")
             profile = MotionProfileGenerator.generateMotionProfile(start,
                 goal,
                 { mV },
-                object : AccelerationConstraint {
+                if (value in listOf(
+                        Arm.GROUND, Arm.HIGH, Arm.BACKHIGH
+                    )
+                ) object : AccelerationConstraint {
                     val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
-                    val totalDistance = (goal.x + positiveOffset) - (start.x + positiveOffset)
-                    override fun get(s: Double) = ((s + positiveOffset) / totalDistance).let {
-                        if (it < PERCENT) mA else MULTIPLIER * (it / 0.3)
-                    }
-                        .also { println("percent: ${(s + positiveOffset) / totalDistance} = accel: $it") }
-                }).let { if (goingDown) it.flipped() else it }
+                    val totalDistance = ((goal.x + positiveOffset) - (start.x + positiveOffset))
+
+                    override fun get(s: Double) =
+                        ((s + positiveOffset) / totalDistance).let { percent ->
+                            if (percent < PERCENT) mA else MULTIPLIER * ((1 - percent) / 0.3)
+                        }.also { print(".") }
+                } else AccelerationConstraint { (if (goingDown) dA else mA).also { print("#") } })
+                .let { if (goingDown) it.flipped() else it }
 
             field = value
         }
 
     fun update() {
         control.setPID(kP, kI, kD)
-        downControl.setPIDF(dP, dI, dD, dF)
 
         val curPos = low.currentPosition - 170.0
         curState = profile[timer.time()]
 
-        val pow = (if (goingDown && (state == GROUND || state == STACK)) downControl to dCos
-        else control to kCos).let { (controller, cosConstant) ->
-            controller.calculate(
-                curPos, curState.x
-            ) + cosConstant * cos(Math.toRadians(state / TICKS_IN_DEGREES))
-        }
+        val pow = control.calculate(
+            curPos, curState.x
+        ) + kCos * cos(Math.toRadians(state / TICKS_IN_DEGREES))
 
         motors.forEach { it.power = pow }
 

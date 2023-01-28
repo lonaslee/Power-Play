@@ -22,7 +22,7 @@ class LeftAuto : LinearOpMode() {
     private val pipeline: SignalSleevePipeline = ColorShapeDetectionPipeline(tm)
 
     override fun runOpMode() {
-        arm = Arm3(hardwareMap)
+        arm = Arm3(hardwareMap, tm)
         claw = Claw(hardwareMap).apply { state = Claw.CLOSED }
         drive = SampleMecanumDrive(hardwareMap).apply { poseEstimate = LeftTrajectory.startPose }
         trajs = LeftTrajectory(drive, arm, claw)
@@ -30,7 +30,7 @@ class LeftAuto : LinearOpMode() {
         val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, pipeline)
 
         EventLoop(::opModeIsActive, tm).apply {
-            updates += listOf(arm::update, drive::update)
+            updates += listOf(arm::update, drive::update, { tm.update(); Unit })
         }.also {
             waitForStart()
             if (isStopRequested) return

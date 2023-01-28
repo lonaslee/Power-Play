@@ -88,28 +88,31 @@ public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
 
     private Mat inputroi = new Mat();
 
-    public static int topX = 400;
-    public static int topY = 400;
-    public static int height = 120;
+    public static int topX = 250;
+    public static int topY = 60;
     public static int width = 100;
+    public static int height = 140;
 
     @NotNull
     @Override
     public Mat processFrame(Mat input) {
-        reset();
-        Rect roi = new Rect(topX, topY, width, height);
-        Imgproc.rectangle(input, roi, DetectionUtils.GREEN);
-        inputroi = new Mat(input, roi);
+        try {
+            reset();
+            Rect roi = new Rect(topX, topY, width, height);
+            Imgproc.rectangle(input, roi, DetectionUtils.GREEN);
+            inputroi = new Mat(input, roi);
 
-        Shape shape = findShape();
-        Color color = findColors();
+            Shape shape = findShape();
+            Color color = findColors();
 
-        if (telemetry != null) {
-            telemetry.addData("shape", shape.name());
-            telemetry.addData("color", color.name());
-            telemetry.addData("shapeVerdict", getShapeVerdict().name());
-            telemetry.addData("colorVerdict", getColorVerdict().name());
-//            telemetry.update();
+            if (telemetry != null) {
+                telemetry.addData("shape", shape.name());
+                telemetry.addData("color", color.name());
+                telemetry.addData("shapeVerdict", getShapeVerdict().name());
+                telemetry.addData("colorVerdict", getColorVerdict().name());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return input;
     }
