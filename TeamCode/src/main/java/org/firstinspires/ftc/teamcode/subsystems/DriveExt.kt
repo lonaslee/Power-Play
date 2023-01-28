@@ -5,10 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.teleop.GamepadExt
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
+import kotlin.math.*
 
 class DriveExt(
     hardwareMap: HardwareMap,
@@ -39,7 +36,7 @@ class DriveExt(
         val x = gamepads.first.left_stick_x * 1.1
         val turn = gamepads.first.right_stick_x.toDouble()
 
-        val (rotX, rotY) = (-rawExternalHeading).let {
+        val (rotX, rotY) = (-rawExternalHeading + PI).let {
             Pair(x * cos(it) - y * sin(it), x * sin(it) + y * cos(it))
         }
 
