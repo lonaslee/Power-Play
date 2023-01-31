@@ -28,7 +28,7 @@ class RedTeleop : LinearOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         arm = Arm3(hardwareMap)
         claw = Claw(hardwareMap)
-        drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
+        drive = DriveExt(hardwareMap)
 
         backWebcam = createWebcam(
             hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,
@@ -48,6 +48,8 @@ class RedTeleop : LinearOpMode() {
             onPressed(gp2::x) { arm.state = Arm.MID }
             onPressed(gp2::y) { arm.state = Arm.HIGH }
             onPressed(gp2::b) { arm.state = Arm.BACKHIGH }
+
+            onPressed(gp2::dpad_left) { arm.resetEncoders() }
 
             onPressed(gp2::left_bumper) { claw.change() }
 

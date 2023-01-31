@@ -64,25 +64,32 @@ class Arm3(
             )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
 
             println("VALUE : $value; BOOL : ${value in listOf(Arm.GROUND, Arm.HIGH, Arm.BACKHIGH)}")
-            profile = MotionProfileGenerator.generateMotionProfile(start,
+            profile = MotionProfileGenerator.generateMotionProfile(
+                start,
                 goal,
                 { mV },
-                if (value in listOf(
-                        Arm.GROUND, Arm.HIGH, Arm.BACKHIGH
-                    )
-                ) object : AccelerationConstraint {
-                    val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
-                    val totalDistance = ((goal.x + positiveOffset) - (start.x + positiveOffset))
+                if (value == Arm.GROUND || value == Arm.HIGH || value == Arm.BACKHIGH) {
+                    object : AccelerationConstraint {
+                        val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
+                        val totalDistance = ((goal.x + positiveOffset) - (start.x + positiveOffset))
 
-                    override fun get(s: Double) =
-                        ((s + positiveOffset) / totalDistance).let { percent ->
-                            if (percent < PERCENT) mA else MULTIPLIER * ((1 - percent) / 0.3)
-                        }.also { print(".") }
-                } else AccelerationConstraint { (if (goingDown) dA else mA).also { print("#") } })
-                .let { if (goingDown) it.flipped() else it }
+                        override fun get(s: Double) =
+                            ((s + positiveOffset) / totalDistance).let { percent ->
+                                if (percent < PERCENT) mA else MULTIPLIER * ((1 - percent) / 0.3)
+                            }.also { print(".") }
+                    }.also { println("TRUE") }
+                } else {
+                    AccelerationConstraint { (if (goingDown) dA else mA).also { print("#") } }
+                },
+            ).let { if (goingDown) it.flipped() else it }
 
             field = value
         }
+
+    fun resetEncoders() = motors.forEach {
+        it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+    }
 
     fun update() {
         control.setPID(kP, kI, kD)

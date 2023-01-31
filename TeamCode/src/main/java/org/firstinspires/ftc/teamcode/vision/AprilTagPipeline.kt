@@ -28,28 +28,33 @@ class AprilTagPipeline(private val telemetry: Telemetry) : SignalSleevePipeline(
 
     override var verdict = Tag.UNKNOWN
     override fun processFrame(input: Mat): Mat {
-        Imgproc.cvtColor(input, greyscale, Imgproc.COLOR_RGBA2GRAY)
-        val detections = TagDetector.runAprilTagDetectorSimple(
-            tagdetectorPtr, greyscale, tagsize, fx, fy, cx, cy
-        )
-        if (detections.size == 0) telemetry.addLine("Not detected. FFFFFF")
-        else with(detections[0]) {
-            when (id) {
-                LEFT_TAG_NUM   -> Tag.LEFT
-                MIDDLE_TAG_NUM -> Tag.MIDDLE
-                RIGHT_TAG_NUM  -> Tag.RIGHT
-                else           -> Tag.UNKNOWN
-            }.let { tag ->
-                telemetry.addLine("Detected tag.\n  ID: ${id}\n  Pos: ${tag.name}")
-                verdict = tag
+        try {
+            Imgproc.cvtColor(input, greyscale, Imgproc.COLOR_RGBA2GRAY)
+            val detections = TagDetector.runAprilTagDetectorSimple(
+                tagdetectorPtr, greyscale, tagsize, fx, fy, cx, cy
+            )
+            if (detections.size == 0) telemetry.addLine("Not detected. FFFFFF")
+            else with(detections[0]) {
+                when (id) {
+                    LEFT_TAG_NUM -> Tag.LEFT
+                    MIDDLE_TAG_NUM -> Tag.MIDDLE
+                    RIGHT_TAG_NUM -> Tag.RIGHT
+                    else -> Tag.UNKNOWN
+                }.let { tag ->
+                    telemetry.addLine("Detected tag.\n  ID: ${id}\n  Pos: ${tag.name}")
+                    verdict = tag
+                }
+                (corners[1].x - corners[0].x).let { radius ->
+                    Imgproc.circle(input, center, radius.toInt(), GREEN, (radius / 8).toInt())
+                    Imgproc.circle(
+                        input, center, (radius / 20).toInt(), GREEN, (radius / 10).toInt()
+                    )
+                }
             }
-            (corners[1].x - corners[0].x).let { radius ->
-                Imgproc.circle(input, center, radius.toInt(), GREEN, (radius / 8).toInt())
-                Imgproc.circle(
-                    input, center, (radius / 20).toInt(), GREEN, (radius / 10).toInt()
-                )
-            }
+        } catch (_: Exception) {
+
         }
+
         telemetry.addLine("Verdict: $verdict")
         telemetry.update()
         return input

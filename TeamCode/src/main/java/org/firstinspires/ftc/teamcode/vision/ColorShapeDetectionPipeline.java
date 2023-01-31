@@ -85,8 +85,8 @@ public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
 
     private Mat inputroi = new Mat();
 
-    public static int topX = 445;
-    public static int topY = 200;
+    public static int topX = 500;
+    public static int topY = 290;
     public static int width = 110;
     public static int height = 170;
 
@@ -107,6 +107,7 @@ public final class ColorShapeDetectionPipeline extends SignalSleevePipeline {
                 telemetry.addData("color", color.name());
                 telemetry.addData("shapeVerdict", getShapeVerdict().name());
                 telemetry.addData("colorVerdict", getColorVerdict().name());
+                telemetry.update();
             }
         } catch (Exception e) {
             e.printStackTrace();

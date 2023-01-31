@@ -31,7 +31,7 @@ class TeleOp3 : LinearOpMode() {
         gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
         arm = Arm3(hardwareMap, tm)
         claw = Claw(hardwareMap)
-        drive = DriveExt(hardwareMap).apply { poseEstimate = DriveExt.PoseStorage.pose }
+        drive = DriveExt(hardwareMap)
 
         backWebcam = createWebcam(
             hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,

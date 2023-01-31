@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
@@ -55,12 +54,5 @@ class DriveExt(
     fun exitTrajectory() {
         trajectorySequenceRunner.currentTrajectorySequence = null
         trajectorySequenceRunner.remainingMarkers.clear()
-    }
-
-    object PoseStorage {
-        /**
-         * Stores the pose of the robot at the end of autonomous.
-         */
-        var pose = Pose2d()
     }
 }

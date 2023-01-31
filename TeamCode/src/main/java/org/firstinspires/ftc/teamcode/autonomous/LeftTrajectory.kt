@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autonomous
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.Arm
 import org.firstinspires.ftc.teamcode.subsystems.Arm3
@@ -27,10 +26,13 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Cla
             .splineTo(pickVec, (bH).rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(pickWait)
-            .addTemporalMarker { arm.state = Arm.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.HIGH }
             .waitSeconds(raiseWait)
+            .setAccelConstraint { _, _, _, _ -> mAV.toDouble() }
             .setReversed(true)
             .splineTo(dropVec, aH.rad)
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
+            .waitSeconds(0.3)
             .waitSeconds(dropWait)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(t)
@@ -65,15 +67,14 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Cla
 
             .addTemporalMarker { arm.state = Arm.GROUND }
 
-
-    val middle = coneTraj.splineTo(Vector2d(-36, -11), 270.rad).build()!!
-    val left = coneTraj.splineToSplineHeading(Pose2d(-60, -11, 270), 180.rad).build()!!
-    val right = coneTraj.splineToSplineHeading(Pose2d(-12, -11, 270), 0.rad).build()!!
+    val middle = coneTraj.splineTo(Vector2d(-36.0, -11.5), 270.rad).build()!!
+    val left = coneTraj.splineToSplineHeading(Pose2d(-60.0, -11.5, 270.rad), 180.rad).build()!!
+    val right = coneTraj.splineToSplineHeading(Pose2d(-12.0, -11.5, 270.rad), 0.rad).build()!!
 
     fun byTag(tag: SignalSleevePipeline.Tag) = when (tag) {
-        SignalSleevePipeline.Tag.LEFT  -> left
+        SignalSleevePipeline.Tag.LEFT -> left
         SignalSleevePipeline.Tag.RIGHT -> right
-        else                           -> middle
+        else -> middle
     }
 
     companion object {
@@ -86,11 +87,11 @@ class LeftTrajectory(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Cla
         @JvmField var bH = 180
 
         @JvmField var t = 0.3
-        @JvmField var pickWait = 0.2
+        @JvmField var pickWait = 0.3
         @JvmField var raiseWait = 0.3
         @JvmField var dropWait = 0.3
 
-        @JvmField var mAV = 45
+        @JvmField var mAV = 30
 
         val dropVec get() = Vector2d(aX, aY)
         val pickVec get() = Vector2d(bX, bY)

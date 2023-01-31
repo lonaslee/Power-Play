@@ -36,9 +36,12 @@ class LeftAuto : LinearOpMode() {
             if (isStopRequested) return
             camera.closeCameraDeviceAsync {}
 
-            drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+            drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict.also { tag ->
+                println(
+                    tag.name
+                )
+            }))
             it.run()
         }
-        DriveExt.PoseStorage.pose = drive.poseEstimate
     }
 }
