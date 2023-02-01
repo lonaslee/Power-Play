@@ -15,7 +15,7 @@ import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
 class Arm3(
-    hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
+    hardwareMap: HardwareMap, private val telemetry: Telemetry? = null,
 ) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
     private val top = hardwareMap[RobotConfig.TOP_LIFT.s] as DcMotorEx
@@ -53,6 +53,8 @@ class Arm3(
     override var state = Arm.GROUND
         set(value) {
             if (state == value) return
+            if (inMotion()) return
+
             goingDown = state > value
 
             if (goingDown && value == Arm.STACK && stackHeight > Arm.GROUND + 40) stackHeight -= 20
@@ -85,6 +87,8 @@ class Arm3(
 
             field = value
         }
+
+    fun inMotion() = timer.time() < profile.duration()
 
     fun resetEncoders() = motors.forEach {
         it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER

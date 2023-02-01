@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
@@ -18,19 +19,17 @@ class DriveExt(
         override val all = listOf(SLOW, NORMAL, SPRINTING)
     }
 
-    override var state = 0.7
+    override var state = NORMAL
 
-    fun update(gamepads: Pair<GamepadExt, GamepadExt>) {
-        if (!isBusy) {
-            driveFieldCentric(gamepads)
-        }
+    fun update(gamepads: Pair<Gamepad, Gamepad>) {
+        if (!isBusy) driveFieldCentric(gamepads)
         super.update()
     }
 
     /**
      * Updates powers to field centric values based on gamepad input, imu angle, and [state].
      */
-    private fun driveFieldCentric(gamepads: Pair<GamepadExt, GamepadExt>) {
+    private fun driveFieldCentric(gamepads: Pair<Gamepad, Gamepad>) {
         val y = -gamepads.first.left_stick_y.toDouble()
         val x = gamepads.first.left_stick_x * 1.1
         val turn = gamepads.first.right_stick_x.toDouble()

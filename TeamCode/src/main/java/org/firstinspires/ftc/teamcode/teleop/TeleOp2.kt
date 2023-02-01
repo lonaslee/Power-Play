@@ -4,45 +4,46 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.subsystems.*
+import kotlin.system.measureNanoTime
 
 @TeleOp(group = "test")
 class TeleOp2 : LinearOpMode() {
     private lateinit var claw: Claw
-    private lateinit var arm: Arm3
+    private lateinit var arm: Arm4
     private lateinit var drive: DriveExt
-    private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
+
+    private val lastGamepad1 = Gamepad()
+    private val lastGamepad2 = Gamepad()
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
-        gamepads = GamepadExt(gamepad1) to GamepadExt(gamepad2)
-        arm = Arm3(hardwareMap, tm)
+        arm = Arm4(hardwareMap, tm)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
 
-        val gp1 = gamepads.first
-        val gp2 = gamepads.second
+        waitForStart()
+        while (opModeIsActive()) tm.addData("hz", 1 / measureNanoTime {
+            arm.state = when {
+                gamepad1.dpad_up && !lastGamepad1.dpad_up     -> AnglePresets.next(arm.state)
+                gamepad1.dpad_down && !lastGamepad1.dpad_down -> AnglePresets.prev(arm.state)
+                gamepad1.a && !lastGamepad1.a                 -> AnglePresets.GROUND
+                gamepad1.x && !lastGamepad1.x                 -> AnglePresets.MID
+                gamepad1.y && !lastGamepad1.y                 -> AnglePresets.HIGH
+                gamepad1.b && !lastGamepad1.b                 -> AnglePresets.BACKHIGH
+                else                                          -> arm.state
+            }
 
-        EventLoop(::opModeIsActive, tm).apply {
-            onPressed(gp1::dpad_up) { arm.state = Arm.next(arm.state) }
-            onPressed(gp1::dpad_down) { arm.state = Arm.prev(arm.state) }
+            if (gamepad1.left_bumper && !lastGamepad1.left_bumper) claw.change()
 
-            onPressed(gp1::right_bumper) { arm.state = Arm.STACK }
-            onPressed(gp1::a, gp2::a) { arm.state = Arm.GROUND }
-            onPressed(gp1::x, gp2::x) { arm.state = Arm.MID }
-            onPressed(gp1::y, gp2::y) { arm.state = Arm.HIGH }
-            onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
+            drive.update(gamepad1 to gamepad2)
+            arm.update()
 
-            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
-
-            updates += listOf({ drive.update(gamepads) },
-                { arm.update() },
-                { tm.update(); Unit },
-                { gamepads.sync() })
-        }.also {
-            waitForStart()
-            it.run()
-        }
+            lastGamepad1.copy(gamepad1)
+            lastGamepad2.copy(gamepad2)
+            tm.update()
+        } / 1e9)
     }
 }

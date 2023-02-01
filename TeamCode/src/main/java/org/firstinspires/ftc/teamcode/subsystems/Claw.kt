@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 
 @com.acmerobotics.dashboard.config.Config
-class Claw(
+open class Claw(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null
 ) : Subsystem {
     private val servo = (hardwareMap.get(RobotConfig.CLAW.s) as ServoImplEx).apply {
