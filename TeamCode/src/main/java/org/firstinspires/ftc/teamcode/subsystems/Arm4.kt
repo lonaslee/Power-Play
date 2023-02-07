@@ -1,109 +1,118 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.acmerobotics.roadrunner.profile.MotionProfileGenerator.generateMotionProfile
+import com.acmerobotics.roadrunner.profile.AccelerationConstraint
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator
 import com.acmerobotics.roadrunner.profile.MotionState
+import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.PIDController
-import java.lang.Math.toRadians
-import java.util.LinkedList
-import kotlin.math.abs
+import org.firstinspires.ftc.teamcode.subsystems.Arm.States.TICKS_IN_DEGREES
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
-open class Arm4(hardwareMap: HardwareMap, private val telemetry: Telemetry? = null) : Subsystem {
-    private val topMotor = hardwareMap[RobotConfig.TOP_LIFT.s] as DcMotorEx
-    private val lowMotor = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
-    private val motors = listOf(topMotor, lowMotor).onEach {
-        it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        it.direction = DcMotorSimple.Direction.REVERSE
+open class Arm4(
+    hardwareMap: HardwareMap, private val telemetry: Telemetry? = null,
+) : Subsystem {
+    private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
+    private val top = hardwareMap[RobotConfig.TOP_LIFT.s] as DcMotorEx
+    private val motors = listOf(low, top).onEach {
         it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        it.direction = DcMotorSimple.Direction.REVERSE
     }
 
-    private val voltageSensor = hardwareMap.voltageSensor.iterator().next()!!
-    private var voltage = voltageSensor.voltage
+    private val control = PIDController(kP, kI, kD)
 
-    private val stack = LinkedList<Int>().apply {
-        addAll(
-            listOf(
-                AnglePresets.i5,
-                AnglePresets.j4,
-                AnglePresets.k3,
-                AnglePresets.l2,
-                AnglePresets.GROUND
-            )
-        )
+    companion object {
+        @JvmField var kCos = 0.15
+        @JvmField var kP = 0.015
+        @JvmField var kI = 0.0
+        @JvmField var kD = 0.0
+
+        @JvmField var mA = 600.0
+        @JvmField var dA = 400.0
+        @JvmField var mV = 800.0
+
+        @JvmField var PERCENT = 0.7
+        @JvmField var MULTIPLIER = 600
     }
 
-    override var state: Int = AnglePresets.GROUND
+    private var curState = MotionState(Arm.GROUND.toDouble(), 0.0, 0.0)
+    private var profile =
+        MotionProfileGenerator.generateMotionProfile(curState, curState, { mV }, { mA })
+
+    private val timer = ElapsedTime()
+
+    private var goingDown = false
+    private var stackHeight = Arm.STACK
+    override var state = Arm.GROUND
         set(value) {
-            if (field == value) return
-            // if (inMotion() return
+            if (state == value) return
+//            if (inMotion()) return
+
+            goingDown = state > value
+
+            if (goingDown && value == Arm.STACK && stackHeight > Arm.GROUND + 40) stackHeight -= 20
 
             timer.reset()
-            voltage = voltageSensor.voltage
 
-            val setpoint = if (value == AnglePresets.STACK) {
-                stack.pollFirst() ?: value
-            } else value
+            val (start, goal) = (curState.stationary() to MotionState(
+                (if (value != Arm.STACK) value else stackHeight).toDouble(), 0.0, 0.0
+            )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
 
-            val startPos = motionState.x
-            val distance = abs(startPos - setpoint)
+            profile = MotionProfileGenerator.generateMotionProfile(
+                start,
+                goal,
+                { mV },
+                if (value == Arm.GROUND || value == Arm.HIGH || value == Arm.BACKHIGH) {
+                    object : AccelerationConstraint {
+                        val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
+                        val totalDistance = ((goal.x + positiveOffset) - (start.x + positiveOffset))
 
-            motionProfile = generateMotionProfile(motionState,
-                MotionState(setpoint.toDouble(), 0.0, 0.0),
-                { eV },
-                { s -> (1 - (abs(startPos - s) / distance)).let { fA * if (it > 0.2) 1.0 else it / 0.2 } })
+                        override fun get(s: Double) =
+                            ((s + positiveOffset) / totalDistance).let { percent ->
+                                if (percent < PERCENT) mA else MULTIPLIER * ((1 - percent) / 0.3)
+                            }
+                    }.also { println("TRUE") }
+                } else {
+                    println("FALSE")
+                    AccelerationConstraint { (if (goingDown) dA else mA).also { print("#") } }
+                },
+            ).let { if (goingDown) it.flipped() else it }
 
             field = value
         }
 
-    fun inMotion() = timer.time() < motionProfile.duration()
+    fun inMotion() = timer.time() < profile.duration()
 
-    private val controller = PIDController(aP, bI, cD)
-    private val timer = ElapsedTime(ElapsedTime.Resolution.MILLISECONDS)
-    private var motionState = MotionState(AnglePresets.GROUND.toDouble(), 0.0, 0.0)
-    private var motionProfile = generateMotionProfile(motionState, motionState, { eV }, { fA })
-
-    fun update() {
-        controller.constants = Triple(aP, bI, cD)
-        val encoderPosition = topMotor.currentPosition
-        val angle = encoderPosition / gTICKS_IN_DEGREES + hANGDISP
-
-        motionState = motionProfile[timer.time()]
-
-        val pid = controller.calculate(motionState.x, angle)
-        val ff = dCos * cos(toRadians(angle))
-
-        val power = (pid + ff) * 12 / voltage
-        motors.forEach { it.power = power }
-
-        telemetry?.addData("encoderPos", encoderPosition)
-        telemetry?.addData("_angle", angle)
-        telemetry?.addData("_target", motionState.x)
-        telemetry?.addData("state", state)
-        telemetry?.addData("power", power)
+    fun resetEncoders() = motors.forEach {
+        it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
-    companion object {
-        @JvmField var aP = 0.0001
-        @JvmField var bI = 0.0
-        @JvmField var cD = 0.0
-        @JvmField var dCos = 0.01
+    fun update() {
+        control.setPID(kP, kI, kD)
 
-        @JvmField var eV = 600.0
-        @JvmField var fA = 600.0
+        val curPos = low.currentPosition - 170.0
+        curState = profile[timer.time()]
 
-        /** angle / ticks */
-        @JvmField var gTICKS_IN_DEGREES = 90 / 220.0
+        val pow = control.calculate(
+            curPos, curState.x
+        ) + kCos * cos(Math.toRadians(state / TICKS_IN_DEGREES))
 
-        /** difference from ground to 0, in degrees */
-        @JvmField var hANGDISP = 70.0
+        motors.forEach { it.power = pow }
 
+        telemetry?.addData("stack", stackHeight)
+
+        telemetry?.addData("_currentPos", curPos)
+        telemetry?.addData("_targetPos", curState.x)
+        telemetry?.addLine("${profile.duration()} - ${timer.time()}")
+        telemetry?.addData("angle", curPos / TICKS_IN_DEGREES)
+        telemetry?.addData("pow", pow)
     }
 }

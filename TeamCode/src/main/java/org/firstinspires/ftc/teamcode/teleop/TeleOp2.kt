@@ -14,9 +14,6 @@ class TeleOp2 : LinearOpMode() {
     private lateinit var arm: Arm4
     private lateinit var drive: DriveExt
 
-    private val lastGamepad1 = Gamepad()
-    private val lastGamepad2 = Gamepad()
-
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun runOpMode() {
@@ -24,26 +21,27 @@ class TeleOp2 : LinearOpMode() {
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
 
-        waitForStart()
-        while (opModeIsActive()) tm.addData("hz", 1 / measureNanoTime {
-            arm.state = when {
-                gamepad1.dpad_up && !lastGamepad1.dpad_up     -> AnglePresets.next(arm.state)
-                gamepad1.dpad_down && !lastGamepad1.dpad_down -> AnglePresets.prev(arm.state)
-                gamepad1.a && !lastGamepad1.a                 -> AnglePresets.GROUND
-                gamepad1.x && !lastGamepad1.x                 -> AnglePresets.MID
-                gamepad1.y && !lastGamepad1.y                 -> AnglePresets.HIGH
-                gamepad1.b && !lastGamepad1.b                 -> AnglePresets.BACKHIGH
-                else                                          -> arm.state
-            }
+        val gp1 = GamepadExt(gamepad1)
+        val gp2 = GamepadExt(gamepad2)
+        val gamepads = gp1 to gp2
 
-            if (gamepad1.left_bumper && !lastGamepad1.left_bumper) claw.change()
+        EventLoop(::opModeIsActive).apply {
+            updates += listOf({ arm.update() },
+                { drive.update(gamepads) },
+                { gamepads.sync() },
+                { tm.update() })
 
-            drive.update(gamepad1 to gamepad2)
-            arm.update()
+            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
 
-            lastGamepad1.copy(gamepad1)
-            lastGamepad2.copy(gamepad2)
-            tm.update()
-        } / 1e9)
+            onPressed(gp1::dpad_up, gp2::dpad_up) { arm.state = Arm.next(arm.state) }
+            onPressed(gp1::dpad_down, gp2::dpad_down) { arm.state = Arm.prev(arm.state) }
+            onPressed(gp1::a, gp2::a) { arm.state = Arm.GROUND }
+            onPressed(gp1::x, gp2::x) { arm.state = Arm.MID }
+            onPressed(gp1::y, gp2::y) { arm.state = Arm.HIGH }
+            onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
+        }.also {
+            waitForStart()
+            it.run()
+        }
     }
 }

@@ -44,7 +44,8 @@ public class Test extends LinearOpMode {
 
     private MotionState motionState = new MotionState(AnglePresets.aGROUND, 0, 0);
     private MotionProfile motionProfile =
-            MotionProfileGenerator.generateSimpleMotionProfile(motionState, motionState, 0, 0);
+            MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(AnglePresets.aGROUND, 0, 0),
+                    new MotionState(AnglePresets.aGROUND, 0, 0), 0, 0);
 
     private final ElapsedTime timer = new ElapsedTime();
     private final PIDController controller = new PIDController(aP, bI, cD);
@@ -56,6 +57,7 @@ public class Test extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        System.out.println("hardwareMap = " + hardwareMap);
         drive = new SampleMecanumDrive(hardwareMap);
         claw = hardwareMap.servo.get(RobotConfig.CLAW.s);
         motors = List.of(hardwareMap.dcMotor.get(RobotConfig.TOP_LIFT.s),
@@ -67,6 +69,7 @@ public class Test extends LinearOpMode {
             it.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             it.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         });
+        System.out.println("WFS");
 
         waitForStart();
         while (opModeIsActive()) tm.addData("hz", measureNanoTime(() -> {

@@ -36,7 +36,7 @@ class Arm3(
 
         @JvmField var mA = 600.0
         @JvmField var dA = 400.0
-        @JvmField var mV = 800.0
+        @JvmField var mV = 1000.0
 
         @JvmField var PERCENT = 0.7
         @JvmField var MULTIPLIER = 600
@@ -53,7 +53,7 @@ class Arm3(
     override var state = Arm.GROUND
         set(value) {
             if (state == value) return
-            if (inMotion()) return
+//            if (inMotion()) return
 
             goingDown = state > value
 
@@ -61,27 +61,18 @@ class Arm3(
 
             timer.reset()
 
-            val (start, goal) = (curState to MotionState(
+            val (start, goal) = (curState.stationary() to MotionState(
                 (if (value != Arm.STACK) value else stackHeight).toDouble(), 0.0, 0.0
             )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
 
-            println("VALUE : $value; BOOL : ${value in listOf(Arm.GROUND, Arm.HIGH, Arm.BACKHIGH)}")
             profile = MotionProfileGenerator.generateMotionProfile(
                 start,
                 goal,
                 { mV },
                 if (value == Arm.GROUND || value == Arm.HIGH || value == Arm.BACKHIGH) {
-                    object : AccelerationConstraint {
-                        val positiveOffset = if (start.x < 0) -1 * start.x else 0.0
-                        val totalDistance = ((goal.x + positiveOffset) - (start.x + positiveOffset))
-
-                        override fun get(s: Double) =
-                            ((s + positiveOffset) / totalDistance).let { percent ->
-                                if (percent < PERCENT) mA else MULTIPLIER * ((1 - percent) / 0.3)
-                            }.also { print(".") }
-                    }.also { println("TRUE") }
+                    AccelerationConstraint { dA }
                 } else {
-                    AccelerationConstraint { (if (goingDown) dA else mA).also { print("#") } }
+                    AccelerationConstraint { (if (goingDown) dA else mA) }
                 },
             ).let { if (goingDown) it.flipped() else it }
 
@@ -111,6 +102,7 @@ class Arm3(
 
         telemetry?.addData("_currentPos", curPos)
         telemetry?.addData("_targetPos", curState.x)
+        telemetry?.addLine("${profile.duration()} - ${timer.time()}")
         telemetry?.addData("angle", curPos / TICKS_IN_DEGREES)
         telemetry?.addData("pow", pow)
     }
