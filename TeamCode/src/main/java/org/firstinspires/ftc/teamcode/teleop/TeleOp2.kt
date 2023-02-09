@@ -3,13 +3,12 @@ package org.firstinspires.ftc.teamcode.teleop
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.PIDController
 import org.firstinspires.ftc.teamcode.subsystems.*
+import org.firstinspires.ftc.teamcode.subsystems.DriveExt.OdoRetract
 import org.firstinspires.ftc.teamcode.vision.*
-import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
 @TeleOp(group = "test")
@@ -18,7 +17,6 @@ class TeleOp2 : LinearOpMode() {
     private lateinit var claw: Claw
     private lateinit var arm: Arm3
     private lateinit var drive: DriveExt
-    private lateinit var odoRetract: OdoRetract
     private lateinit var gamepads: Pair<GamepadExt, GamepadExt>
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
@@ -33,7 +31,6 @@ class TeleOp2 : LinearOpMode() {
         arm = Arm3(hardwareMap, tm)
         claw = Claw(hardwareMap)
         drive = DriveExt(hardwareMap)
-        odoRetract = OdoRetract(hardwareMap, tm)
 
         backWebcam = createWebcam(
             hardwareMap, RobotConfig.WEBCAM_2, pipeline = poleDetector,
@@ -57,8 +54,8 @@ class TeleOp2 : LinearOpMode() {
             onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
 
             onPressed(gp1::dpad_right) {
-                odoRetract.state =
-                    if (odoRetract.state == OdoRetract.DOWN) OdoRetract.RETRACTED else OdoRetract.DOWN
+                drive.midodo.state =
+                    if (drive.midodo.state == OdoRetract.DOWN) OdoRetract.RETRACTED else OdoRetract.DOWN
             }
 
             /* sprint mode */
@@ -116,7 +113,7 @@ class TeleOp2 : LinearOpMode() {
 
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },
-                { tm.addData("retract", odoRetract.state) },
+                { tm.addData("retract", drive.midodo.state) },
                 { tm.update(); Unit },
                 {
                     if (drive.state != DriveExt.SPRINTING) {

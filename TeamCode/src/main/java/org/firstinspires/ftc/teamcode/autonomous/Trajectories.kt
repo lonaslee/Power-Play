@@ -4,15 +4,14 @@ import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.acmerobotics.roadrunner.geometry.Vector2d
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.subsystems.AnglePresets
-import org.firstinspires.ftc.teamcode.subsystems.Arm4
+import org.firstinspires.ftc.teamcode.subsystems.Arm
+import org.firstinspires.ftc.teamcode.subsystems.Arm3
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import java.lang.Math.toRadians
 
 object Trajectories {
-    @SuppressWarnings("")
-    fun generateLeft(drive: SampleMecanumDrive, arm: Arm4, claw: Claw) =
+    fun generateLeft(drive: SampleMecanumDrive, arm: Arm3, claw: Claw) =
         LeftCycle(drive, arm, claw).let {
             Triple(
                 it.new().splineToSplineHeading(
@@ -23,77 +22,77 @@ object Trajectories {
             )
         }
 
-    private class LeftCycle(val drive: SampleMecanumDrive, val arm: Arm4, val claw: Claw) {
+    private class LeftCycle(val drive: SampleMecanumDrive, val arm: Arm3, val claw: Claw) {
         fun new() = drive.trajectorySequenceBuilder(Pose2d(-31.0, -61.0, (-90).rad))
             .setReversed(true)
-            .UNSTABLE_addTemporalMarkerOffset(1.0) { arm.state = AnglePresets.BACKHIGH }
+            .UNSTABLE_addTemporalMarkerOffset(1.0) { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-36, 0), 80.rad)
             .setReversed(false)
             .splineToLinearHeading(Pose2d(-28.0, -5.0, (-135).rad), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
-            .addTemporalMarker { arm.state = AnglePresets.STACK }
+            .addTemporalMarker { arm.state = Arm.STACK }
             .splineTo(Vector2d(-58, -12), 180.rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(1.0)
 
             .setReversed(true)
-            .addTemporalMarker { arm.state = AnglePresets.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-28, -5), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
             .setReversed(false)
-            .addTemporalMarker { arm.state = AnglePresets.STACK }
+            .addTemporalMarker { arm.state = Arm.STACK }
             .splineTo(Vector2d(-58, -12), 180.rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(1.0)
 
             .setReversed(true)
-            .addTemporalMarker { arm.state = AnglePresets.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-28, -5), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
             .setReversed(false)
-            .addTemporalMarker { arm.state = AnglePresets.STACK }
+            .addTemporalMarker { arm.state = Arm.STACK }
             .splineTo(Vector2d(-58, -12), 180.rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(1.0)
 
             .setReversed(true)
-            .addTemporalMarker { arm.state = AnglePresets.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-28, -5), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
             .setReversed(false)
-            .addTemporalMarker { arm.state = AnglePresets.STACK }
+            .addTemporalMarker { arm.state = Arm.STACK }
             .splineTo(Vector2d(-58, -12), 180.rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(1.0)
 
             .setReversed(true)
-            .addTemporalMarker { arm.state = AnglePresets.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-28, -5), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
             .setReversed(false)
-            .addTemporalMarker { arm.state = AnglePresets.STACK }
+            .addTemporalMarker { arm.state = Arm.STACK }
             .splineTo(Vector2d(-58, -12), 180.rad)
             .addTemporalMarker { claw.state = Claw.CLOSED }
             .waitSeconds(1.0)
 
             .setReversed(true)
-            .addTemporalMarker { arm.state = AnglePresets.BACKHIGH }
+            .addTemporalMarker { arm.state = Arm.BACKHIGH }
             .splineTo(Vector2d(-28, -5), 45.rad)
             .addTemporalMarker { claw.state = Claw.OPENED }
             .waitSeconds(1.0)
 
             .setReversed(false)
-            .addTemporalMarker { arm.state = AnglePresets.GROUND }!!
+            .addTemporalMarker { arm.state = Arm.GROUND }!!
     }
 
     fun Triple<TrajectorySequence, TrajectorySequence, TrajectorySequence>.byTag(tag: SignalSleevePipeline.Tag) =

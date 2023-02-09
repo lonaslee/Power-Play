@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm.States.TICKS_IN_DEGREES
 import kotlin.math.cos
 
 @com.acmerobotics.dashboard.config.Config
-class Arm3(
+open class Arm3(
     hardwareMap: HardwareMap, private val telemetry: Telemetry? = null,
 ) : Subsystem {
     private val low = hardwareMap[RobotConfig.LOW_LIFT.s] as DcMotorEx
@@ -37,9 +37,6 @@ class Arm3(
         @JvmField var mA = 600.0
         @JvmField var dA = 400.0
         @JvmField var mV = 1000.0
-
-        @JvmField var PERCENT = 0.7
-        @JvmField var MULTIPLIER = 600
     }
 
     private var curState = MotionState(Arm.GROUND.toDouble(), 0.0, 0.0)
@@ -52,8 +49,7 @@ class Arm3(
     private var stackHeight = Arm.STACK
     override var state = Arm.GROUND
         set(value) {
-            if (state == value) return
-//            if (inMotion()) return
+            if (state == value || inMotion()) return
 
             goingDown = state > value
 
@@ -61,30 +57,21 @@ class Arm3(
 
             timer.reset()
 
-            val (start, goal) = (curState.stationary() to MotionState(
-                (if (value != Arm.STACK) value else stackHeight).toDouble(), 0.0, 0.0
-            )).let { if (goingDown) it.first.flipped() to it.second.flipped() else it }
-
             profile = MotionProfileGenerator.generateMotionProfile(
-                start,
-                goal,
+                curState.stationary(),
+                MotionState((if (value != Arm.STACK) value else stackHeight).toDouble(), 0.0, 0.0),
                 { mV },
                 if (value == Arm.GROUND || value == Arm.HIGH || value == Arm.BACKHIGH) {
-                    AccelerationConstraint { dA }
+                    { dA }
                 } else {
-                    AccelerationConstraint { (if (goingDown) dA else mA) }
+                    { (if (goingDown) dA else mA) }
                 },
-            ).let { if (goingDown) it.flipped() else it }
+            )
 
             field = value
         }
 
     fun inMotion() = timer.time() < profile.duration()
-
-    fun resetEncoders() = motors.forEach {
-        it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-    }
 
     fun update() {
         control.setPID(kP, kI, kD)

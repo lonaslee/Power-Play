@@ -2,23 +2,16 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.teleop.GamepadExt
 import kotlin.math.*
 
 class DriveExt(
     hardwareMap: HardwareMap,
     private val telemetry: Telemetry? = null,
 ) : SampleMecanumDrive(hardwareMap), Subsystem {
-    companion object States : Subsystem.States {
-        const val SPRINTING = 1.0
-        const val NORMAL = 0.7
-        const val SLOW = 0.5
-
-        override val all = listOf(SLOW, NORMAL, SPRINTING)
-    }
-
     override var state = NORMAL
 
     fun update(gamepads: Pair<Gamepad, Gamepad>) {
@@ -53,5 +46,36 @@ class DriveExt(
     fun exitTrajectory() {
         trajectorySequenceRunner.currentTrajectorySequence = null
         trajectorySequenceRunner.remainingMarkers.clear()
+    }
+
+    class OdoRetract(hardwareMap: HardwareMap) : Subsystem {
+        private val servo = (hardwareMap[RobotConfig.RETRACTOR.s] as ServoImplEx).apply {
+            direction = Servo.Direction.FORWARD
+            position = DOWN
+        }
+
+        override var state = DOWN
+            set(value) {
+                if (field == value) return
+                field = value
+                servo.position = value
+            }
+
+        companion object : Subsystem.States {
+            const val RETRACTED = 0.72
+            const val DOWN = 0.45
+
+            override val all = listOf(RETRACTED, DOWN)
+        }
+    }
+
+    val midodo = OdoRetract(hardwareMap)
+
+    companion object States : Subsystem.States {
+        const val SPRINTING = 1.0
+        const val NORMAL = 0.7
+        const val SLOW = 0.5
+
+        override val all = listOf(SLOW, NORMAL, SPRINTING)
     }
 }

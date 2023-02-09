@@ -4,10 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.teamcode.autonomous.Trajectories
 import org.firstinspires.ftc.teamcode.autonomous.Trajectories.byTag
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
-import org.firstinspires.ftc.teamcode.subsystems.Arm4
+import org.firstinspires.ftc.teamcode.subsystems.Arm3
 import org.firstinspires.ftc.teamcode.subsystems.Claw
 import org.firstinspires.ftc.teamcode.subsystems.RobotConfig
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
@@ -28,7 +27,7 @@ class AutoLeft : LinearOpMode() {
         )
 
         val drive = SampleMecanumDrive(hardwareMap)
-        val arm = object : Arm4(hardwareMap, tm) {
+        val arm = object : Arm3(hardwareMap, tm) {
             override var state: Int
                 get() = super.state
                 set(_) {}
