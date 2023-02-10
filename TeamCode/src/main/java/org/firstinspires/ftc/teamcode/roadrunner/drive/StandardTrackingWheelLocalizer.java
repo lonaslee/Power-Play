@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive;
 
-import android.net.http.X509TrustManagerExtensions;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -37,8 +35,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double LATERAL_DISTANCE = 12.5; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = -2; // in; offset of the lateral wheel
 
-    public static double X_MULTIPLIER = 1;
-    public static double Y_MULTIPLIER = 1;
+    public static double X_MULTIPLIER = 0.9956666666666666;
+    public static double Y_MULTIPLIER = 0.9814444444444444;
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
