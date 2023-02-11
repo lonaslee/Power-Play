@@ -27,7 +27,7 @@ open class Arm(
 
     companion object States : Subsystem.States {
         const val GROUND = -170
-        @JvmField var STACK = -70
+        @JvmField var STACK = -60
         const val LOW = 10
         const val MID = 100
         const val HIGH = 210
@@ -68,7 +68,7 @@ open class Arm(
             if (state == value) return
 
             goingDown = state > value
-            if (goingDown && value == STACK) stackHeight -= 20
+            if (goingDown && value == STACK) stackHeight -= 15
 
             if (value == LOWER) field += if (field < HIGH) -LOWINC else LOWINC
             else field = value

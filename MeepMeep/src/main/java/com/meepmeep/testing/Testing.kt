@@ -27,6 +27,7 @@ val drive2 = bot2.drive
 fun main() {
     bot.followTrajectorySequence(drive.trajectorySequenceBuilder(Pose2d(-31.0, -61.0, (-90).rad))
         .setReversed(true)
+        .splineTo(Vector2d(-36, 0), 90.rad)
         .UNSTABLE_addTemporalMarkerOffset(1.0) { /* raise arm */ }
         .splineTo(Vector2d(-36, 0), 80.rad)
         .setReversed(false)

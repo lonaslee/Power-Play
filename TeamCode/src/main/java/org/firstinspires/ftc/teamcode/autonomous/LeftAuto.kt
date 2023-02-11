@@ -4,10 +4,11 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.*
-import org.firstinspires.ftc.teamcode.teleop.EventLoop
-import org.firstinspires.ftc.teamcode.vision.ColorShapeDetectionPipeline
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.vision.SignalSleevePipeline
 import org.firstinspires.ftc.teamcode.vision.createWebcam
 
@@ -19,7 +20,7 @@ class LeftAuto : LinearOpMode() {
     private lateinit var trajs: LeftTrajectory
 
     private val tm = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-    private val pipeline: SignalSleevePipeline = ColorShapeDetectionPipeline(tm)
+    private val pipeline: SignalSleevePipeline = AprilTagPipeline(tm)
 
     override fun runOpMode() {
         arm = Arm3(hardwareMap, tm)
@@ -28,20 +29,15 @@ class LeftAuto : LinearOpMode() {
         trajs = LeftTrajectory(drive, arm, claw)
 
         val camera = createWebcam(hardwareMap, RobotConfig.WEBCAM_2, pipeline)
+        waitForStart()
+        if (isStopRequested) return
+        camera.closeCameraDeviceAsync {}
 
-        EventLoop(::opModeIsActive, tm).apply {
-            updates += listOf(arm::update, drive::update, { tm.update(); Unit })
-        }.also {
-            waitForStart()
-            if (isStopRequested) return
-            camera.closeCameraDeviceAsync {}
-
-            drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict.also { tag ->
-                println(
-                    tag.name
-                )
-            }))
-            it.run()
+        drive.followTrajectorySequenceAsync(trajs.byTag(pipeline.verdict))
+        while (opModeIsActive()) {
+            arm.update()
+            drive.update()
+            tm.update()
         }
     }
 }

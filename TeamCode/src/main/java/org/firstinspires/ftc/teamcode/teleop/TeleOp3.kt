@@ -104,7 +104,6 @@ class TeleOp3 : LinearOpMode() {
             }
             runIf({ cycling }) { if (!drive.isBusy) cycling = false }
 
-
             updates += listOf({ drive.update(gamepads) },
                 { arm.update() },
                 { tm.update(); Unit },

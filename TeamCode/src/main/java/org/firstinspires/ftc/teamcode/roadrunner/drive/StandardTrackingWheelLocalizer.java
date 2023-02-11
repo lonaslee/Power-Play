@@ -53,7 +53,6 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         // _TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         leftEncoder.setDirection(Encoder.Direction.REVERSE);
         rightEncoder.setDirection(Encoder.Direction.REVERSE);
-        frontEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {
@@ -63,7 +62,13 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     @NonNull
     @Override
     public List<Double> getWheelPositions() {
-        return Arrays.asList(encoderTicksToInches(leftEncoder.getCurrentPosition()) * X_MULTIPLIER, encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER, encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER);
+        var ret = Arrays.asList(encoderTicksToInches(leftEncoder.getCurrentPosition()) * X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER,
+                encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER);
+        System.out.println("left = " + ret.get(0));
+        System.out.println("right = " + ret.get(1));
+        System.out.println("middle = " + ret.get(2));
+        return ret;
     }
 
     @NonNull
@@ -73,6 +78,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a
         //  compensation method
 
-        return Arrays.asList(encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULTIPLIER, encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER, encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER);
+        return Arrays.asList(encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER);
     }
 }

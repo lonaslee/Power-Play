@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive
 import kotlin.math.*
 
+@Config
 class DriveExt(
     hardwareMap: HardwareMap,
     private val telemetry: Telemetry? = null,
@@ -48,6 +50,7 @@ class DriveExt(
         trajectorySequenceRunner.remainingMarkers.clear()
     }
 
+    @Config
     class OdoRetract(hardwareMap: HardwareMap) : Subsystem {
         private val servo = (hardwareMap[RobotConfig.RETRACTOR.s] as ServoImplEx).apply {
             direction = Servo.Direction.FORWARD
@@ -62,8 +65,8 @@ class DriveExt(
             }
 
         companion object : Subsystem.States {
-            const val RETRACTED = 0.72
-            const val DOWN = 0.45
+            @JvmField var RETRACTED = 0.3
+            @JvmField var DOWN = 0.3
 
             override val all = listOf(RETRACTED, DOWN)
         }
