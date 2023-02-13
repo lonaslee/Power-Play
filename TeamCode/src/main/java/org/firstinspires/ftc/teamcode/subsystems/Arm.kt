@@ -28,8 +28,8 @@ open class Arm(
     companion object States : Subsystem.States {
         const val GROUND = -170
         @JvmField var STACK = -60
-        const val LOW = 10
-        const val MID = 100
+        const val LOW = 20
+        const val MID = 130
         const val HIGH = 210
         @JvmField var BACKHIGH = 280
         const val BACKMID = 365
@@ -59,7 +59,6 @@ open class Arm(
 
         const val TICKS_IN_DEGREES = 220 / 90.0
     }
-
 
     private var goingDown = false
     private var stackHeight = STACK

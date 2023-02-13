@@ -35,7 +35,7 @@ open class Arm3(
         @JvmField var kD = 0.0
 
         @JvmField var mA = 600.0
-        @JvmField var dA = 400.0
+        @JvmField var dA = 250.0
         @JvmField var mV = 1000.0
     }
 

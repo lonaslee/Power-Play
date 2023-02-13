@@ -37,11 +37,11 @@ class TeleOp2 : LinearOpMode() {
             onPressed(gp1::y, gp2::y) { arm.state = Arm.HIGH }
             onPressed(gp1::b, gp2::b) { arm.state = Arm.BACKHIGH }
 
-            onPressed(gp1::left_bumper, gp2::left_bumper) { claw.change() }
+            onPressed(gp2::left_bumper) { claw.change() }
 
             /* sprint mode */
-            onMoved(gp1::left_trigger) { drive.state = DriveExt.SPRINTING }
-            onReturned(gp1::left_trigger) { drive.state = DriveExt.NORMAL }
+            onPressed(gp1::left_bumper) { drive.state = DriveExt.SPRINTING }
+            onReleased(gp1::left_bumper) { drive.state = DriveExt.NORMAL }
 
             updates += listOf(
                 { drive.update(gamepads) },

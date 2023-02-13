@@ -25,84 +25,48 @@ val bot2 = DefaultBotBuilder(meepmeep).setConstraints(
 val drive2 = bot2.drive
 
 fun main() {
-    bot.followTrajectorySequence(drive.trajectorySequenceBuilder(Pose2d(-31.0, -61.0, (-90).rad))
-        .setReversed(true)
-        .splineTo(Vector2d(-36, 0), 90.rad)
-        .UNSTABLE_addTemporalMarkerOffset(1.0) { /* raise arm */ }
-        .splineTo(Vector2d(-36, 0), 80.rad)
-        .setReversed(false)
-        .splineToLinearHeading(Pose2d(-28, -5, -135), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
+    var aX = -28.0
+    var aY = -8.0
+    var aH = 48
+    var bX = -54.5
+    var bY = -15.0
+    var bH = 180
+    var t = 0.2
+    var d = 0.1
+    var pickWait = 0.3
+    var raiseWait = 0.3
+    var dropWait = 0.3
+    var w = 0.2
+    var acc = 30.0
+    var abb = 25.0
 
-        .addTemporalMarker { /* lower arm */ }
-        .splineTo(Vector2d(-58, -12), 180.rad)
-        .addTemporalMarker { /* close claw */ }
-        .waitSeconds(1.0)
+    val dropVec = Vector2d(aX, aY)
+    val pickVec = Vector2d(bX, bY)
 
-        .setReversed(true)
-        .addTemporalMarker { /* raise arm */ }
-        .splineTo(Vector2d(-28, -5), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(false)
-        .addTemporalMarker { /* lower arm */ }
-        .splineTo(Vector2d(-58, -12), 180.rad)
-        .addTemporalMarker { /* close claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(true)
-        .addTemporalMarker { /* raise arm */ }
-        .splineTo(Vector2d(-28, -5), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(false)
-        .addTemporalMarker { /* lower arm */ }
-        .splineTo(Vector2d(-58, -12), 180.rad)
-        .addTemporalMarker { /* close claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(true)
-        .addTemporalMarker { /* raise arm */ }
-        .splineTo(Vector2d(-28, -5), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(false)
-        .addTemporalMarker { /* lower arm */ }
-        .splineTo(Vector2d(-58, -12), 180.rad)
-        .addTemporalMarker { /* close claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(true)
-        .addTemporalMarker { /* raise arm */ }
-        .splineTo(Vector2d(-28, -5), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(false)
-        .addTemporalMarker { /* lower arm */ }
-        .splineTo(Vector2d(-58, -12), 180.rad)
-        .addTemporalMarker { /* close claw */ }
-        .waitSeconds(1.0)
-
-        .setReversed(true)
-        .addTemporalMarker { /* raise arm */ }
-        .splineTo(Vector2d(-28, -5), 45.rad)
-        .addTemporalMarker { /* open claw */ }
-        .waitSeconds(1.0)
+    val startPose = Pose2d(-31.0, -61.0, (-90).rad)
 
 
-        .setReversed(false)
-        // park
+    fun Pose2d(x: Int, y: Int, heading: Int) = Pose2d(x.toDouble(), y.toDouble(), heading.rad)
+    fun Vector2d(x: Int, y: Int) = Vector2d(x.toDouble(), y.toDouble())
+
+    bot.followTrajectorySequence(
+        drive.trajectorySequenceBuilder(Pose2d(-31.0, -61.0, (-90).rad))
+            .setReversed(true)
+            .splineTo(Vector2d(-32.0, -9.0), 45.rad)
+            .setReversed(false)
+            .forward(5.0)
+            .turn(45.0)
+            .build()
+    )
+
+
+    // park
 //            .splineTo(Vector2d(-36, -12), 270.rad)
 //            .splineToSplineHeading(Pose2d(-12, -12, 270), 0.rad)
-        .splineToSplineHeading(Pose2d(-60, -12, 270), 180.rad)
+//            .splineToSplineHeading(Pose2d(-60, -12, 270), 180.rad)
 
-        .waitSeconds(0.5)
-        .build()!!)
+//            .waitSeconds(0.5)
+//            .build()!!)
 
 
     meepmeep.addEntity(bot).start()
